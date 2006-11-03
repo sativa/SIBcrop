@@ -79,6 +79,10 @@ character(len=4) :: dfdfd
         ! calculate solar declination
         if ( time%new_day ) call solar_dec( time )
 
+!itb_crop...calculate Ta_bar (and any other crop stuff we 
+!itb_crop...need )
+        if ( time%new_day ) call crop_accum(sib)
+
         ! read in driver data needed
         if ( time%read_driver ) then
             if ( drvr_type == 'ecmwf' ) then

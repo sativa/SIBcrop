@@ -19,6 +19,13 @@ integer k
 
 !set all diagnostic variables to 0.0;
 
+!itb_crop
+    sib%diag%tb_indx = 0
+    sib%diag%tb_temp(:) = 0.0
+    sib%diag%ta_bar = 0.0
+    sib%diag%gdd    = 0.0
+
+
 	sib%diag%eastar = 0.0
 	sib%diag%rha = 0.0
 	sib%diag%psy = 0.0

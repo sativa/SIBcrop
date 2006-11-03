@@ -67,6 +67,10 @@ integer(kind=int_kind) :: j
         sib%prog%td(j) = sib%prog%td(j) + sib_loc%dtd(j)
     enddo
 
+!itb_crop...accumulate the CAS temperature for calculating Ta_bar
+    sib%diag%tb_indx = sib%diag%tb_indx + 1
+    sib%diag%tb_temp(sib%diag%tb_indx) = sib%prog%ta
+
 
 end subroutine addinc
 
