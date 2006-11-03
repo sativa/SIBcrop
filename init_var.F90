@@ -21,7 +21,11 @@ integer k
 
 !itb_crop
     sib%diag%tb_indx = 0
-    sib%diag%tb_temp(:) = 0.0
+
+    do j=1,20000
+      sib%diag%tb_temp(j) = 0.0
+    enddo
+
     sib%diag%ta_bar = 0.0
     sib%diag%gdd    = 0.0
 

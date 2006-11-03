@@ -9,14 +9,14 @@
 LALIB     = /opt/pgi-6.1-4/linux86-64/6.1/lib
 
 # Netcdf
-NETCDFINC = /usr/local/netcdf/include
-NETCDFLIB = /usr/local/netcdf/lib
+NETCDFINC = /usr/local/pgilibs/include
+NETCDFLIB = /usr/local/pgilibs/lib
 
 
 # Includes and Links
 # -------------------------------------------------------------------------
 INCLUDES  = -I$(NETCDFINC)
-LINKS     = -L$(NETCDFLIB) -lnetcdf -L$(LALIB) -llapack -lblas -lpgmp -lpthread
+LINKS     = -L$(NETCDFLIB) -lnetcdf -lnetcdff -L$(LALIB) -llapack -lblas -lpgmp -lpthread
 #LINKS     = -L$(NETCDFLIB) -lnetcdf -L$(LALIB) -llapack -lblas -lg2c -lpthread
 
 #PROCESSOR INFO: determine your processor with the command
@@ -29,7 +29,7 @@ LINKS     = -L$(NETCDFLIB) -lnetcdf -L$(LALIB) -llapack -lblas -lpgmp -lpthread
 F90       = pgf90
 
 #flags for running on nodes 1-9 of the cluster
-#F90FLAGS  =  -Mnoframe -DPGF=1 -tp p5 -Ktrap=fp -Minfo=loop,inline -Minform=inform $(INCLUDES)
+F90FLAGS  =  -Mnoframe -DPGF=1 -tp p5 -Ktrap=fp -Minfo=loop,inline -Minform=inform $(INCLUDES)
 #flags for running on nodes 20-29 of the cluster
 #F90FLAGS  =  -Mnoframe -DPGF=1 -tp p7 -Ktrap=fp -Minfo=loop,inline -Minform=inform $(INCLUDES)
 
@@ -39,7 +39,7 @@ F90       = pgf90
 
 #Opteron 
 #F90FLAGS  = -DPGF=1 -Mnoframe -tp k8-64 -Ktrap=fp -Minfo=loop,inline -Minform=inform $(INCLUDES)
-F90FLAGS  =    -DPGF=1 -Mnoframe -tp k8-64 -Ktrap=fp -Minfo=loop,inline -Minform=inform $(INCLUDES)
+#F90FLAGS  =    -DPGF=1 -Mnoframe -tp k8-64 -Ktrap=fp -Minfo=loop,inline -Minform=inform $(INCLUDES)
 
 # Intel 8.0 compiler
 #F90       = ifort
@@ -114,6 +114,7 @@ NCDF_OBJS = handle_err.o
 DRV_OBJS  = init_grid.o \
 	    init_var.o\
 	    zenith.o \
+	    crop_accum.o \
 	    init_sibdrv.o \
             time_init.o \
             time_manager.o \
@@ -140,9 +141,9 @@ SIBMERGE_OBJS = sibmerge.o
 
 # Compilation (DO NOT EDIT BELOW THIS LINE)
 # -------------------------------------------------------------------------
-all:	SiBD3 sibmerge
+all:	SiBcrop sibmerge
 
-SiBD3: $(VAR_OBJS) $(PRE_OBJS) $(SCI_OBJS) $(NCDF_OBJS) $(DRV_OBJS)
+SiBcrop: $(VAR_OBJS) $(PRE_OBJS) $(SCI_OBJS) $(NCDF_OBJS) $(DRV_OBJS)
 	$(F90) $^  $(LNKFLAGS) -o  $@
 	@echo -e "\n"
 	@date
@@ -171,14 +172,14 @@ $(DRV_OBJS): $(VAR_OBJS) $(NCDF_OBJS)
 remake: clean all
 
 clean:
-	rm -f SiBD3 sibmerge *.o *.mod *.stb
+	rm -f SiBcrop sibmerge *.o *.mod *.stb
 
 help:
 	@echo ""
 	@echo "Supported Rules:"
-	@echo "1) [nothing], SiBD3 and sibmerge: compile sib3 model, " \
+	@echo "1) [nothing], SiBcrop and sibmerge: compile sib3 model, " \
 	"recompiling dependencies as necessary.  Then, compile sibmerge program"
-	@echo "2) SiBD3: compile sib3 model only, recompiling dependencies " \
+	@echo "2) SiBcrop: compile sib3 model only, recompiling dependencies " \
 	"as necessary."
 	@echo "3) sibmerge: compile sibmerge program"
 	@echo "4) <object name>.o: compile specific object. matches the file" \
