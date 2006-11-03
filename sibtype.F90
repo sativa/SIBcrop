@@ -407,6 +407,22 @@ end type prognostic_vars
 type diagnostic_vars
 
 
+!itb_crop...diagnostics for crop model development
+    real(kind=dbl_kind) :: ta_bar    ! daily mean CAS air temp (K)
+                                     ! used for calculating growing
+                                     ! degree days
+    real(kind=dbl_kind) :: gdd       ! growing degree days
+
+    real(kind=dbl_kind) :: tb_temp(20000) 
+                                     ! placeholder for accumulating
+                                     ! temperature for GDD
+    integer(kind=int_kind) :: tb_indx
+                                     ! index for counting up timesteps
+                                     
+
+!itb...end crop variables
+
+
     real(kind=dbl_kind) :: eastar    ! CAS saturation vapor pressure (hPa or mb)
     real(kind=dbl_kind) :: rha       ! CAS relative humidity (-)
     real(kind=dbl_kind) :: psy       ! psycrometric constant (gamma) (hPa K^-1)
