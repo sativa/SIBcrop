@@ -191,5 +191,7 @@ t 0 'radfac211  ' 185 ' radiation absorption factor 211'
 t 0 'radfac221  ' 186 ' radiation absorption factor 221'
 t 0 'radfac212  ' 187 ' radiation absorption factor 212'
 t 0 'radfac222  ' 188 ' radiation absorption factor 222'
+t 0 'ta_bar     ' 189 ' daily mean CAS temperature (K)'
+t 0 'gdd        ' 190 ' growind degree days (degree days)'
 
 

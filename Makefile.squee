@@ -29,7 +29,7 @@ LINKS     = -L$(NETCDFLIB) -lnetcdf -lnetcdff -llapack -lblas -lpgmp -lpthread
 F90       = pgf90
 
 #flags for running on nodes 1-9 of the cluster
-F90FLAGS  =  -Mnoframe -DPGF=1 -Ktrap=fp -Minfo=loop,inline -Minform=inform $(INCLUDES)
+F90FLAGS  =  -Mnoframe -DPGF=1 -Ktrap=fp   -Minfo=loop,inline -Minform=inform $(INCLUDES)
 #flags for running on nodes 20-29 of the cluster
 #F90FLAGS  =  -Mnoframe -DPGF=1 -tp p7 -Ktrap=fp -Minfo=loop,inline -Minform=inform $(INCLUDES)
 

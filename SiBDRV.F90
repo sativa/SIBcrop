@@ -81,7 +81,10 @@ character(len=4) :: dfdfd
 
 !itb_crop...calculate Ta_bar (and any other crop stuff we 
 !itb_crop...need )
-        if ( time%new_day ) call crop_accum(sib)
+
+        if ( time%new_day .AND. time%doy > time%init_doy) call crop_accum(sib)
+
+
 
         ! read in driver data needed
         if ( time%read_driver ) then

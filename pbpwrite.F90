@@ -55,7 +55,7 @@ character(len =256) ::filename
 
     ! create file name
     write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(outpath)//'psib_',  &
-        year, month, 'p', rank1, '.pbp2.nc'
+        year, month, 'p', rank1, '.pbp1.nc'
 
     ! create file and define dimensions
     status = nf90_create( trim(filename), nf90_clobber, pbpid )
@@ -161,7 +161,7 @@ integer :: pbpid
 
         !open file
         write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(outpath)//'psib_',  &
-           year, month, 'p', rank1, '.pbp2.nc'
+           year, month, 'p', rank1, '.pbp1.nc'
         status = nf90_open( trim(filename), nf90_write, pbpid )
   
 
@@ -251,7 +251,7 @@ integer :: unit_len, long_len       ! not used, returned by get_units()
 
     ! create file name
     write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(out_path)//'psib_',  &
-        year, month, 'p', rank, '.pbp3.nc'
+        year, month, 'p', rank, '.pbp2.nc'
     
     ! make sure pbp2id is not tied to any open file
     status = nf90_close( pbp2id )
@@ -372,7 +372,7 @@ integer :: pbp2id
 
         ! create file name
         write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(out_path)//'psib_',  &
-            year, month, 'p', rank, '.pbp3.nc'
+            year, month, 'p', rank, '.pbp2.nc'
         status = nf90_open( trim(filename), nf90_write, pbp2id )
 
 
