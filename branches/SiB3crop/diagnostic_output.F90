@@ -1011,6 +1011,12 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
             pbp1(indxpbp1(188),n) = pbp1(indxpbp1(188),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(2,2,2)
 
+            pbp1(indxpbp1(189),n) = pbp1(indxpbp1(189),n) +    &
+                sib(imultpbpsib(n))%diag%ta_bar
+
+            pbp1(indxpbp1(190),n) = pbp1(indxpbp1(190),n) +    &
+                sib(imultpbpsib(n))%diag%gdd
+
 
         enddo
     endif

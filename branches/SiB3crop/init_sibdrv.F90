@@ -603,6 +603,7 @@ real(kind=dbl_kind), dimension(nsib,nsoil) :: respfactor
     do i=1,subcount
         do j=1,nsoil
             sib(i)%param%respfactor(j) = respfactor(subset(i),j)
+      print*,i,j,sib(i)%param%respfactor(j)
         enddo
     enddo
 
