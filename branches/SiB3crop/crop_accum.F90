@@ -43,4 +43,6 @@ type(sib_t), intent(inout) :: sib
 
    sib%diag%tb_indx = 0
 
+   print*,'subroutine crop_accum'
+
 end subroutine crop_accum
