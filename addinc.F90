@@ -71,6 +71,9 @@ integer(kind=int_kind) :: j
     sib%diag%tb_indx = sib%diag%tb_indx + 1
     sib%diag%tb_temp(sib%diag%tb_indx) = sib%prog%ta
 
+!    print*,sib%diag%tb_indx,sib%diag%tb_temp(sib%diag%tb_indx)
+
+
 
 end subroutine addinc
 
