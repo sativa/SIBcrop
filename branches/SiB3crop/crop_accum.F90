@@ -22,6 +22,9 @@ type(sib_t), intent(inout) :: sib
     
       temp_accum = temp_accum + sib%diag%tb_temp(i0)
 
+      print*,i0,sib%diag%tb_temp(i0),temp_accum
+ 
+
    enddo
 
    sib%diag%ta_bar = temp_accum / float(sib%diag%tb_indx)

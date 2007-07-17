@@ -418,6 +418,8 @@ type diagnostic_vars
                                      ! temperature for GDD
     integer(kind=int_kind) :: tb_indx
                                      ! index for counting up timesteps
+
+    integer(kind=int_kind) :: year
                                      
 
 !itb...end crop variables

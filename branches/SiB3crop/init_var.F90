@@ -29,6 +29,10 @@ integer k
     sib%diag%ta_bar = 0.0
     sib%diag%gdd    = 0.0
 
+    sib%diag%year   = 0
+
+!itb_crop_end
+
 
 	sib%diag%eastar = 0.0
 	sib%diag%rha = 0.0

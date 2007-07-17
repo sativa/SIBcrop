@@ -116,6 +116,11 @@ character(len=4) :: dfdfd
 
         ! interpolate
         call sibdrv_interp( sib, time )
+
+
+!itb_crop...
+        sib(:)%diag%year = time%year
+!itb_crop_end...
 	
         ! call sib_main()
         dtt = time%dtsib
