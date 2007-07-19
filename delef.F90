@@ -73,7 +73,6 @@ subroutine delef(sib,sib_loc)
     sib_loc%cog1 = (sib_loc%gegi + sib_loc%gegs*sib%diag%hrr)
     sib_loc%cog2 = (sib_loc%gegi + sib_loc%gegs        )
 
-    print*'hi there'
 
     !            D2(I)   = 1.0 / RA(I) + COC(I) + COG2(I)
     !-----------------------------------------------------------------------
