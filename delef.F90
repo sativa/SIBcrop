@@ -89,6 +89,8 @@ subroutine delef(sib,sib_loc)
 
     !pl notice that the fluxes are already limited by the altered e*(T) values
 
+print*,'hi there'
+
     sib%diag%ec  = (sib_loc%etc - sib%prog%ea) * sib_loc%coc * &
         sib%prog%ros  * dtt * cpdpsy
 
