@@ -414,12 +414,15 @@ type diagnostic_vars
     real(kind=dbl_kind) :: gdd       ! growing degree days
 
     real(kind=dbl_kind) :: tb_temp(20000) 
+
                                      ! placeholder for accumulating
                                      ! temperature for GDD
     integer(kind=int_kind) :: tb_indx
                                      ! index for counting up timesteps
 
     integer(kind=int_kind) :: year
+
+	integer(kind=int_kind) :: doy	!to calculate planting dates and growth stages of certain crops- EL
                                      
 
 !itb...end crop variables

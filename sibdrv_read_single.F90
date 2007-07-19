@@ -73,10 +73,11 @@ data subname/'sibdrv_read '/
         sib(1)%prog%lspr2 = sib(1)%prog%lspr2 - sib(1)%prog%cupr2
 !
 ! KS comvert from pascals to millibars
-        sib(1)%prog%ps2=sib(1)%prog%ps2*0.01
+        !sib(1)%prog%ps2=sib(1)%prog%ps2*0.01
 !
 ! KS convert dew point to specific humidity
-        call qsat_eau(1,sib%prog%ps2*100.0,temp_dpt,sib%prog%sh2)
+    !    call qsat_eau(1,sib%prog%ps2*100.0,temp_dpt,sib%prog%sh2) 
+			sib%prog%sh2=temp_dpt
     enddo
 
 end subroutine sibdrv_read_single
