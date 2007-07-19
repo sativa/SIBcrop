@@ -26,10 +26,12 @@ integer k
       sib%diag%tb_temp(j) = 0.0
     enddo
 
+
     sib%diag%ta_bar = 0.0
     sib%diag%gdd    = 0.0
 
     sib%diag%year   = 0
+	sib%diag%doy   = 0   !for planting dates- EL
 
 !itb_crop_end
 

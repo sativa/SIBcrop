@@ -120,6 +120,7 @@ character(len=4) :: dfdfd
 
 !itb_crop...
         sib(:)%diag%year = time%year
+		sib(:)%diag%doy=time%doy	!to calculate planting dates- EL
 !itb_crop_end...
 	
         ! call sib_main()
