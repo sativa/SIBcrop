@@ -60,13 +60,18 @@ elseif (tempf(sib%diag%doy)>=60.0) then
 endif
 
 if (ndf60==10) then
+
     pd=sib%diag%doy
+    sib%diag%gdd = 0.0
 
 endif
 
 !print*,pd
 
-	if (tempf(sib%diag%doy)>50.0 .and.tempf(sib%diag%doy)<86.0)then
+	if (sib%diag%doy >= pd            .AND.          &
+        tempf(sib%diag%doy)>50.0      .and.          &
+        tempf(sib%diag%doy)<86.0)      then
+
     	sib%diag%gdd=sib%diag%gdd + tempf(sib%diag%doy)- 50.0_dbl_kind
 
 	endif
