@@ -409,20 +409,37 @@ type diagnostic_vars
 
 !itb_crop...diagnostics for crop model development
     real(kind=dbl_kind) :: ta_bar    ! daily mean CAS air temp (K)
-                                     ! used for calculating growing
-                                     ! degree days
+                                     ! used for calculating growing degree days
     real(kind=dbl_kind) :: gdd       ! growing degree days
-
     real(kind=dbl_kind) :: tb_temp(20000) 
-
-                                     ! placeholder for accumulating
+									 ! placeholder for accumulating
                                      ! temperature for GDD
-    integer(kind=int_kind) :: tb_indx
-                                     ! index for counting up timesteps
+! The following variables were added from the phenology scheme- EL
+	real(kind=dbl_kind) :: assim_d	 ! daily assimilation	
+	real(kind=dbl_kind) :: tempf	 ! daily mean CAS air temp (F)     
+	real(kind=dbl_kind) :: tempc	 ! daily mean CAS air temp (C) 
+    real(kind=dbl_kind) :: w_main 	 ! dryweight+maintenance respiration for the whole plant   
+	real(kind=dbl_kind) :: leafwt_c  ! final leaf weight
+	real(kind=dbl_kind) :: phen_LAI  ! LAI from phenology model
+	real(kind=dbl_kind) :: tb_assim (20000) 
+									 ! placeholder for accumulating
+    real(kind=dbl_kind) :: day_allocwt (365,4)  !place holder for accumulating allocwt                             	
+	real(kind=dbl_kind)	:: alloc(365,4)			! basic allocation fractions for different plant parts (1-roots;2-leaves;3-stems;4-products)
+	real(kind=dbl_kind)	:: allocwt(365,4)		! dryweight+maintenance respiration for different plant parts 
+	real(kind=dbl_kind)	:: cum_w (365,4)		! cumulative (dryweight+maintenance respiration) for different plant parts
+	real(kind=dbl_kind)	:: phen_maintr(365,4)	! maintenance respiration from phenology model 
+    real(kind=dbl_kind)	:: phen_growthr(365,4)	! maintenance respiration from phenology model 
+	real(kind=dbl_kind)	:: wch(365,4)			! dry wt change per day
+    real(kind=dbl_kind)	:: cum_drywt(365,4)		! final, cumulative dry wt of each plant part
+	integer(kind=int_kind) :: tb_indx
+                                    ! index for counting up sib timesteps
+	integer(kind=int_kind) :: day_indx
+									! index for counting up days
+                                    ! index for counting up timesteps
+    integer(kind=int_kind) :: year  ! to represent years with different crops
+	integer(kind=int_kind) :: doy	! to calculate planting dates and growth stages of certain crops- EL
 
-    integer(kind=int_kind) :: year
-
-	integer(kind=int_kind) :: doy	!to calculate planting dates and growth stages of certain crops- EL
+	
                                      
 
 !itb...end crop variables

@@ -54,7 +54,7 @@ character(len=4) :: dfdfd
     call init_var(sib)
     
     ! initialize all values and prepare for timestep loop
-    call init_sibdrv( sib, time )
+    call init_sibdrv( sib )
     
     ! set time varaibles for initial time step
     call time_check( time)
@@ -82,7 +82,7 @@ character(len=4) :: dfdfd
 !itb_crop...calculate Ta_bar (and any other crop stuff we 
 !itb_crop...need )
 
-        if ( time%new_day .AND. time%doy > time%init_doy) call crop_accum(sib)
+        if ( time%new_day .AND. time%doy > time%init_doy) call crop_accum(sib,time)
 
 
 
@@ -119,8 +119,8 @@ character(len=4) :: dfdfd
 
 
 !itb_crop...
-        sib(:)%diag%year = time%year
-		sib(:)%diag%doy=time%doy	!to calculate planting dates- EL
+       ! sib(:)%diag%year = time%year
+		!sib(:)%diag%doy=time%doy	!to calculate planting dates- EL
 !itb_crop_end...
 	
         ! call sib_main()
@@ -130,7 +130,7 @@ character(len=4) :: dfdfd
         !$OMP DO
 
         do i = 1, subcount
-            call sib_main( sib(i) )
+            call sib_main( sib(i),time )
         enddo
         !$OMP END DO
         

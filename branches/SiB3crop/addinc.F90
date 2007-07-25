@@ -14,7 +14,7 @@ type(sib_t), intent(inout) :: sib
 type(sib_local_vars),      intent(inout) :: sib_loc
 
 !-Local Variables------------------------------------------------
-integer(kind=int_kind) :: j
+integer(kind=int_kind) :: i,j
 
 !----------------------------------------------------------------
 !
@@ -69,11 +69,17 @@ integer(kind=int_kind) :: j
 
 !itb_crop...accumulate the CAS temperature for calculating Ta_bar
     sib%diag%tb_indx = sib%diag%tb_indx + 1
-    sib%diag%tb_temp(sib%diag%tb_indx) = sib%prog%ta
+    sib%diag%tb_temp(sib%diag%tb_indx) = sib%prog%tc 
+	sib%diag%tb_assim(sib%diag%tb_indx)=sib%diag%assim(6) !for daily accumulation of assim- EL
 
 !    print*,sib%diag%tb_indx,sib%diag%tb_temp(sib%diag%tb_indx)
+	sib%diag%day_indx = sib%diag%day_indx + 1
+	do i=1,365
+	do j=1,4
+		sib%diag%day_allocwt(sib%diag%day_indx,j)=sib%diag%allocwt(sib%diag%doy,j) !for daily accumulation of allocwt- EL
 
-
+    enddo
+	enddo
 
 end subroutine addinc
 

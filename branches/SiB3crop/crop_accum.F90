@@ -1,5 +1,5 @@
 !==================SUBROUTINE CROP_ACCUM=======================================
-subroutine crop_accum(sib)
+subroutine crop_accum(sib,time)
 
 use kinds
 use sibtype
@@ -8,21 +8,19 @@ use physical_parameters, only: tice
 
 implicit none
 
-integer(kind=int_kind) :: i0,n,yr_index,year,doy,ndf60,pd
-real(kind=dbl_kind)    :: temp_accum,ta_bar
-real, allocatable	   :: tempf(:)
+integer(kind=int_kind) :: i0,n,pd,i,j,ndf60
+real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum
 
 !----------------------------------------------------------------------
-
 type(sib_t), intent(inout) :: sib
-
+type(time_struct), intent(in) :: time
 !----------------------------------------------------------------------  
 
    temp_accum = 0.0_dbl_kind
 
    do i0 = 1, sib%diag%tb_indx
     
-      temp_accum = temp_accum + sib%diag%tb_temp(i0)
+      temp_accum = temp_accum + sib%diag%tb_temp(i0) 
 !print*,i0,sib%diag%tb_temp(i0),temp_accum
 !pause
 !      print*,i0,sib%diag%tb_temp(i0),temp_accum
@@ -32,21 +30,18 @@ type(sib_t), intent(inout) :: sib
 
    sib%diag%ta_bar = temp_accum / float(sib%diag%tb_indx)
 
-!conversion of avg. daily temperature (ta_bar) from Kelvin to Fahrenheit- EL
-allocate(tempf(365))
-tempf(sib%diag%doy)=((sib%diag%ta_bar-273.15)*1.8)+32.0	
+!conversion of avg. daily temperature (ta_bar) from Kelvin to Fahrenheit
 
+sib%diag%tempf=((sib%diag%ta_bar-273.15)*1.8)+32.0	
+sib%diag%tempc=5*(sib%diag%tempf-32)/9
 
-!itb_crop...GROWING DEGREE DAY; defined as a day with mean
-!itb_crop...temperature (CAS) above 20C/293K
-
-!Calling for different phenology schemes based on the year and the crop- EL
-	if(mod(sib%diag%year,2)==1) then  
+!Calling for different phenology schemes based on the year and the crop
+	if(mod(time%year,2)==1) then  
 !		call soy_phen
 !	else
 		call corn_phen	
 	endif
-!print*,sib%diag%year,tempf(sib%diag%doy),sib%diag%doy
+!print*,time%year,sib%diag%tempf,time%doy
 
 contains
 
@@ -58,22 +53,19 @@ subroutine corn_phen
 !Calculate the planting date
 !---------------------------
 
-if (tempf(sib%diag%doy)<60.0) then
+if (sib%diag%tempf<60.0) then
     ndf60=0			!ndf60= no. of days withe avg. temperature above 60F
-elseif (tempf(sib%diag%doy)>=60.0) then
+elseif (sib%diag%tempf>=60.0) then
     ndf60=ndf60+1
 endif
 
 if (ndf60==10) then
 
-    pd=sib%diag%doy
-
-
-    pd=sib%diag%doy
+    pd=time%doy
 
 endif
 
-print*,pd
+!print*,pd
 
 
 !----------------------------
@@ -82,14 +74,14 @@ print*,pd
 
 
 	if (pd>0 							.and.		& !this line was added to avoid gdd calculation before real planting date, since pd is printed out as 0 before the real planting date based on the above ndf60==10 criterion
-		sib%diag%doy >= pd            .and.          &
-        tempf(sib%diag%doy)>50.0      .and.          &
-        tempf(sib%diag%doy)<86.0)      then
+		time%doy >= pd            .and.          &
+        sib%diag%tempf>50.0      .and.          &
+        sib%diag%tempf<86.0)      then
 
-    	sib%diag%gdd=sib%diag%gdd + tempf(sib%diag%doy)- 50.0_dbl_kind
+    	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 
 
-   	sib%diag%gdd=sib%diag%gdd + tempf(sib%diag%doy)- 50.0_dbl_kind
+   	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
 	endif
 
@@ -98,23 +90,141 @@ print*,pd
 !     sib%diag%gdd = sib%diag%gdd + sib%diag%ta_bar      &
 !                                 - 20.0_dbl_kind + tice
 !   endif
-print*,pd,tempf(sib%diag%doy),sib%diag%gdd
 
 
+!------------------------------
+!	Reading and summing assimn
+!-------------------------------
+
+ do i0 = 1, sib%diag%tb_indx
+    
+      assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) !multiplied by the no. secs per each timestep (i.e. tbsib) to convert assim mol sec-1 to mol
+
+   enddo
+
+   sib%diag%assim_d = assim_accum*12 !multiplied by 12 to convert mol to g
 
 
+!print*,sib%diag%gdd,assim_d
 
-!itb_crop...reset things, now that accumulation has 
-!itb_crop...taken place
+!-----------------------------------------------------------
+! allocation sheme for fractions for assimilate partitioning
+!-----------------------------------------------------------   
+	!1-roots, 2-leaves,3-stems,4-products (flowers and grains)
+
+	if(sib%diag%gdd>=100.0 .and.sib%diag%gdd <500.0)then
+
+		sib%diag%alloc(time%doy,1)=0.5
+		sib%diag%alloc(time%doy,2)=0.25
+		sib%diag%alloc(time%doy,3)=0.25	
+		sib%diag%alloc(time%doy,4)=0.0	
+
+    elseif(sib%diag%gdd>=500.0 .and. sib%diag%gdd <1000.0)then
+        sib%diag%alloc(time%doy,1)=0.5-(0.5-0.3)*(sib%diag%gdd-500)/(1000-500)
+		sib%diag%alloc(time%doy,2)=0.25-(0.25-0.35)*(sib%diag%gdd-500)/(1000-500)
+		sib%diag%alloc(time%doy,3)=0.25-(0.25-0.35)*(sib%diag%gdd-500)/(1000-500)
+		sib%diag%alloc(time%doy,4)=0.0
+
+		
+	elseif(sib%diag%gdd>=1000.0 .and. sib%diag%gdd<1180.0)then
+        sib%diag%alloc(time%doy,1)=0.3-(0.3-0.3)*(sib%diag%gdd-1000)/(1180-1000)
+		sib%diag%alloc(time%doy,2)=0.35-(0.35-0.35)*(sib%diag%gdd-1000)/(1180-1000)
+		sib%diag%alloc(time%doy,3)=0.35-(0.35-0.35)*(sib%diag%gdd-1000)/(1180-1000)	
+		sib%diag%alloc(time%doy,4)=0.0
+
+    elseif(sib%diag%gdd>=1180.0 .and. sib%diag%gdd<1360.0)then
+        sib%diag%alloc(time%doy,1)=0.3-(0.3-0.2)*(sib%diag%gdd-1180)/(1360-1180)
+		sib%diag%alloc(time%doy,2)=0.35-(0.35-0.45)*(sib%diag%gdd-1180)/(1360-1180)	
+		sib%diag%alloc(time%doy,3)=0.35-(0.3-0.2)*(sib%diag%gdd-1180)/(1360-1180)	
+		sib%diag%alloc(time%doy,4)=0.0-(0.0-0.15)*(sib%diag%gdd-1180)/(1360-1180)	
+
+	elseif(sib%diag%gdd>=1360.0 .and. sib%diag%gdd<1660.0)then
+
+        sib%diag%alloc(time%doy,1)=0.2-(0.2-0.05)*(sib%diag%gdd-1360)/(1660-1360)
+		sib%diag%alloc(time%doy,2)=0.45-(0.45-0.01)*(sib%diag%gdd-1360)/(1660-1360)	
+		sib%diag%alloc(time%doy,3)=0.2-(0.2-0.05)*(sib%diag%gdd-1360)/(1660-1360)		
+		sib%diag%alloc(time%doy,4)=0.15-(0.15-0.89)*(sib%diag%gdd-1360)/(1660-1360)	
 
 
+	elseif(sib%diag%gdd>=1660.0 .and. sib%diag%gdd<2730.0)then
 
-   sib%diag%tb_indx = 0
+        sib%diag%alloc(time%doy,1)=0.05-(0.05-0.05)*(sib%diag%gdd-1660)/(2730-1660)
+		sib%diag%alloc(time%doy,2)=0.01-(0.01-0.0)*(sib%diag%gdd-1660)/(2730-1660)
+		sib%diag%alloc(time%doy,3)=0.05-(0.05-0.0)*(sib%diag%gdd-1660)/(2730-1660)
+		sib%diag%alloc(time%doy,4)=0.89-(0.89-0.95)*(sib%diag%gdd-1660)/(2730-1660)	
 
- print*,'subroutine crop_accum' 
+
+	elseif(sib%diag%gdd<100 .or. sib%diag%gdd>=2730.0)then
+		sib%diag%alloc(time%doy,1)=0.0
+		sib%diag%alloc(time%doy,2)=0.0	
+		sib%diag%alloc(time%doy,3)=0.0	
+		sib%diag%alloc(time%doy,4)=0.0
+        
+    endif
+!----------------------------------
+!Calculate total weight allocation	
+!----------------------------------
+   !w_main is the (drywt+maintenancerespiration) together
+    
+    if((sib%diag%gdd>100).and.((sib%diag%gdd<2730))) then
+       	sib%diag%w_main=sib%diag%assim_d/((sib%diag%alloc(time%doy,1)*1.2214)+(sib%diag%alloc(time%doy,2)*1.2515)& 
+            +(sib%diag%alloc(time%doy,3)*1.2225)+(sib%diag%alloc(time%doy,4)*1.2095))! the coefficients given corresponds to growth resp & (drywt+maint R) ref Penning deVries (1989); here w_main is the (drywt+maint.respn)
+    else
+        sib%diag%w_main =0.0
+    endif
+!print *,sib%diag%gdd,sib%diag%assim_d,sib%diag%w_main
+!pause
+ 
+
+!Calculate w_main allocation to different plant parts
+  
+
+         sib%diag%allocwt(time%doy,1)=sib%diag%w_main*sib%diag%alloc(time%doy,1) ! clculates absolute allocation for roots, using allocation fraction for roots and assimilation
+        sib%diag%allocwt(time%doy,2)=sib%diag%w_main*sib%diag%alloc(time%doy,2) ! clculates absolute allocation for leaves, using allocation fraction for leaves and assimilation
+        sib%diag%allocwt(time%doy,3)=sib%diag%w_main*sib%diag%alloc(time%doy,3) ! clculates absolute allocation for stem, using allocation fraction for stems and assimilation
+        sib%diag%allocwt(time%doy,4)=sib%diag%w_main*sib%diag%alloc(time%doy,4) ! clculates absolute allocation for flowers and grains using allocation fraction for those and assimilation
+
+!---------------------------------------------    
+!Calculate cumulative drywt.in each plant part (before respn)
+!---------------------------------------------
+   do i = 1, sib%diag%day_indx
+   do j=1,4
+    
+      allocwt_accum = allocwt_accum + (sib%diag%day_allocwt(i,j)) !multiplied by the no. secs per each timestep (i.e. tbsib) to convert assim mol sec-1 to mol
+   enddo
+       sib%diag%cum_w(i,j)=allocwt_accum
+   enddo
+
+!rint*,sib%diag%assim_d,sib%diag%allocwt(time%doy,2),sib%diag%cum_w(time%doy,2)
+
+!----------------------------
+!Calculate growth respiration
+!----------------------------
+ 
+        sib%diag%phen_growthr(time%doy,1)=sib%diag%allocwt(time%doy,1)*0.406*2*12/44
+        sib%diag%phen_growthr(time%doy,2)=sib%diag%allocwt(time%doy,2)*0.461*2*12/44
+        sib%diag%phen_growthr(time%doy,3)=sib%diag%allocwt(time%doy,3)*0.408*2*12/44
+        sib%diag%phen_growthr(time%doy,4)=sib%diag%allocwt(time%doy,4)*0.384*2*12/44
+
+!   endif
+   sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
+   assim_accum=0		!at the end of each day assim_accum is set to zero
+
+!print*,cum_allocan(time%doy(time%doy,2),leafwt_c(time%doy),phen_LAI
+! print*,'subroutine crop_accum' 
+
+	open(unit=20,file='allocat_frac_cornwt_test.dat',form='formatted')
+    
+		write(20,'(i3.3,2x,43(1x,f11.2))')time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(365,1:4),&
+             sib%diag%cum_w(365,1:4),sib%diag%allocwt(365,1:4),sib%diag%phen_growthr(365,1:4)
 
 end subroutine corn_phen
 
  
+
+!-----------------------------------------------------------------------------------------------------------
+!subroutine soy_phen
+!-----------------------------------------------------------------------------------------------------------
+
 
 end subroutine crop_accum
