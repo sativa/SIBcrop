@@ -21,18 +21,42 @@ integer k
 
 !itb_crop
     sib%diag%tb_indx = 0
+	sib%diag%day_indx= 0
 
     do j=1,20000
       sib%diag%tb_temp(j) = 0.0
+	  sib%diag%tb_assim(j) = 0.0 !added for daily accumulation of assimilation-EL
     enddo
+	
+		sib%diag%tempf = 0.0
+		sib%diag%tempc=0.0
+		sib%diag%assim_d = 0.0
+		sib%diag%w_main=0.0
+		sib%diag%leafwt_c = 0.0
+		sib%diag%phen_LAI=0.0
+       		
+	
+     do i=1,365    
+	 do j=1,4
+			sib%diag%alloc(i,j) = 0.0
+			sib%diag%allocwt(i,j) = 0.0
+			sib%diag%cum_w(i,j) = 0.0
+			sib%diag%phen_maintr(i,j) = 0.0
+			sib%diag%phen_growthr(i,j) = 0.0
+			sib%diag%wch(i,j) = 0.0
+			sib%diag%cum_drywt(i,j) = 0.0
+			sib%diag%day_allocwt(i,j)=0.0		
+		enddo
+	enddo
 
 
     sib%diag%ta_bar = 0.0
     sib%diag%gdd    = 0.0
 
-    sib%diag%year   = 0
-	sib%diag%doy   = 0   !for planting dates- EL
-
+!    sib%diag%year   = 0
+!	sib%diag%doy   = 0   !for planting dates- EL
+!    time%year	   =0
+!    time%doy       =0
 !itb_crop_end
 
 
