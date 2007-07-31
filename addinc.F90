@@ -73,13 +73,7 @@ integer(kind=int_kind) :: i,j
 	sib%diag%tb_assim(sib%diag%tb_indx)=sib%diag%assim(6) !for daily accumulation of assim- EL
 
 !    print*,sib%diag%tb_indx,sib%diag%tb_temp(sib%diag%tb_indx)
-	sib%diag%day_indx = sib%diag%day_indx + 1
-	do i=1,365
-	do j=1,4
-		sib%diag%day_allocwt(sib%diag%day_indx,j)=sib%diag%allocwt(sib%diag%doy,j) !for daily accumulation of allocwt- EL
 
-    enddo
-	enddo
 
 end subroutine addinc
 

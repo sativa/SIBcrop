@@ -84,6 +84,7 @@ integer :: x
             time%init_day = time%init_doy - time%doy1_month(x) + 1
         endif
     enddo
+
     
     !   else set them to init_* values
         time%start_year = time%init_year
@@ -204,7 +205,8 @@ type(time_struct), intent(inout) :: time
     if ( time%driver_hour > 24 )  &
         time%driver_day = mod(time%driver_day,time%days_per_month(time%month))+1
     time%driver_hour = mod( time%driver_hour, 24 )
-    if ( time%driver_recnum >  &
+
+   if ( time%driver_recnum >  &
             time%days_per_month(time%month) * time%driver_times ) then
          
         time%driver_recnum = 1

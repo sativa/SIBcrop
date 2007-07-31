@@ -54,7 +54,7 @@ character(len=4) :: dfdfd
     call init_var(sib)
     
     ! initialize all values and prepare for timestep loop
-    call init_sibdrv( sib )
+    call init_sibdrv( sib,time )
     
     ! set time varaibles for initial time step
     call time_check( time)

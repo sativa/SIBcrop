@@ -147,19 +147,19 @@ parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
 
         xbg = 1.0 - xag
 
-
+!for crops, multiply tot_an (below) by 0.6 to represent that 40% was removed in harvest..
         ! vertical distribution of respiration flux in the root zone   
 
         ! top two layers
-        sib(n)%param%respfactor(1) = sib(n)%diag%tot_an(13) * ( 0.5 * xag  +  &
+        sib(n)%param%respfactor(1) = sib(n)%diag%tot_an(13) * 0.6*( 0.5 * xag  +  &
             xbg * sib(n)%param%rootf(1))
 
-        sib(n)%param%respfactor(2) = sib(n)%diag%tot_an(13) * ( 0.5 * xag  +  &
+        sib(n)%param%respfactor(2) = sib(n)%diag%tot_an(13) *0.6* ( 0.5 * xag  +  &
             xbg * sib(n)%param%rootf(2))
 
         ! rooting layers (3..10)
         do l = 3, nsoil
-            sib(n)%param%respfactor(l) = sib(n)%diag%tot_an(13) * xbg  &
+            sib(n)%param%respfactor(l) = sib(n)%diag%tot_an(13) *0.6* xbg  &
                 * sib(n)%param%rootf(l)
 
         end do
