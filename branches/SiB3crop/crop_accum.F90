@@ -207,10 +207,10 @@ assim_accum=0.0_dbl_kind
 !Calculate growth respiration
 !----------------------------
  
-        sib%diag%phen_growthr(1)=sib%diag%allocwt(time%doy,1)*0.406*2*12/44
-        sib%diag%phen_growthr(2)=sib%diag%allocwt(time%doy,2)*0.461*2*12/44
-        sib%diag%phen_growthr(3)=sib%diag%allocwt(time%doy,3)*0.408*2*12/44
-        sib%diag%phen_growthr(4)=sib%diag%allocwt(time%doy,4)*0.384*2*12/44
+        sib%diag%phen_growthr(1)=sib%diag%allocwt(time%doy,1)*2*0.406*12/44
+        sib%diag%phen_growthr(2)=sib%diag%allocwt(time%doy,2)*2*0.461*12/44
+        sib%diag%phen_growthr(3)=sib%diag%allocwt(time%doy,3)*2*0.408*12/44
+        sib%diag%phen_growthr(4)=sib%diag%allocwt(time%doy,4)*2*0.384*12/44
 
 
 !--------------------------
@@ -230,7 +230,7 @@ assim_accum=0.0_dbl_kind
 ! 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Beauchemin et al., 1997) 
 
 
-print*,sib%diag%cum_w(time%doy,2),sib%diag%phen_maintr(2)
+!print*,sib%diag%cum_w(time%doy,2),sib%diag%phen_maintr(2)
 
 !------------------------------
 !Calculate dry weight change
@@ -283,7 +283,7 @@ print*,sib%diag%cum_w(time%doy,2),sib%diag%phen_maintr(2)
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-!print*,sib%diag%cum_drywt(time%doy,2),sib%diag%leafwt_c,sib%diag%phen_LAI
+print*,sib%diag%assim_d,sib%diag%phen_LAI
 
 
 

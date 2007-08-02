@@ -70,14 +70,19 @@ data subname/'sibdrv_read '/
             sib(1)%prog%sw_dwn2,sib(1)%prog%lspr2,sib(1)%prog%cupr2
 !
 ! calculate large scale precipitation
-        sib(1)%prog%lspr2 = sib(1)%prog%lspr2 - sib(1)%prog%cupr2
+        sib(1)%prog%lspr2 = sib(1)%prog%lspr2 !- sib(1)%prog%cupr2 
+!EL the latter part of the above line was commented out since the driver data&
+!for bondville had large scale ppt separately.
 !
 ! KS comvert from pascals to millibars
         !sib(1)%prog%ps2=sib(1)%prog%ps2*0.01
 !
 ! KS convert dew point to specific humidity
-    !    call qsat_eau(1,sib%prog%ps2*100.0,temp_dpt,sib%prog%sh2) 
+    	!  call qsat_eau(1,sib%prog%ps2*100.0,temp_dpt,sib%prog%sh2) 
 			sib%prog%sh2=temp_dpt
-    enddo
+! check for zero humidity
+    if(sib(1)%prog%sh2==0.) sib(1)%prog%sh2=1.e-4
+  
+  enddo
 
 end subroutine sibdrv_read_single
