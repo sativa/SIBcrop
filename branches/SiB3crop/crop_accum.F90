@@ -300,7 +300,296 @@ end subroutine corn_phen
 !-----------------------------------------------------------------------------------------------------------
 subroutine soy_phen
 !-----------------------------------------------------------------------------------------------------------
-	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
+
+if (sib%diag%tempf<65.0) then
+    ndf60=0			!ndf60= no. of days withe avg. temperature above 60F
+elseif (sib%diag%tempf>=65.0) then
+    ndf60=ndf60+1
+endif
+
+if (ndf60==5) then
+
+    pd=time%doy
+
+endif
+
+!print*,pd
+
+
+!----------------------------
+!Calculate growing degree days
+!-----------------------------
+
+
+	if (pd>0 							.and.		& !this line was added to avoid gdd calculation before real planting date, since pd is printed out as 0 before the real planting date based on the above ndf60==10 criterion
+		time%doy >= pd            .and.          &
+        sib%diag%tempf>50.0      .and.          &
+        sib%diag%tempf<86.0)      then
+
+    	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
+	
+	endif
+
+!   if(sib%diag%ta_bar > 20.0_dbl_kind + tice) then
+
+!     sib%diag%gdd = sib%diag%gdd + sib%diag%ta_bar      &
+!                                 - 20.0_dbl_kind + tice
+!   endif
+
+
+!------------------------------
+!	Reading and summing assimn
+!-------------------------------
+assim_accum=0.0_dbl_kind
+ do i0 = 1, sib%diag%tb_indx
+    
+      assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) !multiplied by the no. secs per each timestep (i.e. tbsib) to convert assim mol sec-1 to mol
+
+   enddo
+
+   sib%diag%assim_d = assim_accum*12 !multiplied by 12 to convert mol to g
+
+
+!print*,sib%diag%gdd,assim_d
+
+!-----------------------------------------------------------
+! allocation sheme for fractions for assimilate partitioning
+!-----------------------------------------------------------   
+	!1-roots, 2-leaves,3-stems,4-products (flowers and grains)
+		if (time%doy==(pd+10)) then
+	        sib%diag%alloc(1)=0.5
+			sib%diag%alloc(2)=0.4
+			sib%diag%alloc(3)=0.1	
+			sib%diag%alloc(4)=0.0	
+        
+        else if (time%doy>=(pd+10).and.time%doy<(pd+30)) then
+            sib%diag%alloc(1)=0.5-(0.5-0.48)*(time%doy-(pd+10))/20
+            sib%diag%alloc(2)=0.4-(0.4-0.3)*(time%doy-(pd+10))/20
+            sib%diag%alloc(3)=0.1-(0.1-0.22)*(time%doy-(pd+10))/20
+            sib%diag%alloc(4)=0.0
+         
+         
+         else if (time%doy>=(pd+30).and.time%doy<(pd+40)) then
+            sib%diag%alloc(1)=0.48-(0.48-0.48)*(time%doy-(pd+30))/10
+			sib%diag%alloc(2)=0.3-(0.3-0.3)*(time%doy-(pd+30))/10
+			sib%diag%alloc(3)=0.22-(0.22-0.22)*(time%doy-(pd+30))/10	
+			sib%diag%alloc(4)=0.0   
+
+        else if (time%doy>=(pd+40).and.time%doy<(pd+50)) then
+            sib%diag%alloc(1)=0.48-(0.48-0.37)*(time%doy-(pd+40))/10
+			sib%diag%alloc(2)=0.3-(0.3-0.4)*(time%doy-(pd+40))/10
+			sib%diag%alloc(3)=0.22-(0.22-0.23)*(time%doy-(pd+40))/10	
+			sib%diag%alloc(4)=0.0   
+
+      
+        else if (time%doy>=(pd+50).and.time%doy<(pd+60)) then
+            sib%diag%alloc(1)=0.37-(0.37-0.24)*(time%doy-(pd+50))/10
+			sib%diag%alloc(2)=0.4-(0.4-0.54)*(time%doy-(pd+50))/10
+			sib%diag%alloc(3)=0.23-(0.22-0.22)*(time%doy-(pd+50))/10	
+			sib%diag%alloc(4)=0.0    
+  
+
+        else if (time%doy>=(pd+60).and.time%doy<(pd+75)) then
+            sib%diag%alloc(1)=0.24-(0.24-0.2)*(time%doy-(pd+60))/15
+			sib%diag%alloc(2)=0.54-(0.54-0.51)*(time%doy-(pd+60))/15
+			sib%diag%alloc(3)=0.22-(0.22-0.29)*(time%doy-(pd+60))/15	
+			sib%diag%alloc(4)=0.0
+
+
+        else if (time%doy>=(pd+75).and.time%doy<(pd+80)) then
+            sib%diag%alloc(1)=0.2-(0.2-0.2)*(time%doy-(pd+75))/5
+			sib%diag%alloc(2)=0.51-(0.51-0.2)*(time%doy-(pd+75))/5
+			sib%diag%alloc(3)=0.29-(0.29-0.38)*(time%doy-(pd+75))/5	
+			sib%diag%alloc(4)=0.0-(0.0-0.22)*(time%doy-(pd+75))/5 
+
+        else if (time%doy>=(pd+80).and.time%doy<(pd+89)) then
+            sib%diag%alloc(1)=0.2-(0.2-0.2)*(time%doy-(pd+80))/9
+			sib%diag%alloc(2)=0.2-(0.2-0.2)*(time%doy-(pd+80))/9
+			sib%diag%alloc(3)=0.38-(0.38-0.2)*(time%doy-(pd+80))/9	
+			sib%diag%alloc(4)=0.22-(0.22-0.4)*(time%doy-(pd+80))/9 
+
+        else if (time%doy>=(pd+89).and.time%doy<(pd+98)) then
+            sib%diag%alloc(1)=0.2-(0.2-0.2)*(time%doy-(pd+89))/9
+			sib%diag%alloc(2)=0.2-(0.2-0.0)*(time%doy-(pd+89))/9
+			sib%diag%alloc(3)=0.2-(0.2-0.015)*(time%doy-(pd+89))/9	
+			sib%diag%alloc(4)=0.4-(0.4-0.785)*(time%doy-(pd+89))/9
+
+        else if (time%doy>=(pd+98).and.time%doy<(pd+108)) then
+            sib%diag%alloc(1)=0.2-(0.2-0.1)*(time%doy-(pd+98))/10
+			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+98))/10
+			sib%diag%alloc(3)=0.015-(0.015-0.0)*(time%doy-(pd+98))/10	
+			sib%diag%alloc(4)=0.785-(0.755-0.93)*(time%doy-(pd+98))/10 
+
+        else if (time%doy>=(pd+108).and.time%doy<(pd+115)) then
+            sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+108))/7
+			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+108))/7
+			sib%diag%alloc(3)=0.0-(0.0-0.0)*(time%doy-(pd+108))/7	
+			sib%diag%alloc(4)=0.9-(0.9-0.9)*(time%doy-(pd+108))/7
+
+        else if (time%doy>=(pd+115).and.time%doy<=(pd+121)) then
+            sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+115))/6
+			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+115))/6
+			sib%diag%alloc(3)=0.0-(0.0-0.0)*(time%doy-(pd+115))/6	
+			sib%diag%alloc(4)=0.9-(0.9-0.9)*(time%doy-(pd+115))/6
+
+         else if (time%doy>=(pd+121).and.time%doy<=(pd+130)) then
+            sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+115))/6
+			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+115))/6
+			sib%diag%alloc(3)=0.0-(0.0-0.0)*(time%doy-(pd+115))/6	
+			sib%diag%alloc(4)=0.9-(0.9-0.9)*(time%doy-(pd+115))/6
+
+		elseif ((time%doy<pd).and.(time%doy>(pd+130))) then
+			sib%diag%alloc(1)=0.0
+			sib%diag%alloc(2)=0.0	
+			sib%diag%alloc(3)=0.0	
+			sib%diag%alloc(4)=0.0
+        endif
+	
+
+
+
+!----------------------------------
+!Calculate total weight allocation	
+!----------------------------------
+   !w_main is the (drywt+maintenancerespiration) together
+    
+     if((time%doy>pd+10).and.(time%doy<(pd+130))) then
+       	sib%diag%w_main=sib%diag%assim_d/((sib%diag%alloc(1)*1.2929)+(sib%diag%alloc(2)*1.431)& 
+            +(sib%diag%alloc(3)*1.2946)+(sib%diag%alloc(4)*1.6752))! the coefficients given corresponds to growth resp & (drywt+maint R) ref Penning deVries (1989); here w_main is the (drywt+maint.respn)
+    else
+        sib%diag%w_main =0.0
+    endif
+!print *,sib%diag%gdd,sib%diag%assim_d,sib%diag%w_main
+!pause
+ 
+
+!Calculate w_main allocation to different plant parts
+  
+
+         sib%diag%allocwt(time%doy,1)=sib%diag%w_main*sib%diag%alloc(1) ! clculates absolute allocation for roots, using allocation fraction for roots and assimilation
+        sib%diag%allocwt(time%doy,2)=sib%diag%w_main*sib%diag%alloc(2) ! clculates absolute allocation for leaves, using allocation fraction for leaves and assimilation
+        sib%diag%allocwt(time%doy,3)=sib%diag%w_main*sib%diag%alloc(3) ! clculates absolute allocation for stem, using allocation fraction for stems and assimilation
+        sib%diag%allocwt(time%doy,4)=sib%diag%w_main*sib%diag%alloc(4) ! clculates absolute allocation for flowers and grains using allocation fraction for those and assimilation
+
+!---------------------------------------------    
+!Calculate cumulative drywt.in each plant part (before respn)
+!---------------------------------------------
+
+	  do j=1,4	 
+       
+     	sib%diag%cum_w(time%doy,j)=sib%diag%cum_w(time%doy-1,j)+sib%diag%allocwt(time%doy,j)
+       
+	  If ((time%doy-1)==0) then
+     
+        sib%diag%cum_w(time%doy,j)=0
+     
+	  endif
+ 
+      enddo
+
+!print*,sib%diag%assim_d,sib%diag%allocwt(time%doy,2),sib%diag%cum_w(time%doy,2)
+
+!----------------------------
+!Calculate growth respiration
+!----------------------------
+ 
+        sib%diag%phen_growthr(1)=sib%diag%allocwt(time%doy,1)*2*0.537*12/44
+        sib%diag%phen_growthr(2)=sib%diag%allocwt(time%doy,2)*2*0.790*12/44
+        sib%diag%phen_growthr(3)=sib%diag%allocwt(time%doy,3)*2*0.540*12/44
+        sib%diag%phen_growthr(4)=sib%diag%allocwt(time%doy,4)*2*1.238*12/44
+
+
+!--------------------------
+!Calculate maintanence resp
+!--------------------------
+   
+       sib%diag%phen_maintr(1)=sib%diag%cum_w(time%doy-1,1)*0.32*(0.03*2*12/44)*(2.0**((sib%diag%tempc-20.)/10.))   !Q10 coefficient is 1.8 for soybean and 2.0 for corn&
+                          !(Norman and Arkebauer, 1991);0.32 is the nonstructural C fraction of root C needing maintenance(calculations based on Allen et al., 1998 and Rogers et al., 2006)&
+	                      !maint. coeff. info from Penning de Vries,1989, Amthor, 1984, and Norman and Arkebauer, 1991)
+!print *,time%doy,(2.0**((sib%diag%tempc(time%doy)-20.)/10.))
+!pause
+       sib%diag%phen_maintr(2)=sib%diag%cum_w(time%doy-1,2)*0.38*0.03*2*0.75*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+ !multiplied by 0.75 to incorporate that maintenance respiration during the daytime is half that of  nighttime.. (Penning de Vries, 1989)
+                           ! 0.38 is the nonstructural fraction of leaf C needing maintenance (calculations based onAllen et al., 1998 and Rogers et al., 2006)
+       sib%diag%phen_maintr(3)=sib%diag%cum_w(time%doy-1,3)*0.32*0.01*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))! 0.32 is the nonstructural fraction of stem C  needing maintenance(calculations based on Allen et al., 1998 and Rogers et al., 2006).
+       sib%diag%phen_maintr(4)=sib%diag%cum_w(time%doy-1,4)*0.46*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+! 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Allen et al., 1998 and Rogers et al., 2006) 
+
+
+!print*,sib%diag%cum_w(time%doy,2),sib%diag%phen_maintr(2)
+
+!------------------------------
+!Calculate dry weight change
+!-----------------------------
+
+	  sib%diag%wch(1)=sib%diag%allocwt(time%doy,1)- sib%diag%phen_maintr(1)
+      sib%diag%wch(2)=sib%diag%allocwt(time%doy,2)- sib%diag%phen_maintr(2)
+      sib%diag%wch(3)=sib%diag%allocwt(time%doy,3)- sib%diag%phen_maintr(3)
+      sib%diag%wch(4)=sib%diag%allocwt(time%doy,4)- sib%diag%phen_maintr(4)
+
+!--------------------------------------------------------------
+!Recalculate final cumulative dry weight (g C m-2) of each plant part
+!--------------------------------------------------------------
+	  do j=1,4	 
+       
+     	sib%diag%cum_drywt(time%doy,j)=sib%diag%cum_drywt(time%doy-1,j)+sib%diag%wch(j)
+       
+	  If ((time%doy-1)==0) then
+     
+        sib%diag%cum_drywt(time%doy,j)=0
+     
+	  endif
+ 
+      enddo
+
+!------------------------------------------------
+!final leaf weight (C g m-2) (after adjustment for senescence and harvest event)
+!-------------------------------------------------
+       
+	 if (time%doy>=(pd+10).and.time%doy<(pd+75)) then
+	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)
+	
+     elseif (time%doy>=(pd+75).and.time%doy<(pd+105)) then
+	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.85 
+ 
+     elseif (time%doy>=(pd+105).and.time%doy<(pd+121)) then
+	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.8 
+ 	 
+	 elseif (time%doy>=(pd+121).and.time%doy<(pd+130)) then
+	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.6
+
+	 elseif (time%doy>=(pd+131).and.time%doy<(pd+144)) then
+	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.1
+
+	 else 
+	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
+
+     endif
+
+!--------------
+!Calculate LAI
+!-------------
+
+      sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02 	!(convert to dry weight g m-2 and then multiplied by SLA; 
+!SLA determined by the averages based on several studies)
+
+
+
+ 	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
+
+
+print*,sib%diag%assim_d,sib%diag%phen_LAI
+
+
+	open(unit=20,file='phen_soy_test.dat',form='formatted')
+ 
+		write(20,'(i3.3,2x,43(1x,f11.2))')time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
+             sib%diag%allocwt(365,1:4),sib%diag%cum_w(365,1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
+sib%diag%cum_drywt(365,1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
+	
+
+
+sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 end subroutine soy_phen
 
 
