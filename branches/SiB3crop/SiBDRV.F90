@@ -66,6 +66,18 @@ character(len=4) :: dfdfd
 !
 ! test file to test CO2 conservation
 !      open(unit=85, file='test', form='formatted')
+
+
+!itb_crop...open some files for diagnostic output. These will be 
+!itb_crop...removed when we figure out the best way to include
+!itb_crop...these diagnostics into the 'standard' output
+    if(mod(time%year,2) /= 0) then
+    	open(unit=20,file='phen_corn_test.dat',form='formatted')
+    else
+    	open(unit=20,file='phen_soy_test.dat',form='formatted')
+    endif
+
+
     
     ! timestep loop
     do t = time%start_second, time%end_second - time%dtsib, time%dtsib
@@ -170,5 +182,9 @@ character(len=4) :: dfdfd
     print*, 'end simulation'
       total = etime(elapsed)
     print *, 'End: total=', total, ' user=', elapsed(1),' system=', elapsed(2)
+
+!itb_crop...close diagnostic files
+   close(20)
+
 
 end program sibdrive

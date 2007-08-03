@@ -18,7 +18,7 @@ integer(kind=int_kind), intent(in) :: rank
         	qpsib, qp3sib, pbpsib, pbp2sib, iiqpsib, iiqp3sib, &
         	iipbpsib, iipbp2sib, npbpsib, npbp2sib, ijtlensib, &
         	doqpsib, doqp3sib, nqpsib, nqp3sib, indxqp3sib,    &
-        	indxqpsib, indxpbpsib, indxpbp2sib )
+        	indxqpsib, indxpbpsib, indxpbp2sib,time )
     endif
 
   

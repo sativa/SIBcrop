@@ -42,7 +42,7 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
 
 !Calling for different phenology schemes based on the year and the crop
 	if(mod(time%year,2)==0) then  
-		call soy_phen
+    	call soy_phen
 	else
 		call corn_phen	
 	endif
@@ -288,11 +288,11 @@ assim_accum=0.0_dbl_kind
 
 
 
-	open(unit=20,file='phen_corn_test.dat',form='formatted')
+
  
 		write(20,'(i3.3,2x,43(1x,f11.2))')time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
-             sib%diag%allocwt(365,1:4),sib%diag%cum_w(365,1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
-sib%diag%cum_drywt(365,1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
+             sib%diag%allocwt(time%doy,1:4),sib%diag%cum_w(time%doy,1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
+sib%diag%cum_drywt(time%doy,1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
 
 end subroutine corn_phen
 
@@ -581,7 +581,7 @@ assim_accum=0.0_dbl_kind
 print*,sib%diag%assim_d,sib%diag%phen_LAI
 
 
-	open(unit=20,file='phen_soy_test.dat',form='formatted')
+
  
 		write(20,'(i3.3,2x,43(1x,f11.2))')time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
              sib%diag%allocwt(365,1:4),sib%diag%cum_w(365,1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
@@ -591,6 +591,8 @@ sib%diag%cum_drywt(365,1:4),sib%diag%leafwt_c,sib%diag%phen_LAI
 
 sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 end subroutine soy_phen
+
+
 
 
 end subroutine crop_accum
