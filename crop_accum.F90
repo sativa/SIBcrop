@@ -18,11 +18,12 @@ type(time_struct), intent(in) :: time
 !----------------------------------------------------------------------  
 
    temp_accum = 0.0_dbl_kind
+   	
 
    do i0 = 1, sib%diag%tb_indx
     
       temp_accum = temp_accum + sib%diag%tb_temp(i0) 
-!print*,i0,sib%diag%tb_temp(i0),temp_accum
+!print*,i0,time%doy,sib%diag%tb_temp(i0)
 !pause
 !      print*,i0,sib%diag%tb_temp(i0),temp_accum
  
@@ -40,9 +41,9 @@ sib%diag%tempf=((sib%diag%ta_bar-273.15)*1.8)+32.0
 sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
 
 !Calling for different phenology schemes based on the year and the crop
-	if(mod(time%year,2)==1) then  
-!		call soy_phen
-!	else
+	if(mod(time%year,2)==0) then  
+		call soy_phen
+	else
 		call corn_phen	
 	endif
 !print*,time%year,sib%diag%tempf,time%doy
@@ -283,7 +284,7 @@ assim_accum=0.0_dbl_kind
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-print*,sib%diag%assim_d,sib%diag%phen_LAI
+!print*,sib%diag%assim_d,sib%diag%phen_LAI
 
 
 
@@ -297,9 +298,10 @@ end subroutine corn_phen
 
 
 !-----------------------------------------------------------------------------------------------------------
-!subroutine soy_phen
+subroutine soy_phen
 !-----------------------------------------------------------------------------------------------------------
-
+	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
+end subroutine soy_phen
 
 
 end subroutine crop_accum
