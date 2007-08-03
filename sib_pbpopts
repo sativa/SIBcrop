@@ -193,5 +193,9 @@ t 0 'radfac212  ' 187 ' radiation absorption factor 212'
 t 0 'radfac222  ' 188 ' radiation absorption factor 222'
 t 0 'ta_bar     ' 189 ' daily mean CAS temperature (K)'
 t 0 'gdd        ' 190 ' growing degree days (degree days)'
+t 0 'cum_dwt_1  ' 191 ' cum dry weight of assim carbon in roots (g)'
+t 0 'cum_dwt_2  ' 192 ' cum dry weight of assim carbon in leaves (g)'
+t 0 'cum_dwt_3  ' 193 ' cum dry weight of assim carbon in stems (g)'
+t 0 'cum_dwt_4  ' 194 ' cum dry weight of assim carbon in seeds (g)'
 
 

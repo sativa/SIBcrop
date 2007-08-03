@@ -1,7 +1,7 @@
 !===================================================================================
 subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      & 
         nnqp3, npbp1, npbp2, npbp1mx, npbp2mx, ijtlen, doqp2, doqp3,  &
-        nnqp2mx, nnqp3mx, indxqp3, indxqp2, indxpbp1, indxpbp2 )
+        nnqp2mx, nnqp3mx, indxqp3, indxqp2, indxpbp1, indxpbp2, time)
 !===================================================================================
 ! Calculates time averages for diagnostic output for single point (pbp) and entire domain (qp)
 !
@@ -12,6 +12,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
     use kinds
     use sib_const_module
     use sibtype
+    use timetype
     use physical_parameters, only:    &
            hltm
 
@@ -53,6 +54,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
     !----------------------------------------------------------------------
 
     type(sib_t), dimension(subcount), intent(inout) :: sib
+    type(time_struct), intent(in) :: time
 
     !----------------------------------------------------------------------  
 
@@ -1016,6 +1018,18 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
             pbp1(indxpbp1(190),n) = pbp1(indxpbp1(190),n) +    &
                 sib(imultpbpsib(n))%diag%gdd
+
+            pbp1(indxpbp1(191),n) = pbp1(indxpbp1(191),n) +    &
+                sib(imultpbpsib(n))%diag%cum_drywt(time%doy,1)
+
+            pbp1(indxpbp1(192),n) = pbp1(indxpbp1(192),n) +    &
+                sib(imultpbpsib(n))%diag%cum_drywt(time%doy,2)
+
+            pbp1(indxpbp1(193),n) = pbp1(indxpbp1(193),n) +    &
+                sib(imultpbpsib(n))%diag%cum_drywt(time%doy,3)
+
+            pbp1(indxpbp1(194),n) = pbp1(indxpbp1(194),n) +    &
+                sib(imultpbpsib(n))%diag%cum_drywt(time%doy,4)
 		
         enddo
     endif
