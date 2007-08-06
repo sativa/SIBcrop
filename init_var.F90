@@ -21,7 +21,7 @@ integer k
 
 !itb_crop
     sib%diag%tb_indx = 0
-!	sib%diag%day_indx= 0
+
 
     do j=1,20000
       sib%diag%tb_temp(j) = 0.0
@@ -38,20 +38,21 @@ integer k
 	
      do i=1,365    
 	 do j=1,4
-			sib%diag%allocwt(i,j) = 0.0
-			sib%diag%cum_w(i,j) = 0.0
+!			sib%diag%allocwt(i,j) = 0.0
+			sib%diag%cum_wt(i,j) = 0.0
 			sib%diag%cum_drywt(i,j) = 0.0
-	  enddo
-	  enddo
+	 enddo
+	 enddo
       
-      do j=1,4		
+     do j=1,4		
 			sib%diag%alloc(j) = 0.0
 			sib%diag%phen_maintr(j) = 0.0
 			sib%diag%phen_growthr(j) = 0.0
 			sib%diag%wch(j) = 0.0
-			sib%diag%day_allocwt(j)=0.0		
-	
-      enddo
+			sib%diag%allocwt(j) = 0.0
+			sib%diag%cum_w(j)=0.0
+			sib%diag%final_drywt(j)=0.0
+    enddo
 
 
     sib%diag%ta_bar = 0.0

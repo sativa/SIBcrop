@@ -8,7 +8,7 @@ use physical_parameters, only: tice
 
 implicit none
 
-integer(kind=int_kind) :: i0,n,pd,i,j,ndf60
+integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65
 real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum
 
 
@@ -42,7 +42,7 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
 
 !Calling for different phenology schemes based on the year and the crop
 	if(mod(time%year,2)==0) then  
-    	call soy_phen
+		call soy_phen
 	else
 		call corn_phen	
 	endif
@@ -78,7 +78,7 @@ endif
 !-----------------------------
 
 
-	if (pd>0 							.and.		& !this line was added to avoid gdd calculation before real planting date, since pd is printed out as 0 before the real planting date based on the above ndf60==10 criterion
+	if (pd>0 							.and.		& !this line was added to avoid gdd calculation before real planting date, since pd is printed out as 0 before the real planting date based on the above ndf60==5 criterion
 		time%doy >= pd            .and.          &
         sib%diag%tempf>50.0      .and.          &
         sib%diag%tempf<86.0)      then
@@ -181,10 +181,10 @@ assim_accum=0.0_dbl_kind
 !Calculate w_main allocation to different plant parts
   
 
-         sib%diag%allocwt(time%doy,1)=sib%diag%w_main*sib%diag%alloc(1) ! clculates absolute allocation for roots, using allocation fraction for roots and assimilation
-        sib%diag%allocwt(time%doy,2)=sib%diag%w_main*sib%diag%alloc(2) ! clculates absolute allocation for leaves, using allocation fraction for leaves and assimilation
-        sib%diag%allocwt(time%doy,3)=sib%diag%w_main*sib%diag%alloc(3) ! clculates absolute allocation for stem, using allocation fraction for stems and assimilation
-        sib%diag%allocwt(time%doy,4)=sib%diag%w_main*sib%diag%alloc(4) ! clculates absolute allocation for flowers and grains using allocation fraction for those and assimilation
+         sib%diag%allocwt(1)=sib%diag%w_main*sib%diag%alloc(1) ! clculates absolute allocation for roots, using allocation fraction for roots and assimilation
+        sib%diag%allocwt(2)=sib%diag%w_main*sib%diag%alloc(2) ! clculates absolute allocation for leaves, using allocation fraction for leaves and assimilation
+        sib%diag%allocwt(3)=sib%diag%w_main*sib%diag%alloc(3) ! clculates absolute allocation for stem, using allocation fraction for stems and assimilation
+        sib%diag%allocwt(4)=sib%diag%w_main*sib%diag%alloc(4) ! clculates absolute allocation for flowers and grains using allocation fraction for those and assimilation
 
 !---------------------------------------------    
 !Calculate cumulative drywt.in each plant part (before respn)
@@ -192,55 +192,62 @@ assim_accum=0.0_dbl_kind
 
 	  do j=1,4	 
        
-     	sib%diag%cum_w(time%doy,j)=sib%diag%cum_w(time%doy-1,j)+sib%diag%allocwt(time%doy,j)
+     	sib%diag%cum_wt(time%doy,j)=sib%diag%cum_wt(time%doy-1,j)+sib%diag%allocwt(j)
        
 	  If ((time%doy-1)==0) then
      
-        sib%diag%cum_w(time%doy,j)=0
+        sib%diag%cum_wt(time%doy,j)=0
      
 	  endif
  
       enddo
+       
+      sib%diag%cum_w(1)=sib%diag%cum_wt(time%doy,1)
+	  sib%diag%cum_w(2)=sib%diag%cum_wt(time%doy,2)
+	  sib%diag%cum_w(3)=sib%diag%cum_wt(time%doy,3)
+	  sib%diag%cum_w(4)=sib%diag%cum_wt(time%doy,4)
 
-!print*,sib%diag%assim_d,sib%diag%allocwt(time%doy,2),sib%diag%cum_w(time%doy,2)
+
+
+!print*,sib%diag%assim_d,sib%diag%allocwt(2),sib%diag%cum_w(time%doy,2)
 
 !----------------------------
 !Calculate growth respiration
 !----------------------------
  
-        sib%diag%phen_growthr(1)=sib%diag%allocwt(time%doy,1)*2*0.406*12/44
-        sib%diag%phen_growthr(2)=sib%diag%allocwt(time%doy,2)*2*0.461*12/44
-        sib%diag%phen_growthr(3)=sib%diag%allocwt(time%doy,3)*2*0.408*12/44
-        sib%diag%phen_growthr(4)=sib%diag%allocwt(time%doy,4)*2*0.384*12/44
+        sib%diag%phen_growthr(1)=sib%diag%allocwt(1)*2*0.406*12/44
+        sib%diag%phen_growthr(2)=sib%diag%allocwt(2)*2*0.461*12/44
+        sib%diag%phen_growthr(3)=sib%diag%allocwt(3)*2*0.408*12/44
+        sib%diag%phen_growthr(4)=sib%diag%allocwt(4)*2*0.384*12/44
 
 
 !--------------------------
 !Calculate maintanence resp
 !--------------------------
    
-       sib%diag%phen_maintr(1)=sib%diag%cum_w(time%doy-1,1)*0.18*(0.03*2*12/44)*(2.0**((sib%diag%tempc-20.)/10.))   !Q10 coefficient is 1.8 for soybean and 2.0 for corn&
+       sib%diag%phen_maintr(1)=sib%diag%cum_wt(time%doy-1,1)*0.18*(0.03*2*12/44)*(2.0**((sib%diag%tempc-20.)/10.))   !Q10 coefficient is 1.8 for soybean and 2.0 for corn&
                           !(Norman and Arkebauer, 1991);0.18 is the nonstructural C fraction of root C needing maintenance(calculations based on Brouquisse et al., 1998)&
 	                      !maint. coeff. info from Penning de Vries,1989, Amthor, 1984, and Norman and Arkebauer, 1991)
 !print *,time%doy,(2.0**((sib%diag%tempc(time%doy)-20.)/10.))
 !pause
-       sib%diag%phen_maintr(2)=sib%diag%cum_w(time%doy-1,2)*0.27*0.03*2*0.75*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+       sib%diag%phen_maintr(2)=sib%diag%cum_wt(time%doy-1,2)*0.27*0.03*2*0.75*12/44*(2.0**((sib%diag%tempc-20.)/10.))
  !multiplied by 0.75 to incorporate that maintenance respiration during the daytime is half that of  nighttime.. (Penning de Vries, 1989)
                            ! 0.27 is the nonstructural fraction of leaf C needing maintenance (calculations based on Brouquisse et al., 1998)
-       sib%diag%phen_maintr(3)=sib%diag%cum_w(time%doy-1,3)*0.24*0.01*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))! 0.24 is the nonstructural fraction of stem C  needing maintenance(calculations based on Brouquisse et al., 1998).
-       sib%diag%phen_maintr(4)=sib%diag%cum_w(time%doy-1,4)*0.4*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+       sib%diag%phen_maintr(3)=sib%diag%cum_wt(time%doy-1,3)*0.24*0.01*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))! 0.24 is the nonstructural fraction of stem C  needing maintenance(calculations based on Brouquisse et al., 1998).
+       sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4)*0.4*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
 ! 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Beauchemin et al., 1997) 
 
 
-!print*,sib%diag%cum_w(time%doy,2),sib%diag%phen_maintr(2)
+!print*,sib%diag%cum_wt(time%doy,2),sib%diag%phen_maintr(2)
 
 !------------------------------
 !Calculate dry weight change
 !-----------------------------
 
-	  sib%diag%wch(1)=sib%diag%allocwt(time%doy,1)- sib%diag%phen_maintr(1)
-      sib%diag%wch(2)=sib%diag%allocwt(time%doy,2)- sib%diag%phen_maintr(2)
-      sib%diag%wch(3)=sib%diag%allocwt(time%doy,3)- sib%diag%phen_maintr(3)
-      sib%diag%wch(4)=sib%diag%allocwt(time%doy,4)- sib%diag%phen_maintr(4)
+	  sib%diag%wch(1)=sib%diag%allocwt(1)- sib%diag%phen_maintr(1)
+      sib%diag%wch(2)=sib%diag%allocwt(2)- sib%diag%phen_maintr(2)
+      sib%diag%wch(3)=sib%diag%allocwt(3)- sib%diag%phen_maintr(3)
+      sib%diag%wch(4)=sib%diag%allocwt(4)- sib%diag%phen_maintr(4)
 
 !--------------------------------------------------------------
 !Recalculate final cumulative dry weight (g C m-2) of each plant part
@@ -256,6 +263,11 @@ assim_accum=0.0_dbl_kind
 	  endif
  
       enddo
+	  
+      sib%diag%final_drywt(1)=sib%diag%cum_drywt(time%doy,1) !Renamed to be output on a daily basis in a separate text file
+	  sib%diag%final_drywt(2)=sib%diag%cum_drywt(time%doy,2)
+	  sib%diag%final_drywt(3)=sib%diag%cum_drywt(time%doy,3)
+	  sib%diag%final_drywt(4)=sib%diag%cum_drywt(time%doy,4)
 
 !------------------------------------------------
 !final leaf weight (C g m-2) (after adjustment for senescence and harvest event)
@@ -288,11 +300,11 @@ assim_accum=0.0_dbl_kind
 
 
 
-
+!	open(unit=20,file='phen_corn_test.dat',form='formatted')
  
 		write(20,'(i3.3,2x,43(1x,f11.2))')time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
-             sib%diag%allocwt(time%doy,1:4),sib%diag%cum_w(time%doy,1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
-sib%diag%cum_drywt(time%doy,1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
+             sib%diag%w_main,sib%diag%allocwt(1:4),sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
+sib%diag%final_drywt(1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
 
 end subroutine corn_phen
 
@@ -302,12 +314,12 @@ subroutine soy_phen
 !-----------------------------------------------------------------------------------------------------------
 
 if (sib%diag%tempf<65.0) then
-    ndf60=0			!ndf60= no. of days withe avg. temperature above 60F
+    ndf65=0			!ndf65= no. of days withe avg. temperature above 60F
 elseif (sib%diag%tempf>=65.0) then
-    ndf60=ndf60+1
+    ndf60=ndf65+1
 endif
 
-if (ndf60==5) then
+if (ndf65==5) then
 
     pd=time%doy
 
@@ -321,7 +333,7 @@ endif
 !-----------------------------
 
 
-	if (pd>0 							.and.		& !this line was added to avoid gdd calculation before real planting date, since pd is printed out as 0 before the real planting date based on the above ndf60==10 criterion
+	if (pd>0 							.and.		& !this line was added to avoid gdd calculation before real planting date, since pd is printed out as 0 before the real planting date based on the above ndf65==5 criterion
 		time%doy >= pd            .and.          &
         sib%diag%tempf>50.0      .and.          &
         sib%diag%tempf<86.0)      then
@@ -466,53 +478,70 @@ assim_accum=0.0_dbl_kind
 !Calculate w_main allocation to different plant parts
   
 
-         sib%diag%allocwt(time%doy,1)=sib%diag%w_main*sib%diag%alloc(1) ! clculates absolute allocation for roots, using allocation fraction for roots and assimilation
-        sib%diag%allocwt(time%doy,2)=sib%diag%w_main*sib%diag%alloc(2) ! clculates absolute allocation for leaves, using allocation fraction for leaves and assimilation
-        sib%diag%allocwt(time%doy,3)=sib%diag%w_main*sib%diag%alloc(3) ! clculates absolute allocation for stem, using allocation fraction for stems and assimilation
-        sib%diag%allocwt(time%doy,4)=sib%diag%w_main*sib%diag%alloc(4) ! clculates absolute allocation for flowers and grains using allocation fraction for those and assimilation
+         sib%diag%allocwt(1)=sib%diag%w_main*sib%diag%alloc(1) ! clculates absolute allocation for roots, using allocation fraction for roots and assimilation
+        sib%diag%allocwt(2)=sib%diag%w_main*sib%diag%alloc(2) ! clculates absolute allocation for leaves, using allocation fraction for leaves and assimilation
+        sib%diag%allocwt(3)=sib%diag%w_main*sib%diag%alloc(3) ! clculates absolute allocation for stem, using allocation fraction for stems and assimilation
+        sib%diag%allocwt(4)=sib%diag%w_main*sib%diag%alloc(4) ! clculates absolute allocation for flowers and grains using allocation fraction for those and assimilation
 
 !---------------------------------------------    
 !Calculate cumulative drywt.in each plant part (before respn)
 !---------------------------------------------
-
-	  do j=1,4	 
+  do j=1,4	 
        
-     	sib%diag%cum_w(time%doy,j)=sib%diag%cum_w(time%doy-1,j)+sib%diag%allocwt(time%doy,j)
+     	sib%diag%cum_wt(time%doy,j)=sib%diag%cum_wt(time%doy-1,j)+sib%diag%allocwt(j)
        
 	  If ((time%doy-1)==0) then
      
-        sib%diag%cum_w(time%doy,j)=0
+        sib%diag%cum_wt(time%doy,j)=0
      
 	  endif
  
       enddo
+       
+      sib%diag%cum_w(1)=sib%diag%cum_wt(time%doy,1)
+	  sib%diag%cum_w(2)=sib%diag%cum_wt(time%doy,2)
+	  sib%diag%cum_w(3)=sib%diag%cum_wt(time%doy,3)
+	  sib%diag%cum_w(4)=sib%diag%cum_wt(time%doy,4)
 
-!print*,sib%diag%assim_d,sib%diag%allocwt(time%doy,2),sib%diag%cum_w(time%doy,2)
+
+!	  do j=1,4	 
+       
+ !    	sib%diag%cum_w(time%doy,j)=sib%diag%cum_w(time%doy-1,j)+sib%diag%allocwt(j)
+       
+!	  If ((time%doy-1)==0) then
+     
+ !       sib%diag%cum_w(time%doy,j)=0
+     
+!	  endif
+ 
+ !     enddo
+
+!print*,sib%diag%assim_d,sib%diag%allocwt(2),sib%diag%cum_w(time%doy,2)
 
 !----------------------------
 !Calculate growth respiration
 !----------------------------
  
-        sib%diag%phen_growthr(1)=sib%diag%allocwt(time%doy,1)*2*0.537*12/44
-        sib%diag%phen_growthr(2)=sib%diag%allocwt(time%doy,2)*2*0.790*12/44
-        sib%diag%phen_growthr(3)=sib%diag%allocwt(time%doy,3)*2*0.540*12/44
-        sib%diag%phen_growthr(4)=sib%diag%allocwt(time%doy,4)*2*1.238*12/44
+        sib%diag%phen_growthr(1)=sib%diag%allocwt(1)*2*0.537*12/44
+        sib%diag%phen_growthr(2)=sib%diag%allocwt(2)*2*0.790*12/44
+        sib%diag%phen_growthr(3)=sib%diag%allocwt(3)*2*0.540*12/44
+        sib%diag%phen_growthr(4)=sib%diag%allocwt(4)*2*1.238*12/44
 
 
 !--------------------------
 !Calculate maintanence resp
 !--------------------------
    
-       sib%diag%phen_maintr(1)=sib%diag%cum_w(time%doy-1,1)*0.32*(0.03*2*12/44)*(2.0**((sib%diag%tempc-20.)/10.))   !Q10 coefficient is 1.8 for soybean and 2.0 for corn&
+       sib%diag%phen_maintr(1)=sib%diag%cum_wt(time%doy-1,1)*0.32*(0.03*2*12/44)*(2.0**((sib%diag%tempc-20.)/10.))   !Q10 coefficient is 1.8 for soybean and 2.0 for corn&
                           !(Norman and Arkebauer, 1991);0.32 is the nonstructural C fraction of root C needing maintenance(calculations based on Allen et al., 1998 and Rogers et al., 2006)&
 	                      !maint. coeff. info from Penning de Vries,1989, Amthor, 1984, and Norman and Arkebauer, 1991)
 !print *,time%doy,(2.0**((sib%diag%tempc(time%doy)-20.)/10.))
 !pause
-       sib%diag%phen_maintr(2)=sib%diag%cum_w(time%doy-1,2)*0.38*0.03*2*0.75*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+       sib%diag%phen_maintr(2)=sib%diag%cum_wt(time%doy-1,2)*0.38*0.03*2*0.75*12/44*(2.0**((sib%diag%tempc-20.)/10.))
  !multiplied by 0.75 to incorporate that maintenance respiration during the daytime is half that of  nighttime.. (Penning de Vries, 1989)
                            ! 0.38 is the nonstructural fraction of leaf C needing maintenance (calculations based onAllen et al., 1998 and Rogers et al., 2006)
-       sib%diag%phen_maintr(3)=sib%diag%cum_w(time%doy-1,3)*0.32*0.01*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))! 0.32 is the nonstructural fraction of stem C  needing maintenance(calculations based on Allen et al., 1998 and Rogers et al., 2006).
-       sib%diag%phen_maintr(4)=sib%diag%cum_w(time%doy-1,4)*0.46*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+       sib%diag%phen_maintr(3)=sib%diag%cum_wt(time%doy-1,3)*0.32*0.01*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))! 0.32 is the nonstructural fraction of stem C  needing maintenance(calculations based on Allen et al., 1998 and Rogers et al., 2006).
+       sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4)*0.46*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
 ! 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Allen et al., 1998 and Rogers et al., 2006) 
 
 
@@ -522,14 +551,15 @@ assim_accum=0.0_dbl_kind
 !Calculate dry weight change
 !-----------------------------
 
-	  sib%diag%wch(1)=sib%diag%allocwt(time%doy,1)- sib%diag%phen_maintr(1)
-      sib%diag%wch(2)=sib%diag%allocwt(time%doy,2)- sib%diag%phen_maintr(2)
-      sib%diag%wch(3)=sib%diag%allocwt(time%doy,3)- sib%diag%phen_maintr(3)
-      sib%diag%wch(4)=sib%diag%allocwt(time%doy,4)- sib%diag%phen_maintr(4)
+	  sib%diag%wch(1)=sib%diag%allocwt(1)- sib%diag%phen_maintr(1)
+      sib%diag%wch(2)=sib%diag%allocwt(2)- sib%diag%phen_maintr(2)
+      sib%diag%wch(3)=sib%diag%allocwt(3)- sib%diag%phen_maintr(3)
+      sib%diag%wch(4)=sib%diag%allocwt(4)- sib%diag%phen_maintr(4)
 
 !--------------------------------------------------------------
 !Recalculate final cumulative dry weight (g C m-2) of each plant part
 !--------------------------------------------------------------
+
 	  do j=1,4	 
        
      	sib%diag%cum_drywt(time%doy,j)=sib%diag%cum_drywt(time%doy-1,j)+sib%diag%wch(j)
@@ -541,6 +571,11 @@ assim_accum=0.0_dbl_kind
 	  endif
  
       enddo
+
+	  sib%diag%final_drywt(1)=sib%diag%cum_drywt(time%doy,1) !Renamed to be output on a daily basis in a separate text file
+	  sib%diag%final_drywt(2)=sib%diag%cum_drywt(time%doy,2)
+	  sib%diag%final_drywt(3)=sib%diag%cum_drywt(time%doy,3)
+	  sib%diag%final_drywt(4)=sib%diag%cum_drywt(time%doy,4)
 
 !------------------------------------------------
 !final leaf weight (C g m-2) (after adjustment for senescence and harvest event)
@@ -582,17 +617,16 @@ print*,sib%diag%assim_d,sib%diag%phen_LAI
 
 
 
+	open(unit=20,file='phen_soy_test.dat',form='formatted')
  
 		write(20,'(i3.3,2x,43(1x,f11.2))')time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
-             sib%diag%allocwt(365,1:4),sib%diag%cum_w(365,1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
-sib%diag%cum_drywt(365,1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
+             sib%diag%allocwt(1:4),sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
+sib%diag%final_drywt(1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
 	
 
 
 sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 end subroutine soy_phen
-
-
 
 
 end subroutine crop_accum
