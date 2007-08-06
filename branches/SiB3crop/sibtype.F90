@@ -425,12 +425,15 @@ type diagnostic_vars
 									 ! placeholder for accumulating assimilation within a day
     real(kind=dbl_kind) :: day_allocwt (4)  !place holder for accumulating allocwt                             	
 	real(kind=dbl_kind)	:: alloc(4)			! basic allocation fractions for different plant parts (1-roots;2-leaves;3-stems;4-products)
-	real(kind=dbl_kind)	:: allocwt(365,4)		! dryweight+maintenance respiration for different plant parts 
-	real(kind=dbl_kind)	:: cum_w (365,4)		! cumulative (dryweight+maintenance respiration) for different plant parts
+	real(kind=dbl_kind)	:: allocwt(4)		! dryweight+maintenance respiration for different plant parts 
+	real(kind=dbl_kind) :: cum_wt(365,4)	! cumulative (dryweight+maintenance respiration) for different plant parts
+	real(kind=dbl_kind)	:: cum_w (4)		!variable used to output cum_wt in a separate text file
+
 	real(kind=dbl_kind)	:: phen_maintr(4)	! maintenance respiration from phenology model 
     real(kind=dbl_kind)	:: phen_growthr(4)	! maintenance respiration from phenology model 
 	real(kind=dbl_kind)	:: wch(4)			! dry wt change per day
     real(kind=dbl_kind)	:: cum_drywt(365,4)		! final, cumulative dry wt of each plant part
+	real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt in a separate text file
 	integer(kind=int_kind) :: tb_indx
                                     ! index for counting up sib timesteps
                                    
