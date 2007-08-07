@@ -32,7 +32,8 @@ type biome_morph_var
    real (kind=real_kind) :: zc        ! Canopy inflection height (m)
    real (kind=real_kind) :: LWidth    ! Leaf width
    real (kind=real_kind) :: LLength   ! Leaf length	
-   real (kind=real_kind) :: LAImax    ! Maximum LAI
+   real (kind=real_kind) :: LAImax    ! Maximum LAI0.07
+
    real (kind=real_kind) :: stems     ! Stem area index
    real (kind=real_kind) :: NDVImax   ! Maximum NDVI
    real (kind=real_kind) :: NDVImin   ! Minimum NDVI
@@ -86,6 +87,8 @@ real(kind=real_kind), parameter :: fPARmin=0.01
    ! Calculate first guess fPAR 
    ! use average of Simple Ratio (SR) and NDVI methods.
 
+
+
    call AverageAPAR (prevNDVI, MorphTab%NDVImin, MorphTab%NDVImax,   &
                      MorphTab%SRmin, MorphTab%SRmax, fPARmax,        &
 		             fParmin, prevfPAR)
@@ -93,6 +96,7 @@ real(kind=real_kind), parameter :: fPARmin=0.01
    call AverageAPAR (curNDVI, MorphTab%NDVImin, MorphTab%NDVImax,    &
                      MorphTab%SRmin, MorphTab%SRmax, fPARmax,        &
 		             fParmin, TimeVar%fPAR)
+
 
    ! Calculate leaf area index (LAI) and greeness fraction (Green)
    !   See S. Los et al 1998 section 4.2.
@@ -103,6 +107,7 @@ real(kind=real_kind), parameter :: fPARmin=0.01
         	    MorphTab%stems, MorphTab%LAImax, TimeVar%Green,   &
         	    TimeVar%LAI)
 
+
    ! Interpolate to calculate aerodynamic, time varying variables
    call AeroInterpolate (TimeVar%LAI, fVCover, LAIgrid,fVCovergrid,   &
                          AeroVar, TimeVar%zo, TimeVar%zp_disp,        &
@@ -111,11 +116,13 @@ real(kind=real_kind), parameter :: fPARmin=0.01
    ! Calculate mean leaf orientation to par flux (gmudmu)
    call gmuder (lat, DOY, ChiL, TimeVar%gmudmu)
 
+
    ! recalculate fPAR adjusting for Sun angle, vegetation cover fraction,
    ! and greeness fraction, and LAI
    call aparnew (TimeVar%LAI, TimeVar%Green, LTran, LRef,   &
                  TimeVar%gmudmu, fVCover, TimeVar%fPAR,     &
                  fPARmax, fPARmin)
+
 
    return
 end subroutine mapper
@@ -142,6 +149,7 @@ subroutine averageapar ( ndvi, ndvimin, ndvimax, srmin, srmax, &
 
     !-Parameters-----------------------------------------------------
     real(kind=real_kind) :: ndvi        ! normalized NDVI for vegetation type
+
     real(kind=real_kind) :: ndvimin     ! minimum NDVI for vegetation type
     real(kind=real_kind) :: ndvimax     ! maximum NDVI for vegetation type
     real(kind=real_kind) :: srmin       ! minimum SR for vegetation type
@@ -170,9 +178,11 @@ subroutine averageapar ( ndvi, ndvimin, ndvimax, srmin, srmax, &
 
     ! Calculate simple ratio (SR)
     sr=(1.+LocNDVI)/(1.-LocNDVI)
+
 	
     ! Calculate fPAR using SR method (Los et al. (1999), eqn. 5)
     srfpar = (sr - srmin) * (fparmax - fparmin) / (srmax - srmin) + fparmin
+
 
     ! Calculate fPAR using NDVI method (Los et al. (1999), eqn. 6)
     ndvifpar = (locndvi - ndvimin) * (fparmax - fparmin) /  &
@@ -317,16 +327,19 @@ subroutine aerointerpolate ( lai, fvcover, laigrid, fvcovergrid, &
     temp = 0.01
     locfvcover = max(fvcover, temp)
 
+
     ! Determine the nearest array location for the desired LAI and fVCover
     i = int(loclai / dlai) + 1
     j = int(locfvcover / dfvcover) + 1
     j = min(j, 49)
+
 
     ! Interpolate RbC variable
     call interpolate( laigrid(i), loclai, dlai, &
         fvcovergrid(j), locfvcover, dfvcover,   &
         aerovar(i,j)%rbc, aerovar(i+1,j)%rbc,   &
         aerovar(i,j+1)%rbc, aerovar(i+1,j+1)%rbc, rbc )
+
 
     ! Interpolate RdC variable
     call interpolate( laigrid(i), loclai, dlai, &
@@ -523,8 +536,10 @@ subroutine aparnew ( lai, green, ltran, lref, gmudmu, fvcover, fpar, &
     ! PAR absorption coefficient = (1 - scatp)
     park = sqrt(1. - scatp) * gmudmu
 
+
     ! Calculate the new fPAR (Sellers er al. Part II (1996), eqn 9)
     fpar = fvcover * (1. - exp(-park * lai / fvcover))
+
 
     ! Ensure calculated fPAR falls within physical limits
     fpar = amax1(fparmin, fpar)

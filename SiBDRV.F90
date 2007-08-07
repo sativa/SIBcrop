@@ -5,13 +5,15 @@ use timetype
 use sib_const_module
 use sib_io_module
 use sibtype
+use sib_bc_module
+
 implicit none
 
 ! local variables
 type(sib_t), dimension(:), allocatable :: sib
 type(time_struct) :: time
 integer(kind=long_kind) :: t
-integer(kind=int_kind) :: i
+integer(kind=int_kind) :: i,k
 integer(kind=int_kind) :: rank
 integer(kind=int_kind) :: nchunks
 integer, external :: iargc
@@ -27,6 +29,30 @@ real(kind=dbl_kind) residual
 ! command line variables
 character(len=4) :: one, two
 character(len=4) :: dfdfd
+
+
+!itb_crop
+
+! begin time dependant, output variables
+type time_dep_var
+   real (kind=real_kind) :: fPAR    ! Canopy absorbed fraction of PAR
+   real (kind=real_kind) :: LAI     ! Leaf-area index
+   real (kind=real_kind) :: Green   ! Canopy greeness fraction of LAI
+   real (kind=real_kind) :: zo      ! Canopy roughness coeff 
+   real (kind=real_kind) :: zp_disp ! Zero plane displacement
+   real (kind=real_kind) :: RbC     ! RB Coefficient (c1)
+   real (kind=real_kind) :: RdC     ! RC Coefficient (c2)
+   real (kind=real_kind) :: gmudmu  ! Time-mean leaf projection
+end type time_dep_var
+
+type(time_dep_var) TimeVar
+
+type(aero_var),dimension(50,50) :: tempaerovar
+real(kind=real_kind),dimension(2,2) :: temptran,tempref
+
+!itb_crop_end
+
+
 
     ! read in parallelization values from command line
     call getarg( 1, one )
@@ -94,7 +120,10 @@ character(len=4) :: dfdfd
 !itb_crop...calculate Ta_bar (and any other crop stuff we 
 !itb_crop...need )
 
-        if ( time%new_day .AND. time%doy > time%init_doy) call crop_accum(sib,time)
+        if ( time%new_day .AND. time%doy > time%init_doy)    &
+                                    call crop_accum(sib,time)
+
+!itb_crop_end
 
 
 
@@ -120,8 +149,81 @@ character(len=4) :: dfdfd
 
         ! read in bc data needed
         if ( time%read_bc ) then
-            call new_bc( sib, time )
+
+!itb_crop...bypassing the call to new_bc; don't want to 
+!itb_crop...use the NDVI-derived parameters
+!            call new_bc( sib, time )
+
+!itb_crop...what we want to do is use the min_ndvi_crop value
+!itb_crop...set in sibtype, unless the phenology model is
+!itb_crop...being utilized
+
+        do i = 1, subcount
+             sib(i)%param%aparc1       = sib(i)%param%aparc2
+             sib(i)%param%zlt1         = sib(i)%param%zlt2
+             sib(i)%param%green1       = sib(i)%param%green2
+             sib(i)%param%z0d1         = sib(i)%param%z0d2
+             sib(i)%param%zp_disp1     = sib(i)%param%zp_disp2
+             sib(i)%param%rbc1         = sib(i)%param%rbc2
+             sib(i)%param%rdc1         = sib(i)%param%rdc2
+             sib(i)%param%gmudmu1      = sib(i)%param%gmudmu2
+             sib(i)%param%d13cresp1    = sib(i)%param%d13cresp2
+             do k = 1, physmax
+                 sib(i)%param%physfrac1(k) = sib(i)%param%physfrac2(k)
+             enddo
+         enddo
+
+
+    temptran(1,1) = sib(1)%param%tran(1,1)
+    temptran(1,2) = sib(1)%param%tran(1,2)
+    temptran(2,1) = sib(1)%param%tran(2,1)
+    temptran(2,2) = sib(1)%param%tran(2,2)
+
+    tempref(1,1) = sib(1)%param%ref(1,1)
+    tempref(1,2) = sib(1)%param%ref(1,2)
+    tempref(2,1) = sib(1)%param%ref(2,1)
+    tempref(2,2) = sib(1)%param%ref(2,2)
+
+    tempaerovar = aerovar(:,:,int(sib(1)%param%biome))
+
+         call mapper(                              &
+            latsib(1),                             &
+            time%mid_month(time%pmonth),           &
+            sib(1)%diag%min_ndvi_crop,             &
+            sib(1)%diag%min_ndvi_crop,             &
+            sib(1)%diag%min_fvcov_crop,            &
+            sib(1)%param%chil,                     &
+            temptran,                              &
+            tempref,                               & 
+            morphtab(sib(1)%param%biome),          &
+            tempaerovar,                           &
+            laigrid,                               &
+            fvcovergrid,                           &
+            timevar)
+
+            sib(1)%param%aparc2 = timevar%fpar
+            sib(1)%param%zlt2 = timevar%lai
+            sib(1)%param%green2 = timevar%green
+            sib(1)%param%z0d2 = timevar%zo
+            sib(1)%param%zp_disp2 = timevar%zp_disp
+            sib(1)%param%rbc2 = timevar%rbc
+            sib(1)%param%rdc2 = timevar%rdc
+            sib(1)%param%gmudmu2 = timevar%gmudmu
+
+
+
+
+
         endif
+
+ 
+
+!itb_crop_end
+
+
+
+
+
 
         ! interpolate bc variables once a day      
         if ( time%new_day ) call bc_interp( sib, time )

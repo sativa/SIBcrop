@@ -6,6 +6,12 @@ use sibtype
 use timetype
 use sib_const_module
 use sib_io_module
+
+!itb_crop...
+use sib_bc_module
+!itb_crop_end...
+
+
 implicit none
 
 !---------------------------------------------------------------------
@@ -35,8 +41,28 @@ type(sib_t), dimension(subcount), intent(inout) :: sib
 type(time_struct), intent(inout) :: time
 
 ! local variables
+
+
 integer(kind=int_kind) :: i
 
+! begin time dependant, output variables
+type time_dep_var
+   real (kind=real_kind) :: fPAR    ! Canopy absorbed fraction of PAR
+   real (kind=real_kind) :: LAI     ! Leaf-area index
+   real (kind=real_kind) :: Green   ! Canopy greeness fraction of LAI
+   real (kind=real_kind) :: zo      ! Canopy roughness coeff 
+   real (kind=real_kind) :: zp_disp ! Zero plane displacement
+   real (kind=real_kind) :: RbC     ! RB Coefficient (c1)
+   real (kind=real_kind) :: RdC     ! RC Coefficient (c2)
+   real (kind=real_kind) :: gmudmu  ! Time-mean leaf projection
+end type time_dep_var
+
+type(time_dep_var) TimeVar
+
+!itb_crop
+
+type(aero_var),dimension(50,50) :: tempaerovar
+real(kind=real_kind),dimension(2,2) :: temptran,tempref
 
 
     print *, 'INIT_SIBDRV:'
@@ -51,7 +77,9 @@ integer(kind=int_kind) :: i
         sib(i)%diag%tot_an(:)   = 0.0_dbl_kind
         sib(i)%diag%tot_ss(:,:)   = 0.0_dbl_kind
         sib(i)%stat%pt_num=i
-    enddo
+    enddo    
+
+
 
     ! parse sib_qpopts and sib_pbpopts to see which variables are output
     call read_qp_pbp_opts
@@ -67,7 +95,68 @@ integer(kind=int_kind) :: i
     ! calculate previous month's time-variant boundary conditions
     !  and read in time-invariant boundary conditions
     print *, '\t obtaining previous month time-variant boundary conditions'
+
+
+!itb_crop...bypass the parameter file time-varying values. will
+!itb_crop...call mapper from here, using minimum NDVI value
+!itb_crop...specified in sibtype.F90
+
+
+!itb_crop...still need to read in the time-invariant values.
     call previous_bc( sib, time )
+
+!itb_crop...now replace the time-varying params
+    print*,'previous_bc'
+
+
+    call read_ti_crop_single(sib)
+
+    tempaerovar = aerovar(:,:,int(sib(1)%param%biome))
+
+!itb_crop...assign values to tempaerovar
+
+    temptran(1,1) = sib(1)%param%tran(1,1)
+    temptran(1,2) = sib(1)%param%tran(1,2)
+    temptran(2,1) = sib(1)%param%tran(2,1)
+    temptran(2,2) = sib(1)%param%tran(2,2)
+
+    tempref(1,1) = sib(1)%param%ref(1,1)
+    tempref(1,2) = sib(1)%param%ref(1,2)
+    tempref(2,1) = sib(1)%param%ref(2,1)
+    tempref(2,2) = sib(1)%param%ref(2,2)
+
+
+    print*,'read_ti_crop'
+    call mapper(          &
+            latsib(1),        &
+            time%mid_month(time%pmonth),           &
+            sib(1)%diag%min_ndvi_crop,      &
+            sib(1)%diag%min_ndvi_crop,      &
+            sib(1)%diag%min_fvcov_crop, &
+            sib(1)%param%chil,   &
+            temptran,         &
+            tempref,          &
+            morphtab(int(sib(1)%param%biome)),      &
+            tempaerovar,      &
+            laigrid,          &
+            fvcovergrid,      &
+            timevar)
+
+
+
+        sib(1)%param%aparc2 = timevar%fpar
+        sib(1)%param%zlt2 = timevar%lai
+        sib(1)%param%green2 = timevar%green
+        sib(1)%param%z0d2 = timevar%zo
+        sib(1)%param%zp_disp2 = timevar%zp_disp
+        sib(1)%param%rbc2 = timevar%rbc
+        sib(1)%param%rdc2 = timevar%rdc
+        sib(1)%param%gmudmu2 = timevar%gmudmu
+
+!itb_crop_end...
+
+
+
     call soil_properties( sib )
     
 

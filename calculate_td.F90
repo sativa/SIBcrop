@@ -43,7 +43,8 @@ type(aero_var) :: tempaerovar(50,50)
 
 
 
-    do i = 1, subcount  
+    do i = 1, subcount 
+
         k = int(sib(i)%param%biome)
         temptran = sib(i)%param%tran(:,:)
         tempref = sib(i)%param%ref(:,:)

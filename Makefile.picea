@@ -121,6 +121,7 @@ DRV_OBJS  = init_grid.o \
             sibdrv_read_ncep2.o \
             sibdrv_read_geos4.o \
 	    read_ti.o \
+	    read_ti_crop_single.o \
 	    mapper.o \
 	    calculate_td.o \
 	    read_ndvi.o \

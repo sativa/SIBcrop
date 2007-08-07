@@ -62,6 +62,10 @@ integer k
 !	sib%diag%doy   = 0   !for planting dates- EL
 !    time%year	   =0
 !    time%doy       =0
+
+    sib%diag%use_phen = 0
+
+
 !itb_crop_end
 
 
