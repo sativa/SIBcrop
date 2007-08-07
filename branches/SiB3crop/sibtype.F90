@@ -440,6 +440,21 @@ type diagnostic_vars
     integer(kind=int_kind) :: year  ! to represent years with different crops
 	integer(kind=int_kind) :: doy	! to calculate planting dates and growth stages of certain crops- EL
 
+
+    integer(kind=int_kind) :: use_phen   ! logical variable: are we using the phenology model?
+                                         ! if 1 ==> yes; use phenology model for all 
+                                         !          time-varying veg params
+                                         ! if 0 ==> no; use minimum NDVI/fvcover value
+                                         !          (min_ndvi_crop,min_fvcov_crop)
+
+    real(kind=dbl_kind) :: min_ndvi_crop = 0.07 
+                                         ! this is the minimum NDVI value to use when 
+                                         ! phenology model is NOT being used
+    real(kind=dbl_kind) :: min_fvcov_crop = 0.1
+
+
+!itb_crop_end...
+
 	
                                      
 
