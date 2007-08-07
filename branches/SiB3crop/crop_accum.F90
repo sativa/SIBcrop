@@ -86,7 +86,9 @@ endif
     	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
 	endif
-
+	if (time%doy>300) then
+        sib%diag%gdd=0.0
+	endif
 !   if(sib%diag%ta_bar > 20.0_dbl_kind + tice) then
 
 !     sib%diag%gdd = sib%diag%gdd + sib%diag%ta_bar      &
@@ -206,8 +208,13 @@ assim_accum=0.0_dbl_kind
 	  sib%diag%cum_w(2)=sib%diag%cum_wt(time%doy,2)
 	  sib%diag%cum_w(3)=sib%diag%cum_wt(time%doy,3)
 	  sib%diag%cum_w(4)=sib%diag%cum_wt(time%doy,4)
-
-
+		
+	  if (time%doy>300) then
+		sib%diag%cum_wt(time%doy,1)=0.0
+		sib%diag%cum_wt(time%doy,2)=0.0
+		sib%diag%cum_wt(time%doy,3)=0.0
+		sib%diag%cum_wt(time%doy,4)=0.0
+	  endif
 
 !print*,sib%diag%assim_d,sib%diag%allocwt(2),sib%diag%cum_w(time%doy,2)
 
@@ -239,7 +246,14 @@ assim_accum=0.0_dbl_kind
 
 
 !print*,sib%diag%cum_wt(time%doy,2),sib%diag%phen_maintr(2)
-
+		
+	if (time%doy>300) then	
+		sib%diag%phen_maintr(1)=0.0
+		sib%diag%phen_maintr(2)=0.0
+		sib%diag%phen_maintr(3)=0.0
+		sib%diag%phen_maintr(4)=0.0
+	endif
+		
 !------------------------------
 !Calculate dry weight change
 !-----------------------------
@@ -248,7 +262,13 @@ assim_accum=0.0_dbl_kind
       sib%diag%wch(2)=sib%diag%allocwt(2)- sib%diag%phen_maintr(2)
       sib%diag%wch(3)=sib%diag%allocwt(3)- sib%diag%phen_maintr(3)
       sib%diag%wch(4)=sib%diag%allocwt(4)- sib%diag%phen_maintr(4)
-
+	
+	  if (time%doy>300) then
+		sib%diag%wch(1)=0.0
+		sib%diag%wch(2)=0.0
+		sib%diag%wch(3)=0.0
+		sib%diag%wch(4)=0.0
+	  endif
 !--------------------------------------------------------------
 !Recalculate final cumulative dry weight (g C m-2) of each plant part
 !--------------------------------------------------------------
@@ -279,7 +299,7 @@ assim_accum=0.0_dbl_kind
        elseif (sib%diag%gdd>=2730.0 .and. sib%diag%gdd<3300.0) then
           sib%diag%leafwt_c=0.95*sib%diag%cum_drywt(time%doy,2)-(0.95-0.2)*sib%diag%cum_drywt(time%doy,2)*((sib%diag%gdd-2730.0)/570)
         
-        elseif (sib%diag%gdd>3300.0) then
+        else
           sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
 
         endif
@@ -302,7 +322,7 @@ assim_accum=0.0_dbl_kind
 
 !	open(unit=20,file='phen_corn_test.dat',form='formatted')
  
-		write(20,'(i3.3,2x,43(1x,f11.2))')time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
+		write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
              sib%diag%w_main,sib%diag%allocwt(1:4),sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
 sib%diag%final_drywt(1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
 
@@ -314,9 +334,9 @@ subroutine soy_phen
 !-----------------------------------------------------------------------------------------------------------
 
 if (sib%diag%tempf<65.0) then
-    ndf65=0			!ndf65= no. of days withe avg. temperature above 60F
+    ndf65=0			!ndf65= no. of days withe avg. temperature above 65F
 elseif (sib%diag%tempf>=65.0) then
-    ndf60=ndf65+1
+    ndf65=ndf65+1
 endif
 
 if (ndf65==5) then
@@ -340,6 +360,10 @@ endif
 
     	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
+	endif
+
+	if (time%doy>300) then
+        sib%diag%gdd=0.0
 	endif
 
 !   if(sib%diag%ta_bar > 20.0_dbl_kind + tice) then
@@ -502,7 +526,13 @@ assim_accum=0.0_dbl_kind
 	  sib%diag%cum_w(2)=sib%diag%cum_wt(time%doy,2)
 	  sib%diag%cum_w(3)=sib%diag%cum_wt(time%doy,3)
 	  sib%diag%cum_w(4)=sib%diag%cum_wt(time%doy,4)
-
+	 
+	  if (time%doy>300) then
+		sib%diag%cum_wt(time%doy,1)=0.0
+		sib%diag%cum_wt(time%doy,2)=0.0
+		sib%diag%cum_wt(time%doy,3)=0.0
+		sib%diag%cum_wt(time%doy,4)=0.0
+	  endif
 
 !	  do j=1,4	 
        
@@ -544,7 +574,13 @@ assim_accum=0.0_dbl_kind
        sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4)*0.46*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
 ! 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Allen et al., 1998 and Rogers et al., 2006) 
 
-
+	
+	  if (time%doy>300) then
+		sib%diag%phen_maintr(1)=0.0
+		sib%diag%phen_maintr(2)=0.0
+		sib%diag%phen_maintr(3)=0.0
+		sib%diag%phen_maintr(4)=0.0
+	  endif
 !print*,sib%diag%cum_w(time%doy,2),sib%diag%phen_maintr(2)
 
 !------------------------------
@@ -556,6 +592,12 @@ assim_accum=0.0_dbl_kind
       sib%diag%wch(3)=sib%diag%allocwt(3)- sib%diag%phen_maintr(3)
       sib%diag%wch(4)=sib%diag%allocwt(4)- sib%diag%phen_maintr(4)
 
+	 if (time%doy>300) then
+		sib%diag%wch(1)=0.0
+		sib%diag%wch(2)=0.0
+		sib%diag%wch(3)=0.0
+		sib%diag%wch(4)=0.0
+	 endif
 !--------------------------------------------------------------
 !Recalculate final cumulative dry weight (g C m-2) of each plant part
 !--------------------------------------------------------------
@@ -613,14 +655,14 @@ assim_accum=0.0_dbl_kind
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-print*,sib%diag%assim_d,sib%diag%phen_LAI
+print*,pd,sib%diag%assim_d,sib%diag%phen_LAI
 
 
 
 	open(unit=20,file='phen_soy_test.dat',form='formatted')
  
-		write(20,'(i3.3,2x,43(1x,f11.2))')time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
-             sib%diag%allocwt(1:4),sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
+		write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
+             sib%diag%w_main,sib%diag%allocwt(1:4),sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
 sib%diag%final_drywt(1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
 	
 
