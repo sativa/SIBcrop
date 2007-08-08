@@ -100,7 +100,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     if(mod(time%year,2) /= 0) then
     	open(unit=20,file='phen_corn_test.dat',form='formatted')
     else
-    	open(unit=20,file='phen_soy_test.dat',form='formatted')
+    	open(unit=21,file='phen_soy_test.dat',form='formatted')
     endif
 
 
