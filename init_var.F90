@@ -34,7 +34,6 @@ integer k
 		sib%diag%w_main=0.0
 		sib%diag%leafwt_c = 0.0
 		sib%diag%phen_LAI=0.0
-       		
 	
      do i=1,365    
 	 do j=1,4

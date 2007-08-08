@@ -89,6 +89,7 @@ endif
 	if (time%doy>300) then
         sib%diag%gdd=0.0
 	endif
+
 !   if(sib%diag%ta_bar > 20.0_dbl_kind + tice) then
 
 !     sib%diag%gdd = sib%diag%gdd + sib%diag%ta_bar      &
@@ -289,17 +290,23 @@ assim_accum=0.0_dbl_kind
 	  sib%diag%final_drywt(3)=sib%diag%cum_drywt(time%doy,3)
 	  sib%diag%final_drywt(4)=sib%diag%cum_drywt(time%doy,4)
 
+	  if (time%doy>300) then
+		sib%diag%cum_drywt(time%doy,1)=0.0
+		sib%diag%cum_drywt(time%doy,2)=0.0
+		sib%diag%cum_drywt(time%doy,3)=0.0
+		sib%diag%cum_drywt(time%doy,4)=0.0
+	  endif
 !------------------------------------------------
 !final leaf weight (C g m-2) (after adjustment for senescence and harvest event)
 !-------------------------------------------------
        
-		if (sib%diag%gdd<2730) then
+		if (sib%diag%gdd>0.0 .and. sib%diag%gdd<2730) then
 	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)
 	
        elseif (sib%diag%gdd>=2730.0 .and. sib%diag%gdd<3300.0) then
           sib%diag%leafwt_c=0.95*sib%diag%cum_drywt(time%doy,2)-(0.95-0.2)*sib%diag%cum_drywt(time%doy,2)*((sib%diag%gdd-2730.0)/570)
-        
         else
+
           sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
 
         endif
@@ -316,7 +323,7 @@ assim_accum=0.0_dbl_kind
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-!print*,sib%diag%assim_d,sib%diag%phen_LAI
+print*,sib%diag%assim_d,sib%diag%phen_LAI
 
 
 
@@ -520,7 +527,7 @@ assim_accum=0.0_dbl_kind
      
 	  endif
  
-      enddo
+  enddo
        
       sib%diag%cum_w(1)=sib%diag%cum_wt(time%doy,1)
 	  sib%diag%cum_w(2)=sib%diag%cum_wt(time%doy,2)
@@ -619,6 +626,14 @@ assim_accum=0.0_dbl_kind
 	  sib%diag%final_drywt(3)=sib%diag%cum_drywt(time%doy,3)
 	  sib%diag%final_drywt(4)=sib%diag%cum_drywt(time%doy,4)
 
+ 	if (time%doy>300) then
+
+		sib%diag%cum_drywt(time%doy,1)=0.0
+		sib%diag%cum_drywt(time%doy,2)=0.0
+		sib%diag%cum_drywt(time%doy,3)=0.0
+		sib%diag%cum_drywt(time%doy,4)=0.0
+	 
+	endif
 !------------------------------------------------
 !final leaf weight (C g m-2) (after adjustment for senescence and harvest event)
 !-------------------------------------------------
@@ -638,7 +653,7 @@ assim_accum=0.0_dbl_kind
 	 elseif (time%doy>=(pd+131).and.time%doy<(pd+144)) then
 	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.1
 
-	 else 
+	 else
 	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
 
      endif
@@ -659,9 +674,9 @@ print*,pd,sib%diag%assim_d,sib%diag%phen_LAI
 
 
 
-	open(unit=20,file='phen_soy_test.dat',form='formatted')
+!	open(unit=21,file='phen_soy_test.dat',form='formatted')
  
-		write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
+		write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
              sib%diag%w_main,sib%diag%allocwt(1:4),sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
 sib%diag%final_drywt(1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
 	
