@@ -454,6 +454,14 @@ type diagnostic_vars
     real(kind=dbl_kind) :: min_fvcov_crop = 0.1
 
 
+
+!itb_crop...initial LAI for the day when the crop emerges from seeds. 
+!itb_crop...this number is arbitrary right now, will change as we
+!itb_crop...learn more.
+
+    real(kind=dbl_kind) :: zlt_crop_init = 1.0
+
+
 !itb_crop_end...
 
 	
