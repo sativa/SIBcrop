@@ -11,6 +11,8 @@ implicit none
 integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65
 real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum
 
+integer(kind=int_kind) :: gdd_flag = 0
+
 
 !----------------------------------------------------------------------
 type(sib_t), intent(inout) :: sib
@@ -77,10 +79,19 @@ endif
 !Calculate growing degree days
 !-----------------------------
 
+!itb_crop...gdd flag to determine initial LAI on day that
+!itb_crop...seeds emerge from ground
 
-	if (pd>0 							.and.		& !this line was added to avoid gdd calculation before real planting date, since pd is printed out as 0 before the real planting date based on the above ndf60==5 criterion
-		time%doy >= pd            .and.          &
-        sib%diag%tempf>50.0      .and.          &
+   if(sib%diag%gdd > 100.0_dbl_kind) gdd_flag = 1
+
+
+!EL...added to avoid gdd calculation before real planting date, 
+!EL...since pd is printed out as 0 before the real planting 
+!EL...date based on the above ndf60==5 criterion
+
+	if (pd>0                  .AND.         & 
+		time%doy >= pd        .AND.         &
+        sib%diag%tempf>50.0   .AND.         &
         sib%diag%tempf<86.0)      then
 
     	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
@@ -90,11 +101,7 @@ endif
         sib%diag%gdd=0.0
 	endif
 
-!   if(sib%diag%ta_bar > 20.0_dbl_kind + tice) then
 
-!     sib%diag%gdd = sib%diag%gdd + sib%diag%ta_bar      &
-!                                 - 20.0_dbl_kind + tice
-!   endif
 
 
 !------------------------------
@@ -102,8 +109,11 @@ endif
 !-------------------------------
 assim_accum=0.0_dbl_kind
  do i0 = 1, sib%diag%tb_indx
+
+!multiplied by the no. secs per each timestep (i.e. tbsib)
+!   to convert assim mol sec-1 to mol
     
-      assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) !multiplied by the no. secs per each timestep (i.e. tbsib) to convert assim mol sec-1 to mol
+      assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) 
 
    enddo
 
@@ -321,6 +331,18 @@ assim_accum=0.0_dbl_kind
 
 
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
+
+
+!itb_crop...at the moment that growind degree days (gdd) passes
+!itb_crop...100, we will initialize the LAI
+    if(sib%diag%gdd >= 100.0_dbl_kind .AND. gdd_flag == 0) then
+
+       sib%param%zlt = sib%diag%zlt_crop_init
+       sib%diag%phen_LAI = sib%diag%zlt_crop_init
+
+       sib%diag%phen_switch = 1
+
+    endif
 
 
 print*,sib%diag%assim_d,sib%diag%phen_LAI

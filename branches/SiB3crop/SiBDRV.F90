@@ -186,7 +186,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 
     tempaerovar = aerovar(:,:,int(sib(1)%param%biome))
 	
-	If (sib%diag%phen_switch==0) then
+	If (sib(1)%diag%phen_switch==0) then
 
          call mapper(                              &
             latsib(1),                             &
@@ -197,7 +197,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
             sib(1)%param%chil,                     &
             temptran,                              &
             tempref,                               & 
-            morphtab(sib(1)%param%biome),          &
+            morphtab(int(sib(1)%param%biome)),          &
             tempaerovar,                           &
             laigrid,                               &
             fvcovergrid,                           &
@@ -223,7 +223,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
             sib(1)%param%chil,                     &
             temptran,                              &
             tempref,                               & 
-            morphtab(sib(1)%param%biome),          &
+            morphtab(int(sib(1)%param%biome)),          &
             tempaerovar,                           &
             laigrid,                               &
             fvcovergrid,                           &
@@ -241,7 +241,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 			
         endif
 
- 
+       endif
 
 !itb_crop_end
 
