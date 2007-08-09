@@ -63,6 +63,7 @@ integer k
 !    time%doy       =0
 
     sib%diag%use_phen = 0
+	sib%diag%phen_switch=0
 
 
 !itb_crop_end

@@ -446,6 +446,7 @@ type diagnostic_vars
                                          !          time-varying veg params
                                          ! if 0 ==> no; use minimum NDVI/fvcover value
                                          !          (min_ndvi_crop,min_fvcov_crop)
+	integer(kind=int_kind) :: phen_switch! switch to trigger (or not) the phenology model
 
     real(kind=dbl_kind) :: min_ndvi_crop = 0.07 
                                          ! this is the minimum NDVI value to use when 

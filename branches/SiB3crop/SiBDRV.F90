@@ -185,6 +185,8 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     tempref(2,2) = sib(1)%param%ref(2,2)
 
     tempaerovar = aerovar(:,:,int(sib(1)%param%biome))
+	
+	If (sib%diag%phen_switch==0) then
 
          call mapper(                              &
             latsib(1),                             &
@@ -210,10 +212,33 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
             sib(1)%param%rdc2 = timevar%rdc
             sib(1)%param%gmudmu2 = timevar%gmudmu
 
+	else
+!needs checking- EL        	
+			call phen_mapper(                              &
+            latsib(1),                             &
+            time%mid_month(time%pmonth),           &
+!            sib(1)%diag%min_ndvi_crop,             &
+!            sib(1)%diag%min_ndvi_crop,             &
+!            sib(1)%diag%min_fvcov_crop,            &
+            sib(1)%param%chil,                     &
+            temptran,                              &
+            tempref,                               & 
+            morphtab(sib(1)%param%biome),          &
+            tempaerovar,                           &
+            laigrid,                               &
+            fvcovergrid,                           &
+            timevar)		
+			
 
-
-
-
+			sib(1)%param%aparc2 = timevar%fpar
+            sib(1)%param%zlt2 = timevar%lai
+            sib(1)%param%green2 = timevar%green
+            sib(1)%param%z0d2 = timevar%zo
+            sib(1)%param%zp_disp2 = timevar%zp_disp
+            sib(1)%param%rbc2 = timevar%rbc
+            sib(1)%param%rdc2 = timevar%rdc
+            sib(1)%param%gmudmu2 = timevar%gmudmu
+			
         endif
 
  
