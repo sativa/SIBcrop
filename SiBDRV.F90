@@ -150,6 +150,8 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
         ! read in bc data needed
         if ( time%read_bc ) then
 
+          print*,'read_bc:',sib(1)%param%zlt
+
 !itb_crop...bypassing the call to new_bc; don't want to 
 !itb_crop...use the NDVI-derived parameters
 !            call new_bc( sib, time )
@@ -188,6 +190,8 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 	
 	If (sib(1)%diag%phen_switch==0) then
 
+         print*,'mapper'
+
          call mapper(                              &
             latsib(1),                             &
             time%mid_month(time%pmonth),           &
@@ -213,13 +217,14 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
             sib(1)%param%gmudmu2 = timevar%gmudmu
 
 	else
-!needs checking- EL        	
+!needs checking- EL
+
+  print*,'phen_mapper:',sib(1)%param%zlt
+        	
 			call phen_mapper(                              &
+            sib(1)%diag%phen_lai,                  &
             latsib(1),                             &
             time%mid_month(time%pmonth),           &
-!            sib(1)%diag%min_ndvi_crop,             &
-!            sib(1)%diag%min_ndvi_crop,             &
-!            sib(1)%diag%min_fvcov_crop,            &
             sib(1)%param%chil,                     &
             temptran,                              &
             tempref,                               & 
@@ -239,6 +244,8 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
             sib(1)%param%rdc2 = timevar%rdc
             sib(1)%param%gmudmu2 = timevar%gmudmu
 			
+
+
         endif
 
        endif
@@ -255,6 +262,8 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 
         ! interpolate
         call sibdrv_interp( sib, time )
+
+  print*,'sibdrv_interp:',sib(1)%param%zlt
 
 
 !itb_crop...
