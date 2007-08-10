@@ -15,10 +15,15 @@ subroutine phen_mapper(                 &
 ! calculates time dependant boundary condition variables for SiB.
 
 use kinds
+
+!----------------------------------------------------------------------
+!type(sib_t), intent(inout) :: sib
+!----------------------------------------------------------------------  
+
 IMPLICIT NONE
 
 ! begin input variables
-real(kind=dbl_kind) :: lai_in   ! input LAI from phenology model
+!real(kind=dbl_kind) :: lai_in   ! input LAI from phenology model
 real lat         ! center latitude of grid cell
 real(kind=dbl_kind) :: fVCover     !
 real(kind=dbl_kind) :: ChiL	 !
@@ -86,7 +91,7 @@ real(kind=real_kind), parameter :: fPARmin=0.01
 
    call laigrn_phen (TimeVar%fPAR, prevfPAR, fPARmax, fVCover,         &
         	    MorphTab%stems, MorphTab%LAImax, TimeVar%Green,   &
-        	    lai_in)
+        	    TimeVar%LAI)
 
 
    ! Interpolate to calculate aerodynamic, time varying variables
@@ -117,7 +122,8 @@ subroutine laigrn_phen (fPAR,fPARm,fPARmax,fVCover,stems, LAImax,Green,LAI)
 ! LAI is linear with vegetation fraction and exponential with fPAR.
 ! See Sellers et al (1994), Equations 7 through 13.
 
-use kinds                                                                      
+use kinds
+                                                                      
 implicit none
 
 ! begin input variables
@@ -144,6 +150,7 @@ real LAId     ! dead leaf area index at current time
 ! be specified, check to assure that calculated fPAR does not exceed fPARMax.
 
 !EL-using phen_LAI to estimate fPAR
+LAI=LAI
 LAIg=LAI
 fPAR=(1-exp((LAIg*alog(1-fPARmax))/LAImax))*real(fvcover)
 
@@ -159,7 +166,7 @@ fPAR=(1-exp((LAIg*alog(1-fPARmax))/LAImax))*real(fvcover)
       LAIgm=alog(1.-fPARm/real(fVCover))*LAImax/alog(1-fPARmax)
    endif
 
-
+print*,fpar,LAIg
    ! Calculate dead leaf area index (LAId):
    ! If LAIg is increasing or unchanged, the vegetation is in growth mode.
    ! LAId is then very small (very little dead matter).
