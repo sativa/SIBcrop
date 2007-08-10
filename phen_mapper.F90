@@ -1,5 +1,6 @@
 !=======================================================================
-subroutine phen_mapper( lat,                 &
+subroutine phen_mapper(                 &
+                   lat,                 &
                    DOY,                 &
                    fVCover,             &
                    ChiL,                &
@@ -114,7 +115,7 @@ subroutine laigrn_phen (fPAR,fPARm,fPARmax,fVCover,stems, LAImax,Green,LAI)
 !=======================================================================
 ! calculate leaf area index (LAI) and greenness fraction (Green) from fPAR. 
 ! LAI is linear with vegetation fraction and exponential with fPAR.
-! See Sellers	If (sib(1)%diag%phen_switch==0) then et al (1994), Equations 7 through 13.
+! See Sellers et al (1994), Equations 7 through 13.
 
 use kinds                                                                      
 implicit none

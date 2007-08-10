@@ -121,7 +121,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 !itb_crop...need )
 
         if ( time%new_day .AND. time%doy > time%init_doy)    &
-                                    call crop_accum(sib,time)
+                                    call crop_accum(sib,time,timevar)
 
 !itb_crop_end
 
@@ -150,7 +150,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
         ! read in bc data needed
         if ( time%read_bc ) then
 
-          print*,'read_bc:',sib(1)%param%zlt
+print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
 
 !itb_crop...bypassing the call to new_bc; don't want to 
 !itb_crop...use the NDVI-derived parameters
@@ -190,7 +190,6 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 	
 	If (sib(1)%diag%phen_switch==0) then
 
-         print*,'mapper'
 
          call mapper(                              &
             latsib(1),                             &
@@ -216,35 +215,6 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
             sib(1)%param%rdc2 = timevar%rdc
             sib(1)%param%gmudmu2 = timevar%gmudmu
 
-	else
-!needs checking- EL
-
-  print*,'phen_mapper:',sib(1)%param%zlt
-        	
-			call phen_mapper(                              &
-            sib(1)%diag%phen_lai,                  &
-            latsib(1),                             &
-            time%mid_month(time%pmonth),           &
-            sib(1)%param%chil,                     &
-            temptran,                              &
-            tempref,                               & 
-            morphtab(int(sib(1)%param%biome)),          &
-            tempaerovar,                           &
-            laigrid,                               &
-            fvcovergrid,                           &
-            timevar)		
-			
-
-			sib(1)%param%aparc2 = timevar%fpar
-            sib(1)%param%zlt2 = timevar%lai
-            sib(1)%param%green2 = timevar%green
-            sib(1)%param%z0d2 = timevar%zo
-            sib(1)%param%zp_disp2 = timevar%zp_disp
-            sib(1)%param%rbc2 = timevar%rbc
-            sib(1)%param%rdc2 = timevar%rdc
-            sib(1)%param%gmudmu2 = timevar%gmudmu
-			
-
 
         endif
 
@@ -263,7 +233,6 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
         ! interpolate
         call sibdrv_interp( sib, time )
 
-  print*,'sibdrv_interp:',sib(1)%param%zlt
 
 
 !itb_crop...
