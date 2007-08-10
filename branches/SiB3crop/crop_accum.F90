@@ -1,15 +1,34 @@
 !==================SUBROUTINE CROP_ACCUM=======================================
-subroutine crop_accum(sib,time)
+subroutine crop_accum(sib,time,timevar)
 
 use kinds
 use sibtype
 use timetype
+use sib_bc_module
 use physical_parameters, only: tice    
+use sib_const_module, only:     latsib
 
 implicit none
 
 integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65
 real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum
+
+! begin time dependant, output variables
+type time_dep_var
+   real (kind=real_kind) :: fPAR    ! Canopy absorbed fraction of PAR
+   real (kind=real_kind) :: LAI     ! Leaf-area index
+   real (kind=real_kind) :: Green   ! Canopy greeness fraction of LAI
+   real (kind=real_kind) :: zo      ! Canopy roughness coeff 
+   real (kind=real_kind) :: zp_disp ! Zero plane displacement
+   real (kind=real_kind) :: RbC     ! RB Coefficient (c1)
+   real (kind=real_kind) :: RdC     ! RC Coefficient (c2)
+   real (kind=real_kind) :: gmudmu  ! Time-mean leaf projection
+end type time_dep_var
+
+type(time_dep_var) TimeVar
+type(aero_var),dimension(50,50) :: tempaerovar
+
+real(kind=real_kind),dimension(2,2) :: temptran,tempref
 
 integer(kind=int_kind) :: gdd_flag = 0
 
@@ -50,6 +69,55 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
 	endif
 !print*,time%year,sib%diag%tempf,time%doy
 
+
+
+!itb_crop...need to calculate veg params daily...
+
+
+   if(sib%diag%phen_switch > 0 ) then
+
+
+      tempaerovar = aerovar(:,:,int(sib%param%biome))
+
+      timevar%lai = sib%diag%phen_lai
+
+      temptran(1,1) = sib%param%tran(1,1)
+      temptran(1,2) = sib%param%tran(1,2)
+      temptran(2,1) = sib%param%tran(2,1)
+      temptran(2,2) = sib%param%tran(2,2)
+
+      tempref(1,1) = sib%param%ref(1,1)
+      tempref(1,2) = sib%param%ref(1,2)
+      tempref(2,1) = sib%param%ref(2,1)
+      tempref(2,2) = sib%param%ref(2,2)
+        	
+      call phen_mapper(                              &
+         latsib(1),                             &
+         time%mid_month(time%pmonth),           &
+         sib%param%vcover,                  &
+         sib%param%chil,                     &
+         temptran,                              &
+         tempref,                               & 
+         morphtab(int(sib%param%biome)),          &
+         tempaerovar,                           &
+         laigrid,                               &
+         fvcovergrid,                           &
+         timevar)
+
+print*,'phen_mapper:',timevar%lai		
+			
+
+	     sib%param%aparc2 = timevar%fpar
+         sib%param%zlt2 = timevar%lai
+         sib%param%green2 = timevar%green
+         sib%param%z0d2 = timevar%zo
+         sib%param%zp_disp2 = timevar%zp_disp
+         sib%param%rbc2 = timevar%rbc
+         sib%param%rdc2 = timevar%rdc
+         sib%param%gmudmu2 = timevar%gmudmu
+			
+   endif
+
 contains
 
 !------------------------------------------------------------------------------
@@ -60,17 +128,17 @@ subroutine corn_phen
 !Calculate the planting date
 !---------------------------
 
-if (sib%diag%tempf<60.0) then
-    ndf60=0			!ndf60= no. of days withe avg. temperature above 60F
-elseif (sib%diag%tempf>=60.0) then
-    ndf60=ndf60+1
-endif
+   if (sib%diag%tempf<60.0) then
+     ndf60=0			!ndf60= no. of days withe avg. temperature above 60F
+   elseif (sib%diag%tempf>=60.0) then
+     ndf60=ndf60+1
+   endif
 
-if (ndf60==5) then
+   if (ndf60==5) then
 
-    pd=time%doy
+     pd=time%doy
 
-endif
+   endif
 
 !print*,pd
 
@@ -107,15 +175,16 @@ endif
 !------------------------------
 !	Reading and summing assimn
 !-------------------------------
-assim_accum=0.0_dbl_kind
- do i0 = 1, sib%diag%tb_indx
+   assim_accum=0.0_dbl_kind
+ 
+   do i0 = 1, sib%diag%tb_indx
 
 !multiplied by the no. secs per each timestep (i.e. tbsib)
 !   to convert assim mol sec-1 to mol
     
       assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) 
 
-   enddo
+    enddo
 
    sib%diag%assim_d = assim_accum*12 !multiplied by 12 to convert mol to g
 
@@ -314,7 +383,8 @@ assim_accum=0.0_dbl_kind
 	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)
 	
        elseif (sib%diag%gdd>=2730.0 .and. sib%diag%gdd<3300.0) then
-          sib%diag%leafwt_c=0.95*sib%diag%cum_drywt(time%doy,2)-(0.95-0.2)*sib%diag%cum_drywt(time%doy,2)*((sib%diag%gdd-2730.0)/570)
+          sib%diag%leafwt_c=0.95*sib%diag%cum_drywt(time%doy,2)-   &
+          (0.95-0.2)*sib%diag%cum_drywt(time%doy,2)*((sib%diag%gdd-2730.0)/570)
         else
 
           sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
@@ -325,8 +395,11 @@ assim_accum=0.0_dbl_kind
 !Calculate LAI
 !-------------
 
-      sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02 	!(convert to dry weight g m-2 and then multiplied by SLA; 
+!(convert to dry weight g m-2 and then multiplied by SLA; 	
 !SLA determined by the averages based on several studies)
+
+      sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02 
+
 
 
 
@@ -337,7 +410,9 @@ assim_accum=0.0_dbl_kind
 !itb_crop...100, we will initialize the LAI
     if(sib%diag%gdd >= 100.0_dbl_kind .AND. gdd_flag == 0) then
 
-       sib%param%zlt = sib%diag%zlt_crop_init
+       sib%param%zlt1    = sib%diag%zlt_crop_init
+       sib%param%zlt2    = sib%diag%zlt_crop_init
+       sib%param%zlt     = sib%diag%zlt_crop_init
        sib%diag%phen_LAI = sib%diag%zlt_crop_init
 
        sib%diag%phen_switch = 1
@@ -351,9 +426,14 @@ print*,sib%diag%assim_d,sib%diag%phen_LAI
 
 !	open(unit=20,file='phen_corn_test.dat',form='formatted')
  
-		write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,time%doy,sib%diag%tempf,sib%diag%tempc,sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4),&
-             sib%diag%w_main,sib%diag%allocwt(1:4),sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),&
-sib%diag%final_drywt(1:4),sib%diag%leafwt_c,sib%diag%phen_LAI 
+		write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
+            time%doy,sib%diag%tempf,sib%diag%tempc,            &
+            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
+            sib%diag%w_main,sib%diag%allocwt(1:4),             &
+            sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),    &
+            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
+            sib%diag%final_drywt(1:4),sib%diag%leafwt_c,       &
+            sib%diag%phen_LAI 
 
 end subroutine corn_phen
 
