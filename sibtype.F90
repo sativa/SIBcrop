@@ -459,7 +459,7 @@ type diagnostic_vars
 !itb_crop...this number is arbitrary right now, will change as we
 !itb_crop...learn more.
 
-    real(kind=dbl_kind) :: zlt_crop_init = 1.0
+    real(kind=dbl_kind) :: zlt_crop_init = 0.32
 
 
 !itb_crop_end...

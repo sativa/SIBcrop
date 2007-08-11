@@ -102,8 +102,17 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
          fvcovergrid,                           &
          timevar)
 
-print*,'phen_mapper:',timevar%lai		
+print*,'phen_mapper:',timevar%lai,timevar%fpar		
 			
+
+	     sib%param%aparc1 = timevar%fpar
+         sib%param%zlt1 = timevar%lai
+         sib%param%green1 = timevar%green
+         sib%param%z0d1 = timevar%zo
+         sib%param%zp_disp1 = timevar%zp_disp
+         sib%param%rbc1 = timevar%rbc
+         sib%param%rdc1 = timevar%rdc
+         sib%param%gmudmu1 = timevar%gmudmu
 
 	     sib%param%aparc2 = timevar%fpar
          sib%param%zlt2 = timevar%lai
@@ -113,6 +122,8 @@ print*,'phen_mapper:',timevar%lai
          sib%param%rbc2 = timevar%rbc
          sib%param%rdc2 = timevar%rdc
          sib%param%gmudmu2 = timevar%gmudmu
+
+         call bc_interp(sib, time)
 			
    endif
 
@@ -121,6 +132,11 @@ contains
 !------------------------------------------------------------------------------
 subroutine corn_phen
 !------------------------------------------------------------------------------
+
+
+!itb...local vars
+
+   real(kind=dbl_kind) :: temp1
 
 !--------------------------
 !Calculate the planting date
@@ -184,9 +200,9 @@ subroutine corn_phen
     
       assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) 
 
-    enddo
+   enddo
 
-   sib%diag%assim_d = assim_accum*12 !multiplied by 12 to convert mol to g
+   sib%diag%assim_d = assim_accum * 12.0 !multiplied by 12 to convert mol to g
 
 !-----------------------------------------------------------
 ! allocation sheme for fractions for assimilate partitioning
@@ -235,7 +251,7 @@ subroutine corn_phen
 		sib%diag%alloc(4)=0.89-(0.89-0.95)*(sib%diag%gdd-1660)/(2730-1660)	
 
 
-	elseif(sib%diag%gdd<100 .or. sib%diag%gdd>=2730.0)then
+	elseif(sib%diag%gdd < 100.0 .or. sib%diag%gdd >= 2730.0)then
 		sib%diag%alloc(1)=0.0
 		sib%diag%alloc(2)=0.0	
 		sib%diag%alloc(3)=0.0	
@@ -246,14 +262,17 @@ subroutine corn_phen
 !Calculate total weight allocation	
 !----------------------------------
 !EL...w_main is the (drywt+maintenancerespiration) together
-!EL..the coefficients corresponds to growth resp & (drywt+maint R) ref Penning deVries (1989)
+!EL..the coefficients corresponds to growth resp & 
+!EL...(drywt+maint R) ref Penning deVries (1989)
 !EL.. here w_main is the (drywt+maint.respn)
     
-    if((sib%diag%gdd>100).and.((sib%diag%gdd<2730))) then
+    if((sib%diag%gdd >= 100.0) .AND. (sib%diag%gdd < 2730.0)) then
 
-       	sib%diag%w_main=sib%diag%assim_d/((sib%diag%alloc(1)*1.2214)+(sib%diag%alloc(2)*1.2515)& 
-
-            +(sib%diag%alloc(3)*1.2225)+(sib%diag%alloc(4)*1.2095))
+       	sib%diag%w_main = sib%diag%assim_d /       &
+               ((sib%diag%alloc(1) * 1.2214) +     &
+                (sib%diag%alloc(2) * 1.2515) +     & 
+                (sib%diag%alloc(3) * 1.2225) +     &
+                (sib%diag%alloc(4) * 1.2095))
 
     else
         sib%diag%w_main =0.0
@@ -319,24 +338,46 @@ subroutine corn_phen
 !--------------------------
 !Calculate maintanence resp
 !--------------------------
+
+!EL...0.18 is the nonstructural C fraction of root C needing 
+!EL...maintenance(calculations based on Brouquisse et al., 1998)
+!EL...maint. coeff. info from Penning de Vries,1989, Amthor, 
+!EL...1984, and Norman and Arkebauer, 1991)
+
+
+       temp1 = (0.03 * 2.0 * 12.0 / 44.0) *                   &
+             (2.0**((sib%diag%tempc - 20.0) / 10.0))
    
-       sib%diag%phen_maintr(1)=sib%diag%cum_wt(time%doy-1,1)*0.18*(0.03*2*12/44)*(2.0**((sib%diag%tempc-20.)/10.))   
+       sib%diag%phen_maintr(1) = sib%diag%cum_wt(time%doy-1,1)       &
+             * 0.18 * temp1  
 
-!EL..0.18 is the nonstructural C fraction of root C needing maintenance(calculations based on Brouquisse et al., 1998)&
-!EL...maint. coeff. info from Penning de Vries,1989, Amthor, 1984, and Norman and Arkebauer, 1991)
 
-       sib%diag%phen_maintr(2)=sib%diag%cum_wt(time%doy-1,2)*0.27*0.03*2*0.75*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+!EL...multiplied by 0.75 to incorporate that maintenance 
+!EL...respiration during the daytime is half that of  nighttime.
+!EL...(de Vries et al., 1989)
+!EL.. 0.27 is the nonstructural fraction of leaf C needing 
+!EL...maintenance (calculations based on Brouquisse et al., 1998)
 
-!EL...multiplied by 0.75 to incorporate that maintenance respiration during the daytime is half that of  nighttime..(de Vries et al., 1989)
-!EL.. 0.27 is the nonstructural fraction of leaf C needing maintenance (calculations based on Brouquisse et al., 1998)
+       sib%diag%phen_maintr(2) = sib%diag%cum_wt(time%doy-1,2) *     &
+              0.27 * temp1
 
-       sib%diag%phen_maintr(3)=sib%diag%cum_wt(time%doy-1,3)*0.24*0.01*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
 
-!EL... 0.24 is the nonstructural fraction of stem C  needing maintenance(calculations based on Brouquisse et al., 1998).
+!EL... 0.24 is the nonstructural fraction of stem C  needing 
+!EL...maintenance(calculations based on Brouquisse et al., 1998).
 
-       sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4)*0.4*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+       temp1 = 0.01 * 2.0 * 12.0 / 44.0 * (2.0**((sib%diag%tempc-20.0) / 10.0))
 
-!EL.. 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Beauchemin et al., 1997) 
+       sib%diag%phen_maintr(3) = sib%diag%cum_wt(time%doy-1,3)          &
+              * 0.24 * temp1
+
+
+!EL.. 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Beauchemin et al., 1997)
+
+       temp1 = 0.015 * 2.0 * 12.0 / 44.0 * (2.0**((sib%diag%tempc-20.0)/10.0))
+
+       sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4) * temp1
+
+ 
 
 		
 	if (time%doy>300) then	
@@ -367,7 +408,8 @@ subroutine corn_phen
 !--------------------------------------------------------------
 	  do j=1,4	 
        
-     	sib%diag%cum_drywt(time%doy,j)=sib%diag%cum_drywt(time%doy-1,j)+sib%diag%wch(j)
+     	sib%diag%cum_drywt(time%doy,j) =            &
+            sib%diag%cum_drywt(time%doy-1,j) + sib%diag%wch(j)
        
 	  	If ((time%doy-1)==0) then
      
@@ -377,7 +419,8 @@ subroutine corn_phen
  
       enddo
 	  
-      sib%diag%final_drywt(1)=sib%diag%cum_drywt(time%doy,1) !Renamed to be output on a daily basis in a separate text file
+ !Renamed to be output on a daily basis in a separate text file
+      sib%diag%final_drywt(1)=sib%diag%cum_drywt(time%doy,1)
 	  sib%diag%final_drywt(2)=sib%diag%cum_drywt(time%doy,2)
 	  sib%diag%final_drywt(3)=sib%diag%cum_drywt(time%doy,3)
 	  sib%diag%final_drywt(4)=sib%diag%cum_drywt(time%doy,4)
@@ -393,18 +436,21 @@ subroutine corn_phen
 !-------------------------------------------------
 !EL...after adjustment for senescence and harvest event
  
+      if( sib%diag%gdd == 0.0 ) then
+
+           sib%diag%leafwt_c =  0.01 
       
-		if (sib%diag%gdd>0.0 .and. sib%diag%gdd<2730) then
+	  elseif (sib%diag%gdd > 0.0 .and. sib%diag%gdd < 2730) then
 
-	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)
+	       sib%diag%leafwt_c = sib%diag%cum_drywt(time%doy,2)
 	
-       elseif (sib%diag%gdd>=2730.0 .and. sib%diag%gdd<3300.0) then
+      elseif (sib%diag%gdd >= 2730.0 .and. sib%diag%gdd < 3300.0) then
 
-          sib%diag%leafwt_c=0.95*sib%diag%cum_drywt(time%doy,2)-   &
-
-          (0.95-0.2)*sib%diag%cum_drywt(time%doy,2)*((sib%diag%gdd-2730.0)/570)
+          sib%diag%leafwt_c = 0.95 * sib%diag%cum_drywt(time%doy,2) -   &
+          (0.95-0.2) * sib%diag%cum_drywt(time%doy,2) *      &
+                              ((sib%diag%gdd - 2730.0) / 570.0)
        
-	   else
+	  elseif( sib%diag%gdd >= 3300.0) then
 
           sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
 
@@ -416,7 +462,13 @@ subroutine corn_phen
 !EL...convert to dry weight g m-2 and then multiplied by SLA; 	
 !EL...SLA determined by the averages based on several studies)
 
+
+
       sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02 
+
+print'(6g12.5)',sib%diag%phen_LAI,sib%diag%leafwt_c,sib%diag%cum_drywt(time%doy,2),   &
+                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
+                     sib%diag%alloc(2)
 
 
 
@@ -435,6 +487,7 @@ subroutine corn_phen
        sib%diag%phen_switch = 1
 
     endif
+
  
 		write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &

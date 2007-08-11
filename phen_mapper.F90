@@ -166,7 +166,7 @@ fPAR=(1-exp((LAIg*alog(1-fPARmax))/LAImax))*real(fvcover)
       LAIgm=alog(1.-fPARm/real(fVCover))*LAImax/alog(1-fPARmax)
    endif
 
-print*,fpar,LAIg
+
    ! Calculate dead leaf area index (LAId):
    ! If LAIg is increasing or unchanged, the vegetation is in growth mode.
    ! LAId is then very small (very little dead matter).
