@@ -1,3 +1,4 @@
+
 !==================SUBROUTINE CROP_ACCUM=======================================
 subroutine crop_accum(sib,time,timevar)
 
@@ -11,7 +12,7 @@ use sib_const_module, only:     latsib
 implicit none
 
 integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65
-real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum
+real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum,drate,max_assimd
 
 ! begin time dependant, output variables
 type time_dep_var
@@ -102,7 +103,7 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
          fvcovergrid,                           &
          timevar)
 
-print*,'phen_mapper:',timevar%lai,timevar%fpar		
+!print*,timevar%lai		
 			
 
 	     sib%param%aparc1 = timevar%fpar
@@ -192,7 +193,48 @@ subroutine corn_phen
 !	Reading and summing assimn
 !-------------------------------
    assim_accum=0.0_dbl_kind
+
+if (sib%diag%gdd<=1360.0) then 
+	drate=0.025		!basic rate for the vegetative growth stages
+!elseif (sib%diag%gdd>1360.0) then 
+!drate=0.019		!basic rate for the reproductive growth stages
+endif
+
+if (sib%diag%gdd==100) then
+	sib%diag%assim_d=4.13 !(initial assim_d at emergence=mean of assim_d from several runs from the offline model using sib assimilation)
+endif
  
+max_assimd=4.13/0.3 !g m-2; based on the results from offline run using sib asimilaiton and a modification of info from De Vries et al., 1989	
+
+!if (sib%diag%gdd>=1560.0 .and.sib%diag%gdd<1660.0)then
+!sib%diag%assim_d=max_assimd
+!endif
+  
+if (sib%diag%tempc<=8) then
+	assim_accum=max_assimd*drate*0.01
+
+elseif (sib%diag%tempc>=8 .and. sib%diag%tempc<14) then
+     assim_accum=max_assimd*drate*(0.01-((0.01-0.2)*(sib%diag%tempc-8)/(14-8)))
+
+elseif (sib%diag%tempc>=14 .and. sib%diag%tempc<19) then
+     assim_accum=max_assimd*drate*(0.2-((0.2-0.6)*(sib%diag%tempc-14)/(19-14)))
+
+elseif (sib%diag%tempc>=19 .and. sib%diag%tempc<28) then
+     assim_accum=max_assimd*drate*(0.6-((0.6-1.0)*(sib%diag%tempc-19)/(28-19)))
+
+elseif (sib%diag%tempc>=28 .and. sib%diag%tempc<35) then
+     assim_accum=max_assimd*drate*(1.0-((1.0-0.9)*(sib%diag%tempc-28)/(35-28)))
+
+elseif (sib%diag%tempc>=35 .and. sib%diag%tempc<45) then
+     assim_accum=max_assimd*drate*(0.9-((0.9-0.01)*(sib%diag%tempc-35)/(45-35)))
+
+endif
+! The above temperatures and relevant fractions from the basic derates based on temperature were set based on the info in de Vries et al. 1989, and slightly modified  by looking at the observed LAI ranges for corn in Bondville.
+
+   sib%diag%assim_d=sib%diag%assim_d+assim_accum
+
+ if (sib%diag%gdd>1360) then
+
    do i0 = 1, sib%diag%tb_indx
 
 !EL...multiplied by the no. secs per each timestep (i.e. tbsib)
@@ -203,6 +245,7 @@ subroutine corn_phen
    enddo
 
    sib%diag%assim_d = assim_accum * 12.0 !multiplied by 12 to convert mol to g
+endif
 
 !-----------------------------------------------------------
 ! allocation sheme for fractions for assimilate partitioning
@@ -466,10 +509,10 @@ subroutine corn_phen
 
       sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02 
 
-print'(6g12.5)',sib%diag%phen_LAI,sib%diag%leafwt_c,sib%diag%cum_drywt(time%doy,2),   &
-                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
-                     sib%diag%alloc(2)
-
+!print'(6g12.5)',sib%diag%phen_LAI,sib%diag%leafwt_c,sib%diag%cum_drywt(time%doy,2),   &
+!                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
+!                     sib%diag%alloc(2)
+print*,sib%diag%assim_d,sib%diag%phen_LAI,timevar%lai
 
 
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
@@ -479,24 +522,25 @@ print'(6g12.5)',sib%diag%phen_LAI,sib%diag%leafwt_c,sib%diag%cum_drywt(time%doy,
 !itb_crop...100, we will initialize the LAI
     if(sib%diag%gdd >= 100.0_dbl_kind .AND. gdd_flag == 0) then
 
-       sib%param%zlt1    = sib%diag%zlt_crop_init
-       sib%param%zlt2    = sib%diag%zlt_crop_init
-       sib%param%zlt     = sib%diag%zlt_crop_init
-       sib%diag%phen_LAI = sib%diag%zlt_crop_init
+!       sib%param%zlt1    = sib%diag%zlt_crop_init
+!       sib%param%zlt2    = sib%diag%zlt_crop_init
+!       sib%param%zlt     = sib%diag%zlt_crop_init
+!       sib%diag%phen_LAI = sib%diag%zlt_crop_init
+!	   sib%diag%cum_drywt(2)=5.0
 
        sib%diag%phen_switch = 1
 
     endif
 
  
-		write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
+		write(20,'(i4.4,2x,i3.3,2x,46(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
             sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
             sib%diag%w_main,sib%diag%allocwt(1:4),             &
             sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),    &
             sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
             sib%diag%final_drywt(1:4),sib%diag%leafwt_c,       &
-            sib%diag%phen_LAI 
+            sib%diag%phen_LAI,timevar%lai
 
 end subroutine corn_phen
 
@@ -860,7 +904,7 @@ subroutine soy_phen
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-print*,pd,sib%diag%assim_d,sib%diag%phen_LAI
+!print*,pd,sib%diag%assim_d,sib%diag%phen_LAI
 
  	write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
