@@ -298,7 +298,7 @@ subroutine corn_phen
 !EL.. between planting and the end of V18 stage
 
  if (sib%diag%gdd>0.0001 .AND. sib%diag%gdd<=1300.0) then 
-		drate=0.022	
+		drate=0.025	
 
 !EL..g m-2; based on the range of results from NDVI-based sib simulations from the past
 		max_wmain=4.9/0.3 
@@ -645,54 +645,54 @@ subroutine soy_phen
 
 		if (pd>0 .AND. time%doy==(pd+10)) then
 	        sib%diag%alloc(1)=0.5
-			sib%diag%alloc(2)=0.4
-			sib%diag%alloc(3)=0.1	
+			sib%diag%alloc(2)=0.25
+			sib%diag%alloc(3)=0.25	
 			sib%diag%alloc(4)=0.0	
         
         else if (pd>0 .AND. time%doy>=(pd+10).and.time%doy<(pd+30)) then
-            sib%diag%alloc(1)=0.5-(0.5-0.48)*(time%doy-(pd+10))/20
-            sib%diag%alloc(2)=0.4-(0.4-0.3)*(time%doy-(pd+10))/20
-            sib%diag%alloc(3)=0.1-(0.1-0.22)*(time%doy-(pd+10))/20
+            sib%diag%alloc(1)=0.5-(0.5-0.5)*(time%doy-(pd+10))/20
+            sib%diag%alloc(2)=0.25-(0.25-0.25)*(time%doy-(pd+10))/20
+            sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+10))/20
             sib%diag%alloc(4)=0.0
          
          
          else if (pd>0 .AND. time%doy>=(pd+30).and.time%doy<(pd+40)) then
-            sib%diag%alloc(1)=0.48-(0.48-0.48)*(time%doy-(pd+30))/10
-			sib%diag%alloc(2)=0.3-(0.3-0.3)*(time%doy-(pd+30))/10
-			sib%diag%alloc(3)=0.22-(0.22-0.22)*(time%doy-(pd+30))/10	
+            sib%diag%alloc(1)=0.5-(0.5-0.49)*(time%doy-(pd+30))/10
+			sib%diag%alloc(2)=0.25-(0.25-0.26)*(time%doy-(pd+30))/10
+			sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+30))/10	
 			sib%diag%alloc(4)=0.0   
 
         else if (pd>0 .AND. time%doy>=(pd+40).and.time%doy<(pd+50)) then
-            sib%diag%alloc(1)=0.48-(0.48-0.37)*(time%doy-(pd+40))/10
-			sib%diag%alloc(2)=0.3-(0.3-0.4)*(time%doy-(pd+40))/10
-			sib%diag%alloc(3)=0.22-(0.22-0.23)*(time%doy-(pd+40))/10	
+            sib%diag%alloc(1)=0.49-(0.49-0.35)*(time%doy-(pd+40))/10
+			sib%diag%alloc(2)=0.26-(0.26-0.4)*(time%doy-(pd+40))/10
+			sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+40))/10	
 			sib%diag%alloc(4)=0.0   
 
       
         else if (pd>0 .AND. time%doy>=(pd+50).and.time%doy<(pd+60)) then
-            sib%diag%alloc(1)=0.37-(0.37-0.3)*(time%doy-(pd+50))/10
-			sib%diag%alloc(2)=0.4-(0.4-0.45)*(time%doy-(pd+50))/10
-			sib%diag%alloc(3)=0.23-(0.23-0.25)*(time%doy-(pd+50))/10	
+            sib%diag%alloc(1)=0.35-(0.35-0.22)*(time%doy-(pd+50))/10
+			sib%diag%alloc(2)=0.4-(0.4-0.53)*(time%doy-(pd+50))/10
+			sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+50))/10	
 			sib%diag%alloc(4)=0.0    
   
 
         else if (pd>0 .AND. time%doy>=(pd+60).and.time%doy<(pd+75)) then
-            sib%diag%alloc(1)=0.3-(0.3-0.3)*(time%doy-(pd+60))/15
-			sib%diag%alloc(2)=0.45-(0.45-0.45)*(time%doy-(pd+60))/15
+            sib%diag%alloc(1)=0.22-(0.22-0.21)*(time%doy-(pd+60))/15
+			sib%diag%alloc(2)=0.53-(0.53-0.5)*(time%doy-(pd+60))/15
 			sib%diag%alloc(3)=0.25-(0.25-0.29)*(time%doy-(pd+60))/15	
 			sib%diag%alloc(4)=0.0
 
 
         else if (pd>0 .AND. time%doy>=(pd+75).and.time%doy<(pd+80)) then
-            sib%diag%alloc(1)=0.3-(0.3-0.2)*(time%doy-(pd+75))/5
-			sib%diag%alloc(2)=0.45-(0.45-0.2)*(time%doy-(pd+75))/5
-			sib%diag%alloc(3)=0.29-(0.29-0.38)*(time%doy-(pd+75))/5	
+            sib%diag%alloc(1)=0.21-(0.21-0.2)*(time%doy-(pd+75))/5
+			sib%diag%alloc(2)=0.50-(0.50-0.35)*(time%doy-(pd+75))/5
+			sib%diag%alloc(3)=0.29-(0.29-0.23)*(time%doy-(pd+75))/5	
 			sib%diag%alloc(4)=0.0-(0.0-0.22)*(time%doy-(pd+75))/5 
 
         else if (pd>0 .AND. time%doy>=(pd+80).and.time%doy<(pd+89)) then
             sib%diag%alloc(1)=0.2-(0.2-0.2)*(time%doy-(pd+80))/9
-			sib%diag%alloc(2)=0.2-(0.2-0.2)*(time%doy-(pd+80))/9
-			sib%diag%alloc(3)=0.38-(0.38-0.2)*(time%doy-(pd+80))/9	
+			sib%diag%alloc(2)=0.35-(0.35-0.2)*(time%doy-(pd+80))/9
+			sib%diag%alloc(3)=0.23-(0.23-0.2)*(time%doy-(pd+80))/9	
 			sib%diag%alloc(4)=0.22-(0.22-0.4)*(time%doy-(pd+80))/9 
 
         else if (pd>0 .AND. time%doy>=(pd+89).and.time%doy<(pd+98)) then
@@ -739,11 +739,11 @@ subroutine soy_phen
 !EL...w_main is the daily amount of dry matter added, which is the basis for calculation of growth and maintenance respn
 !EL..Multiplication factors below were derived using the info taken from past studies; mainly from de Vries et al., 1989.
 
- !   if (pd>0 .AND.time%doy<(pd+10) .AND.time%doy>=(pd+165)) then 
+    if (pd>0 .AND.time%doy<(pd+10) .AND.time%doy>=(pd+165)) then 
 
- !       sib%diag%w_main =0.0001
+        sib%diag%w_main =0.0001
 
- !   endif 
+    endif 
 
 
   if(pd>0 .AND.time%doy>(pd+60).AND.time%doy<=(pd+130)) then
@@ -759,7 +759,7 @@ subroutine soy_phen
 !EL...considering total daily growth, based on the growth rate information given in de Vries et al.1989...
 
 	if (pd>0 .AND.time%doy==(pd+10)) then
-		sib%diag%w_main=3.0 
+		sib%diag%w_main=2.8 
 !EL..(initial w_main g m-2 at emergence=mean of w_main from several runs from the offline model using sib assimilation, 
 !EL...and also based on the observed values from past studies, )
 
@@ -772,7 +772,7 @@ if (pd>0 .AND. time%doy>(pd+10) .AND.time%doy<=(pd+60)) then
 		drate=0.02	
 
 !EL..g m-2; based on the range of results from NDVI-based sib simulations from the past
-		max_wmain=3.0/0.3 
+		max_wmain=2.8/0.3 
 
 
 !EL...Temperatures and relevant fractions from the basic derates based on temperature 
@@ -1003,7 +1003,7 @@ print*,pd,time%doy,sib%diag%gdd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
 !sib%diag%tb_indx = 0	!at the end of each day tb_index is set to zero
 
 
- 	write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
+ 	write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
             sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
             sib%diag%w_main,sib%diag%allocwt(1:4),             &
