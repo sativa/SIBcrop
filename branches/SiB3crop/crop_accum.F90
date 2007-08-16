@@ -340,6 +340,13 @@ subroutine corn_phen
  
 endif
 
+if (time%doy > 300)then
+        sib%diag%w_main =0.0001
+	    sib%diag%assim_d=0.0001
+	    pd=0
+endif
+
+
 !EL...Calculate w_main allocation (i.e. allocwt) to different plant parts
 !EL.. calculates absolute allocation for roots(1),leaves(2),stems(3), and products(4)
  
@@ -500,7 +507,7 @@ endif
 
            sib%diag%leafwt_c =  0.01 
       
-	  elseif (sib%diag%gdd > 0.0 .and. sib%diag%gdd < 2730) then
+	  elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2730) then
 
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(time%doy,2)
 	
@@ -529,7 +536,8 @@ endif
 !print'(6g12.5)',sib%diag%phen_LAI,sib%diag%leafwt_c,sib%diag%cum_drywt(time%doy,2),   &
 !                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
 !                     sib%diag%alloc(2)
-print*,sib%diag%assim_d,sib%diag%phen_LAI,timevar%lai
+
+print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
 
 
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
@@ -558,6 +566,10 @@ print*,sib%diag%assim_d,sib%diag%phen_LAI,timevar%lai
             sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
             sib%diag%final_drywt(1:4),sib%diag%leafwt_c,       &
             sib%diag%phen_LAI,timevar%lai
+
+if ((time%year==time%year + 1) .AND. sib%diag%doy==1) then
+sib%diag%assim_d=0.0001
+endif
 
 end subroutine corn_phen
 
@@ -984,7 +996,7 @@ endif
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-print*,pd,time%doy,sib%diag%gdd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
+print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
 
 !itb_crop...at the moment that growing degree days (gdd) passes
 !itb_crop...100, we will initialize the LAI
@@ -1002,6 +1014,12 @@ print*,pd,time%doy,sib%diag%gdd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
 
 !sib%diag%tb_indx = 0	!at the end of each day tb_index is set to zero
 
+if (time%doy < pd .and. time%doy > 300)then
+        sib%diag%w_main =0.0001
+		sib%diag%assim_d =0.0001
+	    pd=0
+endif
+
 
  	write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
@@ -1010,9 +1028,11 @@ print*,pd,time%doy,sib%diag%gdd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
             sib%diag%cum_w(1:4),sib%diag%phen_growthr(1:4),    &
             sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
             sib%diag%final_drywt(1:4),sib%diag%leafwt_c,       &
-            sib%diag%phen_LAI 
+            sib%diag%phen_LAI,timevar%lai 
 	
-
+if ((time%year==time%year + 1) .AND. sib%diag%doy==1) then
+sib%diag%assim_d=0.0001
+endif
 	 
 end subroutine soy_phen
 
