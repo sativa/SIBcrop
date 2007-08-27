@@ -81,7 +81,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     
     ! initialize all values and prepare for timestep loop
     call init_sibdrv( sib,time )
-    
+!print*,sib(1)%param%phystype(1),sib(1)%param%phystype(2),sib(1)%param%physfrac2(1),sib(1)%param%physfrac2(2)    
     ! set time varaibles for initial time step
     call time_check( time)
     
@@ -154,7 +154,15 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
 
 !itb_crop...bypassing the call to new_bc; don't want to 
 !itb_crop...use the NDVI-derived parameters
-!            call new_bc( sib, time )
+!EL.........reading in monthly-varying physfracs
+
+            call read_physfrac( sib, time )
+ 			do i = 1, subcount
+             do k = 1, physmax
+                 sib(i)%param%physfrac1(k) = sib(i)%param%physfrac2(k)
+             enddo
+         	enddo
+			
 
 !itb_crop...what we want to do is use the min_ndvi_crop value
 !itb_crop...set in sibtype, unless the phenology model is
@@ -170,11 +178,9 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
              sib(i)%param%rdc1         = sib(i)%param%rdc2
              sib(i)%param%gmudmu1      = sib(i)%param%gmudmu2
              sib(i)%param%d13cresp1    = sib(i)%param%d13cresp2
-             do k = 1, physmax
-                 sib(i)%param%physfrac1(k) = sib(i)%param%physfrac2(k)
-             enddo
+            
          enddo
-
+!print*,sib(1)%param%phystype(1),sib(1)%param%phystype(2),sib(1)%param%physfrac2(1),sib(1)%param%physfrac2(2) 
 
     temptran(1,1) = sib(1)%param%tran(1,1)
     temptran(1,2) = sib(1)%param%tran(1,2)

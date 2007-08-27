@@ -537,7 +537,7 @@ endif
 !                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
 !                     sib%diag%alloc(2)
 
-print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
+!print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
 
 
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
@@ -556,6 +556,11 @@ print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
        sib%diag%phen_switch = 1
 
     endif
+
+		
+     if(sib%diag%doy>=300) then
+      sib%diag%phen_switch = 0
+     endif  
 
  
 		write(20,'(i4.4,2x,i3.3,2x,46(1x,f11.2))')time%year,   &
