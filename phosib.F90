@@ -339,6 +339,7 @@ subroutine phosib(sib,sib_loc)
         vm    = vm/temph * sib%diag%rstfac(2)*c3 &
             + vm * sib%diag%rstfac(2)*rstfac3(i) * c4
 
+!print *,sib%param%phystype(i),sib%param%physfrac(i),vm,sib%param%vmax0(i)
         !-----------------------------------------------------------------------
         !
         !     MICHAELIS-MENTEN CONSTANTS FOR CO2 AND O2, CO2/O2 SPECIFICITY,
