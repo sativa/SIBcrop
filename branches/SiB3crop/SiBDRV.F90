@@ -157,11 +157,6 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
 !EL.........reading in monthly-varying physfracs
 
             call read_physfrac( sib, time )
- 			do i = 1, subcount
-             do k = 1, physmax
-                 sib(i)%param%physfrac1(k) = sib(i)%param%physfrac2(k)
-             enddo
-         	enddo
 			
 
 !itb_crop...what we want to do is use the min_ndvi_crop value
@@ -178,7 +173,9 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
              sib(i)%param%rdc1         = sib(i)%param%rdc2
              sib(i)%param%gmudmu1      = sib(i)%param%gmudmu2
              sib(i)%param%d13cresp1    = sib(i)%param%d13cresp2
-            
+             do k = 1, physmax
+                 sib(i)%param%physfrac1(k) = sib(i)%param%physfrac2(k)
+             enddo
          enddo
 !print*,sib(1)%param%phystype(1),sib(1)%param%phystype(2),sib(1)%param%physfrac2(1),sib(1)%param%physfrac2(2) 
 
@@ -220,7 +217,7 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
             sib(1)%param%rbc2 = timevar%rbc
             sib(1)%param%rdc2 = timevar%rdc
             sib(1)%param%gmudmu2 = timevar%gmudmu
-
+			
 
         endif
 
