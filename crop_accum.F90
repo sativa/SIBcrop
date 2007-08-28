@@ -537,7 +537,7 @@ endif
 !                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
 !                     sib%diag%alloc(2)
 
-!print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
+print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
 
 
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
@@ -1001,7 +1001,7 @@ endif
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
+print*,sib%diag%phen_LAI,timevar%lai
 
 !itb_crop...at the moment that growing degree days (gdd) passes
 !itb_crop...100, we will initialize the LAI
@@ -1024,7 +1024,7 @@ if (time%doy < pd .and. time%doy > 300)then
 		sib%diag%assim_d =0.0001
 	    pd=0
 endif
-
+print*,sib%diag%phen_LAI,timevar%lai
 
  	write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
