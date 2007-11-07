@@ -455,7 +455,7 @@ subroutine phosib(sib,sib_loc)
             pco2i = pco2s - assimny(ic) * sib%prog%ps * 100.0 * 1.6/gsh2o
 
             !itb...intermediate leaf chloroplast CO2-this is what we iterate on 
-            pco2c = pco2i - assimny(ic) * sib%prog%ps * 100.0 * 1.0/xgco2m
+            pco2c = pco2i - c3 * assimny(ic) * sib%prog%ps * 100.0 * 1.0/xgco2m
 
             eyy(ic) = pco2y(ic) - pco2c
 
@@ -481,7 +481,7 @@ subroutine phosib(sib,sib_loc)
         sib%diag%assimn(i) = assimny(icconv)
         sib%diag%assim(i)  = assimy(icconv)
         sib%diag%pco2i(i)  = sib%diag%pco2c(i) +  &
-            sib%diag%assimn(i)/xgco2m*sib%prog%ps*100.0
+            c3 * sib%diag%assimn(i)/xgco2m*sib%prog%ps*100.0
         sib%diag%pco2s(i)  = sib%diag%pco2i(i) +  &
             sib%diag%assimn(i)/gsh2o *sib%prog%ps*100.0
         !

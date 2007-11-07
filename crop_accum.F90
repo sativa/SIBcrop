@@ -537,7 +537,7 @@ endif
 !                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
 !                     sib%diag%alloc(2)
 
-print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
+!print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
 
 
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
