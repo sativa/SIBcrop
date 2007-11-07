@@ -24,6 +24,9 @@ character*100 filename  ! filename used to read in ndvi data
 
     if( drvr_type == 'single' ) then
         write (filename, "(a,a1,i4)") trim(param_path), '_', time%pyear
+
+print*,'file=',trim(filename)
+
         open(unit=32, file=trim(filename), form='formatted')   
         read(32,*)ntest1
         if(ntest1.ne.nsib)  stop &
@@ -157,6 +160,8 @@ character*100 filename  ! filename used to read in ndvi data
             read(32,*) sib%param%physfrac2(5)
         enddo
         close( 32 )
+
+print*,'init:',sib%param%physfrac2(1),sib%param%physfrac2(2)
         
     else    ! global run
     

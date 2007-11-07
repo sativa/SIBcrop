@@ -81,7 +81,6 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     
     ! initialize all values and prepare for timestep loop
     call init_sibdrv( sib,time )
-!print*,sib(1)%param%phystype(1),sib(1)%param%phystype(2),sib(1)%param%physfrac2(1),sib(1)%param%physfrac2(2)    
     ! set time varaibles for initial time step
     call time_check( time)
     
@@ -111,6 +110,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 	! print out date information once a day
         if ( time%sec_day == time%dtsib ) then
           print*, time%month_names(time%month),time%day,time%year
+!  print*,'pfrac:',sib(1)%param%physfrac(1),sib(1)%param%physfrac(2)
         endif
 	
 
@@ -155,6 +155,7 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
 !itb_crop...bypassing the call to new_bc; don't want to 
 !itb_crop...use the NDVI-derived parameters
 !EL.........reading in monthly-varying physfracs
+
 
             call read_physfrac( sib, time )
 			
