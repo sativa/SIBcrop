@@ -115,7 +115,8 @@ data subname/'sibdrv_read '/
         status = nf90_open( trim(filename), nf90_nowrite, driver_id )
         if(status/=nf90_noerr) call handle_err(status,'read_ncep2',1)
     endif
-
+print *,"Hallo",trim(filename)
+pause
     ! Read new driver data
     !print*, subname,tau,nextsecond,nextday,nextdoy,       &
     !    nmonth,nyear,nextmonth,nextyear

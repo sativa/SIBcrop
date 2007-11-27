@@ -12,7 +12,7 @@ use sib_const_module, only:     latsib
 
 implicit none
 
-integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65
+integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65,pd7_est,pd10_est,pd7,pd10,pdindx7,pdindx10,gdd_redo_indx
 real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum,drate,dgrowth,max_wmain,assimd_new
 
 ! begin time dependant, output variables
@@ -146,21 +146,34 @@ subroutine corn_phen
 
 !EL...ndf60= no. of days withe avg. temperature above 60F
 
-   if (sib%diag%tempf<60.0) then
+   if (sib%diag%tempf<57.0) then
 
     ndf60=0			!ndf60= no. of days withe avg. temperature above 60F
-
-   elseif (sib%diag%tempf>=60.0) then
+    
+    elseif (sib%diag%tempf>=57.0) then
   
    	ndf60=ndf60+1
 
    endif
 
-   if (ndf60==5) then
-
-     pd=time%doy
-
+   if (ndf60==7)  then
+   pd7_est=time%doy
+   pdindx7=pdindx7+(time%doy)
    endif
+   if (ndf60==7 .and. pdindx7<(pd7_est+7)) then
+   pd7=time%doy
+   pd=pd7
+   endif
+ 
+
+
+    if (pd7>0 .AND. (time%doy==(pd7+1) .or. time%doy==(pd7+1) .or. time%doy==(pd7+3) .or. time%doy==(pd7+4) &
+		.or. time%doy==(pd7+5) .or. time%doy==(pd7+6) .or. time%doy==(pd7+7)) .AND. sib%diag%tempf<53.0) then
+		    sib%diag%gdd=0.0
+        	pd=pd7+21
+          
+    endif
+  
 
 !----------------------------
 !Calculate growing degree days
@@ -184,7 +197,7 @@ subroutine corn_phen
     	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
 	endif
-
+   
 	if (time%doy>300) then
         sib%diag%gdd=0.0001
 	endif
@@ -223,7 +236,7 @@ subroutine corn_phen
 
     elseif(sib%diag%gdd>=500.0 .and. sib%diag%gdd <1000.0)then
         sib%diag%alloc(1)=0.5-(0.5-0.3)*(sib%diag%gdd-500)/(1000-500)
-		sib%diag%alloc(2)=0.25-(0.25-0.35)*(sib%diag%gdd-500)/(1000-500)
+   		sib%diag%alloc(2)=0.25-(0.25-0.35)*(sib%diag%gdd-500)/(1000-500)
 		sib%diag%alloc(3)=0.25-(0.25-0.35)*(sib%diag%gdd-500)/(1000-500)
 		sib%diag%alloc(4)=0.0
 
@@ -298,7 +311,7 @@ subroutine corn_phen
 !EL.. between planting and the end of V18 stage
 
  if (sib%diag%gdd>0.0001 .AND. sib%diag%gdd<=1300.0) then 
-		drate=0.025	
+		drate=0.017	
 
 !EL..g m-2; based on the range of results from NDVI-based sib simulations from the past
 		max_wmain=4.9/0.3 
@@ -344,6 +357,9 @@ if (time%doy > 300)then
         sib%diag%w_main =0.0001
 	    sib%diag%assim_d=0.0001
 	    pd=0
+        pd7=0
+        pd10=0
+        
 endif
 
 
@@ -437,11 +453,11 @@ endif
               * 0.24 * temp1
 
 
-!EL.. 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Beauchemin et al., 1997)
+!EL.. 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Thornton et al., 1969,Beauchemin et al., 1997)
 
        temp1 = 0.015 * 2.0 * 12.0 / 44.0 * (2.0**((sib%diag%tempc-20.0)/10.0))
 
-       sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4) * temp1
+       sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4) * 0.7*temp1
 
 		
 	if (time%doy>300) then	
@@ -507,17 +523,17 @@ endif
 
            sib%diag%leafwt_c =  0.01 
       
-	  elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2730) then
+	  elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2500) then
 
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(time%doy,2)
 	
-      elseif (sib%diag%gdd >= 2730.0 .and. sib%diag%gdd < 3300.0) then
+      elseif (sib%diag%gdd >= 2500.0 .and. sib%diag%gdd < 2950.0) then
 
           sib%diag%leafwt_c = 0.95 * sib%diag%cum_drywt(time%doy,2) -   &
-          (0.95-0.2) * sib%diag%cum_drywt(time%doy,2) *      &
-                              ((sib%diag%gdd - 2730.0) / 570.0)
+          (0.95-0.1) * sib%diag%cum_drywt(time%doy,2) *      &
+                              ((sib%diag%gdd - 2500.0) / 450.0)
        
-	  elseif( sib%diag%gdd >= 3300.0) then
+	  elseif( sib%diag%gdd >= 2950.0 .or. time%doy>=300) then
 
           sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
 
@@ -537,7 +553,7 @@ endif
 !                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
 !                     sib%diag%alloc(2)
 
-!print*,pd,sib%diag%w_main,sib%diag%phen_LAI,timevar%lai
+print*,pd,sib%diag%tempf,sib%diag%gdd,sib%diag%phen_LAI
 
 
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
@@ -603,7 +619,7 @@ subroutine soy_phen
 
 	endif
 
-	if (ndf65==5  .AND. sib%diag%gdd<200.0) then !gdd factor added to avoid taking any other pds later...
+	if (ndf65==10  .AND. sib%diag%gdd<200.0) then !gdd factor added to avoid taking any other pds later...
 
     	pd=time%doy
 
@@ -981,7 +997,8 @@ endif
 	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.6
 
 	 elseif (pd>0 .AND. time%doy>=(pd+131).and.time%doy<(pd+144)) then
-	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.1
+	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
+
 
 	 else
 	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
@@ -1001,7 +1018,7 @@ endif
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-print*,sib%diag%phen_LAI,timevar%lai
+!print*,pd,sib%diag%phen_LAI,timevar%lai
 
 !itb_crop...at the moment that growing degree days (gdd) passes
 !itb_crop...100, we will initialize the LAI
@@ -1024,7 +1041,7 @@ if (time%doy < pd .and. time%doy > 300)then
 		sib%diag%assim_d =0.0001
 	    pd=0
 endif
-print*,sib%diag%phen_LAI,timevar%lai
+print*,pd,sib%diag%phen_LAI,timevar%lai
 
  	write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
