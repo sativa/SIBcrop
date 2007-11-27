@@ -122,7 +122,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 
         if ( time%new_day .AND. time%doy > time%init_doy)    &
                                     call crop_accum(sib,time,timevar)
-
+!print*,sib%diag%phen_lai
 !itb_crop_end
 
 

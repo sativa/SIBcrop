@@ -54,7 +54,7 @@ data subname/'sibdrv_read '/
 !    print *,'SiBDRV_init_std'
 !    print *,'opening drive files for ',time%sec_day
 !    print *, 'dr_form=',trim(dr_format)
-!    print *, 'filename=',trim(filename)
+ !   print *, 'filename=',trim(filename)
     do i = 1, time%driver_recnum
         do  ! Read until not a comment.
             read( 87,'(a)', iostat=status ) record
@@ -63,9 +63,12 @@ data subname/'sibdrv_read '/
                 print *, 'Error reading file'
                 stop
             endif
+!print*,record
+!pause
             if ( record(1:1) .ne. '#' ) exit
         enddo
-        read(unit=record,fmt=*)yr,doy,hr,sib(1)%prog%tm2,temp_dpt, &
+
+        	read(unit=record,fmt=*)yr,doy,hr,sib(1)%prog%tm2,temp_dpt, &
             sib(1)%prog%spdm2,sib(1)%prog%ps2,sib(1)%prog%dlwbot2,   &
             sib(1)%prog%sw_dwn2,sib(1)%prog%lspr2,sib(1)%prog%cupr2
 !
