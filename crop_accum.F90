@@ -12,8 +12,8 @@ use sib_const_module, only:     latsib
 
 implicit none
 
-integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65,pd7_est,pd10_est,pd7,pd10,pdindx7,pdindx10,gdd_redo_indx
-real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum,drate,dgrowth,max_wmain,assimd_new
+integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65,pd7_est,pd7,pdindx7
+real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum,drate,dgrowth,max_wmain,assimd_new,x
 
 ! begin time dependant, output variables
 type time_dep_var
@@ -107,7 +107,7 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
 !print*,timevar%lai		
 			
 
-	     sib%param%aparc1 = timevar%fpar
+	 sib%param%aparc1 = timevar%fpar
          sib%param%zlt1 = timevar%lai
          sib%param%green1 = timevar%green
          sib%param%z0d1 = timevar%zo
@@ -116,7 +116,7 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
          sib%param%rdc1 = timevar%rdc
          sib%param%gmudmu1 = timevar%gmudmu
 
-	     sib%param%aparc2 = timevar%fpar
+	 sib%param%aparc2 = timevar%fpar
          sib%param%zlt2 = timevar%lai
          sib%param%green2 = timevar%green
          sib%param%z0d2 = timevar%zo
@@ -144,25 +144,25 @@ subroutine corn_phen
 !Calculate the planting date
 !---------------------------
 
-!EL...ndf60= no. of days withe avg. temperature above 60F
+!EL...ndf60= no. of days withe avg. temperature above 57F
 
-   if (sib%diag%tempf<57.0) then
+    if (sib%diag%tempf<57.0) then
 
-    ndf60=0			!ndf60= no. of days withe avg. temperature above 60F
+       ndf60=0			!ndf60= no. of days withe avg. temperature above 57F
     
     elseif (sib%diag%tempf>=57.0) then
   
-   	ndf60=ndf60+1
+       ndf60=ndf60+1
 
    endif
 
    if (ndf60==7)  then
-   pd7_est=time%doy
-   pdindx7=pdindx7+(time%doy)
+      pd7_est=time%doy
+      pdindx7=pdindx7+(time%doy)
    endif
    if (ndf60==7 .and. pdindx7<(pd7_est+7)) then
-   pd7=time%doy
-   pd=pd7
+      pd7=time%doy
+      pd=pd7
    endif
  
 
@@ -194,12 +194,12 @@ subroutine corn_phen
         sib%diag%tempf>50.0   .AND.         &
         sib%diag%tempf<86.0)      then
 
-    	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
+    	     sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
 	endif
    
 	if (time%doy>300) then
-        sib%diag%gdd=0.0001
+             sib%diag%gdd=0.0001
 	endif
 
 
@@ -234,28 +234,30 @@ subroutine corn_phen
 		sib%diag%alloc(3)=0.25	
 		sib%diag%alloc(4)=0.0	
 
-    elseif(sib%diag%gdd>=500.0 .and. sib%diag%gdd <1000.0)then
-        sib%diag%alloc(1)=0.5-(0.5-0.3)*(sib%diag%gdd-500)/(1000-500)
+        elseif(sib%diag%gdd>=500.0 .and. sib%diag%gdd <1000.0)then
+                sib%diag%alloc(1)=0.5-(0.5-0.3)*(sib%diag%gdd-500)/(1000-500)
    		sib%diag%alloc(2)=0.25-(0.25-0.35)*(sib%diag%gdd-500)/(1000-500)
 		sib%diag%alloc(3)=0.25-(0.25-0.35)*(sib%diag%gdd-500)/(1000-500)
 		sib%diag%alloc(4)=0.0
 
 		
 	elseif(sib%diag%gdd>=1000.0 .and. sib%diag%gdd<1180.0)then
-        sib%diag%alloc(1)=0.3-(0.3-0.3)*(sib%diag%gdd-1000)/(1180-1000)
+
+                sib%diag%alloc(1)=0.3-(0.3-0.3)*(sib%diag%gdd-1000)/(1180-1000)
 		sib%diag%alloc(2)=0.35-(0.35-0.35)*(sib%diag%gdd-1000)/(1180-1000)
 		sib%diag%alloc(3)=0.35-(0.35-0.35)*(sib%diag%gdd-1000)/(1180-1000)	
 		sib%diag%alloc(4)=0.0
 
-    elseif(sib%diag%gdd>=1180.0 .and. sib%diag%gdd<1360.0)then
-        sib%diag%alloc(1)=0.3-(0.3-0.2)*(sib%diag%gdd-1180)/(1360-1180)
+        elseif(sib%diag%gdd>=1180.0 .and. sib%diag%gdd<1360.0)then
+
+                sib%diag%alloc(1)=0.3-(0.3-0.2)*(sib%diag%gdd-1180)/(1360-1180)
 		sib%diag%alloc(2)=0.35-(0.35-0.45)*(sib%diag%gdd-1180)/(1360-1180)	
 		sib%diag%alloc(3)=0.35-(0.3-0.2)*(sib%diag%gdd-1180)/(1360-1180)	
 		sib%diag%alloc(4)=0.0-(0.0-0.15)*(sib%diag%gdd-1180)/(1360-1180)	
 
 	elseif(sib%diag%gdd>=1360.0 .and. sib%diag%gdd<1660.0)then
 
-        sib%diag%alloc(1)=0.2-(0.2-0.05)*(sib%diag%gdd-1360)/(1660-1360)
+                sib%diag%alloc(1)=0.2-(0.2-0.05)*(sib%diag%gdd-1360)/(1660-1360)
 		sib%diag%alloc(2)=0.45-(0.45-0.01)*(sib%diag%gdd-1360)/(1660-1360)	
 		sib%diag%alloc(3)=0.2-(0.2-0.05)*(sib%diag%gdd-1360)/(1660-1360)		
 		sib%diag%alloc(4)=0.15-(0.15-0.89)*(sib%diag%gdd-1360)/(1660-1360)	
@@ -263,7 +265,7 @@ subroutine corn_phen
 
 	elseif(sib%diag%gdd>=1660.0 .and. sib%diag%gdd<2730.0)then
 
-        sib%diag%alloc(1)=0.05-(0.05-0.05)*(sib%diag%gdd-1660)/(2730-1660)
+                sib%diag%alloc(1)=0.05-(0.05-0.05)*(sib%diag%gdd-1660)/(2730-1660)
 		sib%diag%alloc(2)=0.01-(0.01-0.0)*(sib%diag%gdd-1660)/(2730-1660)
 		sib%diag%alloc(3)=0.05-(0.05-0.0)*(sib%diag%gdd-1660)/(2730-1660)
 		sib%diag%alloc(4)=0.89-(0.89-0.95)*(sib%diag%gdd-1660)/(2730-1660)	
@@ -275,7 +277,7 @@ subroutine corn_phen
 		sib%diag%alloc(3)=0.0	
 		sib%diag%alloc(4)=0.0
         
-    endif
+        endif
 
 !----------------------------------
 !Calculate total weight allocation	
@@ -290,9 +292,6 @@ subroutine corn_phen
                 (sib%diag%alloc(2) * 1.2515) +     & 
                 (sib%diag%alloc(3) * 1.2225) +     &
                 (sib%diag%alloc(4) * 1.2095))
-
- !   else
- !       sib%diag%w_main =0.0
 
     endif
 
@@ -357,9 +356,7 @@ if (time%doy > 300)then
         sib%diag%w_main =0.0001
 	    sib%diag%assim_d=0.0001
 	    pd=0
-        pd7=0
-        pd10=0
-        
+        pd7=0        
 endif
 
 
@@ -385,11 +382,11 @@ endif
        
 	  	If ((time%doy-1)==0) then
      
-        	sib%diag%cum_wt(time%doy,j)=0
+                   sib%diag%cum_wt(time%doy,j)=0
      
 	  	endif
  
-     enddo
+          enddo
        
 !EL..The following renaming was done simply to avoid array-related problems.. 
 !EL...in outputting the values in a separate .txt file.
@@ -433,9 +430,6 @@ endif
        sib%diag%phen_maintr(1) = sib%diag%cum_wt(time%doy-1,1)       &
              * 0.18 * temp1  
 
-
-!EL...multiplied by 0.75 to incorporate that maintenance 
-!EL...respiration during the daytime is half that of  nighttime.
 !EL...(de Vries et al., 1989)
 !EL.. 0.27 is the nonstructural fraction of leaf C needing 
 !EL...maintenance (calculations based on Brouquisse et al., 1998)
@@ -453,7 +447,7 @@ endif
               * 0.24 * temp1
 
 
-!EL.. 0.4 is the nonstructural fraction of seed C  needing maintenance (calculations based on Thornton et al., 1969,Beauchemin et al., 1997)
+!EL.. 0.7 is the nonstructural fraction of seed C  needing maintenance (calculations based on Thornton et al., 1969,Beauchemin et al., 1997)
 
        temp1 = 0.015 * 2.0 * 12.0 / 44.0 * (2.0**((sib%diag%tempc-20.0)/10.0))
 
@@ -471,7 +465,7 @@ endif
 !Calculate dry weight change
 !-----------------------------
 
-	  sib%diag%wch(1)=sib%diag%allocwt(1)- sib%diag%phen_maintr(1)
+      sib%diag%wch(1)=sib%diag%allocwt(1)- sib%diag%phen_maintr(1)
       sib%diag%wch(2)=sib%diag%allocwt(2)- sib%diag%phen_maintr(2)
       sib%diag%wch(3)=sib%diag%allocwt(3)- sib%diag%phen_maintr(3)
       sib%diag%wch(4)=sib%diag%allocwt(4)- sib%diag%phen_maintr(4)
@@ -488,21 +482,21 @@ endif
 !--------------------------------------------------------------
 	  do j=1,4	 
        
-     	sib%diag%cum_drywt(time%doy,j) =            &
-            sib%diag%cum_drywt(time%doy-1,j) + sib%diag%wch(j)
+               sib%diag%cum_drywt(time%doy,j) =            &
+               sib%diag%cum_drywt(time%doy-1,j) + sib%diag%wch(j)
        
 	  	If ((time%doy-1)==0) then
      
-        	sib%diag%cum_drywt(time%doy,j)=0
+        	   sib%diag%cum_drywt(time%doy,j)=0
      
 	  	endif
  
-      enddo
+          enddo
 	  
 !EL..The following renaming was done simply to avoid array-related problems.. 
 !EL...in outputting the values in a separate .txt file.
  
-      sib%diag%final_drywt(1)=sib%diag%cum_drywt(time%doy,1)
+          sib%diag%final_drywt(1)=sib%diag%cum_drywt(time%doy,1)
 	  sib%diag%final_drywt(2)=sib%diag%cum_drywt(time%doy,2)
 	  sib%diag%final_drywt(3)=sib%diag%cum_drywt(time%doy,3)
 	  sib%diag%final_drywt(4)=sib%diag%cum_drywt(time%doy,4)
@@ -523,7 +517,7 @@ endif
 
            sib%diag%leafwt_c =  0.01 
       
-	  elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2500) then
+      elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2500) then
 
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(time%doy,2)
 	
@@ -533,11 +527,11 @@ endif
           (0.95-0.1) * sib%diag%cum_drywt(time%doy,2) *      &
                               ((sib%diag%gdd - 2500.0) / 450.0)
        
-	  elseif( sib%diag%gdd >= 2950.0 .or. time%doy>=300) then
+      elseif( sib%diag%gdd >= 2950.0 .or. time%doy>=300) then
 
           sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
 
-       endif
+      endif
 
 !--------------
 !Calculate LAI
@@ -605,23 +599,23 @@ subroutine soy_phen
 !Calculate the planting date
 !---------------------------
 
-!EL...ndf65= no. of days with avg. temperature above 65F
+!EL...ndf65= no. of days with avg. temperature above 67F
 
-	if (sib%diag%tempf<65.0) then
+	if (sib%diag%tempf<67.0) then
 
     	ndf65=0			
 
-!EL...ndf65= no. of days with avg. temperature above 65F
+!EL...ndf65= no. of days with avg. temperature above 67F
 
-	elseif (sib%diag%tempf>=65.0) then
+	elseif (sib%diag%tempf>=67.0) then
    	
-		 ndf65=ndf65+1
+           ndf65=ndf65+1
 
 	endif
 
 	if (ndf65==10  .AND. sib%diag%gdd<200.0) then !gdd factor added to avoid taking any other pds later...
 
-    	pd=time%doy
+    	   pd=time%doy
 
 	endif
 
@@ -644,13 +638,13 @@ subroutine soy_phen
         sib%diag%tempf>50.0   .AND.         &
         sib%diag%tempf<86.0)      then
 
-    	sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
+    	    sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
 	endif
 
 	if (time%doy<pd .AND. time%doy>300) then
-        sib%diag%gdd=0.0001
-	endif
+            sib%diag%gdd=0.0001
+        endif
 
 
 
@@ -662,11 +656,11 @@ subroutine soy_phen
  
 	do i0 = 1, sib%diag%tb_indx
     
-      	assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) 
+           assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) 
 
 !EL...multiplied by the no. secs per each timestep (i.e. tbsib) to convert assim mol sec-1 to mol
 
-   enddo
+        enddo
 
    sib%diag%assim_d = assim_accum*12 !multiplied by 12 to convert mol to g
 
@@ -676,87 +670,87 @@ subroutine soy_phen
 !-----------------------------------------------------------   
 !EL...1-roots, 2-leaves,3-stems,4-products (flowers and grains)
 
-		if (pd>0 .AND. time%doy==(pd+10)) then
-	        sib%diag%alloc(1)=0.5
+	 if (pd>0 .AND. time%doy==(pd+10)) then
+                        sib%diag%alloc(1)=0.5
 			sib%diag%alloc(2)=0.25
 			sib%diag%alloc(3)=0.25	
 			sib%diag%alloc(4)=0.0	
         
         else if (pd>0 .AND. time%doy>=(pd+10).and.time%doy<(pd+30)) then
-            sib%diag%alloc(1)=0.5-(0.5-0.5)*(time%doy-(pd+10))/20
-            sib%diag%alloc(2)=0.25-(0.25-0.25)*(time%doy-(pd+10))/20
-            sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+10))/20
-            sib%diag%alloc(4)=0.0
+                        sib%diag%alloc(1)=0.5-(0.5-0.5)*(time%doy-(pd+10))/20
+                        sib%diag%alloc(2)=0.25-(0.25-0.25)*(time%doy-(pd+10))/20
+                        sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+10))/20
+                        sib%diag%alloc(4)=0.0
          
          
          else if (pd>0 .AND. time%doy>=(pd+30).and.time%doy<(pd+40)) then
-            sib%diag%alloc(1)=0.5-(0.5-0.49)*(time%doy-(pd+30))/10
+                        sib%diag%alloc(1)=0.5-(0.5-0.49)*(time%doy-(pd+30))/10
 			sib%diag%alloc(2)=0.25-(0.25-0.26)*(time%doy-(pd+30))/10
 			sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+30))/10	
 			sib%diag%alloc(4)=0.0   
 
         else if (pd>0 .AND. time%doy>=(pd+40).and.time%doy<(pd+50)) then
-            sib%diag%alloc(1)=0.49-(0.49-0.35)*(time%doy-(pd+40))/10
+                        sib%diag%alloc(1)=0.49-(0.49-0.35)*(time%doy-(pd+40))/10
 			sib%diag%alloc(2)=0.26-(0.26-0.4)*(time%doy-(pd+40))/10
 			sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+40))/10	
 			sib%diag%alloc(4)=0.0   
 
       
         else if (pd>0 .AND. time%doy>=(pd+50).and.time%doy<(pd+60)) then
-            sib%diag%alloc(1)=0.35-(0.35-0.22)*(time%doy-(pd+50))/10
+                        sib%diag%alloc(1)=0.35-(0.35-0.22)*(time%doy-(pd+50))/10
 			sib%diag%alloc(2)=0.4-(0.4-0.53)*(time%doy-(pd+50))/10
 			sib%diag%alloc(3)=0.25-(0.25-0.25)*(time%doy-(pd+50))/10	
 			sib%diag%alloc(4)=0.0    
   
 
         else if (pd>0 .AND. time%doy>=(pd+60).and.time%doy<(pd+75)) then
-            sib%diag%alloc(1)=0.22-(0.22-0.21)*(time%doy-(pd+60))/15
+                        sib%diag%alloc(1)=0.22-(0.22-0.21)*(time%doy-(pd+60))/15
 			sib%diag%alloc(2)=0.53-(0.53-0.5)*(time%doy-(pd+60))/15
 			sib%diag%alloc(3)=0.25-(0.25-0.29)*(time%doy-(pd+60))/15	
 			sib%diag%alloc(4)=0.0
 
 
         else if (pd>0 .AND. time%doy>=(pd+75).and.time%doy<(pd+80)) then
-            sib%diag%alloc(1)=0.21-(0.21-0.2)*(time%doy-(pd+75))/5
+                        sib%diag%alloc(1)=0.21-(0.21-0.2)*(time%doy-(pd+75))/5
 			sib%diag%alloc(2)=0.50-(0.50-0.35)*(time%doy-(pd+75))/5
 			sib%diag%alloc(3)=0.29-(0.29-0.23)*(time%doy-(pd+75))/5	
 			sib%diag%alloc(4)=0.0-(0.0-0.22)*(time%doy-(pd+75))/5 
 
         else if (pd>0 .AND. time%doy>=(pd+80).and.time%doy<(pd+89)) then
-            sib%diag%alloc(1)=0.2-(0.2-0.2)*(time%doy-(pd+80))/9
+                        sib%diag%alloc(1)=0.2-(0.2-0.2)*(time%doy-(pd+80))/9
 			sib%diag%alloc(2)=0.35-(0.35-0.2)*(time%doy-(pd+80))/9
 			sib%diag%alloc(3)=0.23-(0.23-0.2)*(time%doy-(pd+80))/9	
 			sib%diag%alloc(4)=0.22-(0.22-0.4)*(time%doy-(pd+80))/9 
 
         else if (pd>0 .AND. time%doy>=(pd+89).and.time%doy<(pd+98)) then
-            sib%diag%alloc(1)=0.2-(0.2-0.2)*(time%doy-(pd+89))/9
+                        sib%diag%alloc(1)=0.2-(0.2-0.2)*(time%doy-(pd+89))/9
 			sib%diag%alloc(2)=0.2-(0.2-0.0)*(time%doy-(pd+89))/9
 			sib%diag%alloc(3)=0.2-(0.2-0.015)*(time%doy-(pd+89))/9	
 			sib%diag%alloc(4)=0.4-(0.4-0.785)*(time%doy-(pd+89))/9
 
         else if (pd>0 .AND. time%doy>=(pd+98).and.time%doy<(pd+108)) then
-            sib%diag%alloc(1)=0.2-(0.2-0.1)*(time%doy-(pd+98))/10
+                        sib%diag%alloc(1)=0.2-(0.2-0.1)*(time%doy-(pd+98))/10
 			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+98))/10
 			sib%diag%alloc(3)=0.015-(0.015-0.0)*(time%doy-(pd+98))/10	
 			sib%diag%alloc(4)=0.785-(0.755-0.93)*(time%doy-(pd+98))/10 
 
         else if (pd>0 .AND. time%doy>=(pd+108).and.time%doy<(pd+115)) then
-            sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+108))/7
+                        sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+108))/7
 			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+108))/7
 			sib%diag%alloc(3)=0.0-(0.0-0.0)*(time%doy-(pd+108))/7	
 			sib%diag%alloc(4)=0.9-(0.9-0.9)*(time%doy-(pd+108))/7
 
         else if (pd>0 .AND. time%doy>=(pd+115).and.time%doy<=(pd+121)) then
-            sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+115))/6
+                        sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+115))/6
 			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+115))/6
 			sib%diag%alloc(3)=0.0-(0.0-0.0)*(time%doy-(pd+115))/6	
 			sib%diag%alloc(4)=0.9-(0.9-0.9)*(time%doy-(pd+115))/6
 
          else if (pd>0 .AND. time%doy>=(pd+121).and.time%doy<=(pd+130)) then
-            sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+115))/6
-			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+115))/6
-			sib%diag%alloc(3)=0.0-(0.0-0.0)*(time%doy-(pd+115))/6	
-			sib%diag%alloc(4)=0.9-(0.9-0.9)*(time%doy-(pd+115))/6
+                        sib%diag%alloc(1)=0.1-(0.1-0.1)*(time%doy-(pd+115))/6
+			sib%diag%alloc(2)=0.0-(0.0-0.0)*(time%doy-(pd+115))/9
+			sib%diag%alloc(3)=0.0-(0.0-0.0)*(time%doy-(pd+115))/9	
+			sib%diag%alloc(4)=0.9-(0.9-0.9)*(time%doy-(pd+115))/9
 
 		elseif ((pd>0 .AND. time%doy<pd+10).and.(time%doy>(pd+130))) then
 			sib%diag%alloc(1)=0.0
@@ -779,7 +773,7 @@ subroutine soy_phen
     endif 
 
 
-  if(pd>0 .AND.time%doy>(pd+60).AND.time%doy<=(pd+130)) then
+    if(pd>0 .AND.time%doy>(pd+60).AND.time%doy<=(pd+130)) then
 
        	sib%diag%w_main=sib%diag%assim_d/((sib%diag%alloc(1)*1.2929)+(sib%diag%alloc(2)*1.431)& 
 
@@ -801,7 +795,7 @@ subroutine soy_phen
 !EL..basic daily growth rate for the vegetative growth stages, depending on the average no. of days
 !EL.. between planting and observed max LAI
 
-if (pd>0 .AND. time%doy>(pd+10) .AND.time%doy<=(pd+60)) then 
+ if (pd>0 .AND. time%doy>(pd+10) .AND.time%doy<=(pd+60)) then 
 		drate=0.02	
 
 !EL..g m-2; based on the range of results from NDVI-based sib simulations from the past
@@ -846,7 +840,7 @@ if (pd>0 .AND. time%doy>(pd+10) .AND.time%doy<=(pd+60)) then
                 (sib%diag%alloc(4) * 1.6752))
     sib%diag%assim_d=assimd_new
  
-endif
+ endif
 
 !Calculate w_main allocation to different plant parts
 
@@ -868,13 +862,13 @@ endif
        
 	  If ((time%doy-1)==0) then
      
-        sib%diag%cum_wt(time%doy,j)=0
+             sib%diag%cum_wt(time%doy,j)=0
      
 	  endif
  
   enddo
        
-      sib%diag%cum_w(1)=sib%diag%cum_wt(time%doy,1)
+          sib%diag%cum_w(1)=sib%diag%cum_wt(time%doy,1)
 	  sib%diag%cum_w(2)=sib%diag%cum_wt(time%doy,2)
 	  sib%diag%cum_w(3)=sib%diag%cum_wt(time%doy,3)
 	  sib%diag%cum_w(4)=sib%diag%cum_wt(time%doy,4)
@@ -900,28 +894,27 @@ endif
 !--------------------------
 !Calculate maintanence resp
 !--------------------------
-   
-       sib%diag%phen_maintr(1)=sib%diag%cum_wt(time%doy-1,1)*0.32*(0.03*2*12/44)*(2.0**((sib%diag%tempc-20.)/10.))   
-
 !EL...Q10 coefficient is 2.0 for soybean (Norman and Arkebauer, 1991);
 !EL...0.32 is the nonstructural C fraction of root C needing maintenance
 !EL...(calculations based on Allen et al., 1998 and Rogers et al., 2006)&
 !EL...maint. coeff. info from Penning de Vries,1989, Amthor, 1984, and Norman and Arkebauer, 1991)
-
-       sib%diag%phen_maintr(2)=sib%diag%cum_wt(time%doy-1,2)*0.38*0.03*2*0.75*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+   
+       sib%diag%phen_maintr(1)=sib%diag%cum_wt(time%doy-1,1)*0.32*(0.03*2*12/44)*(2.0**((sib%diag%tempc-20.)/10.))   
 
 !EL..multiplied by 0.75 to incorporate that maintenance respiration during the daytime is half that of  nighttime (de Vries et al., 1989)
 !EL.. 0.38 is the nonstructural fraction of leaf C needing maintenance (calculations based on Allen et al., 1998 and Rogers et al., 2006)
 
-       sib%diag%phen_maintr(3)=sib%diag%cum_wt(time%doy-1,3)*0.32*0.01*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+       sib%diag%phen_maintr(2)=sib%diag%cum_wt(time%doy-1,2)*0.38*0.03*2*0.75*12/44*(2.0**((sib%diag%tempc-20.)/10.))
 
 !EL... 0.32 is the nonstructural fraction of stem C  needing maintenance
 !EL..(calculations based on Allen et al., 1998 and Rogers et al., 2006).
 
-       sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4)*0.46*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
+       sib%diag%phen_maintr(3)=sib%diag%cum_wt(time%doy-1,3)*0.32*0.01*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
 
-!EL.. 0.4 is the nonstructural fraction of seed C  needing maintenance
+!EL.. 0.46 is the nonstructural fraction of seed C  needing maintenance
 !EL..(calculations based on Allen et al., 1998 and Rogers et al., 2006) 
+
+       sib%diag%phen_maintr(4)=sib%diag%cum_wt(time%doy-1,4)*0.46*0.015*2*12/44*(2.0**((sib%diag%tempc-20.)/10.))
 
 	
 	  if (time%doy>300) then
@@ -957,11 +950,11 @@ endif
        
 	  	If ((time%doy-1)==0) then
      
-        	sib%diag%cum_drywt(time%doy,j)=0
+                   sib%diag%cum_drywt(time%doy,j)=0
      
 	  	endif
  
-      enddo
+          enddo
 
 !EL..Renamed to be output on a daily basis in a separate text file
 
@@ -987,21 +980,15 @@ endif
 	 if (pd>0 .AND. time%doy>=(pd+10).and.time%doy<(pd+75)) then
 	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)
 	
-     elseif (pd>0 .AND. time%doy>=(pd+75).and.time%doy<(pd+105)) then
+         elseif (pd>0 .AND. time%doy>=(pd+75).and.time%doy<(pd+100)) then
 	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.85 
  
-     elseif (pd>0 .AND. time%doy>=(pd+105).and.time%doy<(pd+121)) then
-	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.8 
- 	 
-	 elseif (pd>0 .AND. time%doy>=(pd+121).and.time%doy<(pd+130)) then
-	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.6
-
-	 elseif (pd>0 .AND. time%doy>=(pd+131).and.time%doy<(pd+144)) then
-	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
-
-
+	 elseif (pd>0 .AND. time%doy>=(pd+100).and.time%doy<(pd+121)) then
+                   x=(time%doy- (pd+100))/21.0
+	           sib%diag%leafwt_c = 0.85 * sib%diag%cum_drywt(time%doy,2) -   &
+                 (0.85-0.001) * sib%diag%cum_drywt(time%doy,2) * x 
 	 else
-	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.01
+	       sib%diag%leafwt_c=sib%diag%cum_drywt(time%doy,2)*0.001
 
      endif
 
@@ -1041,7 +1028,7 @@ if (time%doy < pd .and. time%doy > 300)then
 		sib%diag%assim_d =0.0001
 	    pd=0
 endif
-print*,pd,sib%diag%phen_LAI,timevar%lai
+print*,sib%diag%tempf,time%doy,sib%diag%phen_LAI,timevar%lai
 
  	write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
