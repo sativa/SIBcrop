@@ -12,7 +12,7 @@ use sib_const_module, only:     latsib
 
 implicit none
 
-integer(kind=int_kind) :: i0,n,pd,i,j,ndf60,ndf65,pd7_est,pd7,pdindx7
+integer(kind=int_kind) :: i0,n,pd,i,j,ndf_opt,pd7_est,pd7,pdindx7
 real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum,drate,dgrowth,max_wmain,assimd_new,x
 
 ! begin time dependant, output variables
@@ -46,8 +46,11 @@ type(time_struct), intent(in) :: time
    do i0 = 1, sib%diag%tb_indx
     
       temp_accum = temp_accum + sib%diag%tb_temp(i0) 
-
+!print*,temp_accum,sib%diag%tb_indx
+!pause
    enddo
+
+
 
    sib%diag%ta_bar = temp_accum / float(sib%diag%tb_indx)
 
@@ -55,6 +58,7 @@ type(time_struct), intent(in) :: time
 !EL-conversion of avg. daily temperature (ta_bar) from Kelvin to Fahrenheit
 
 sib%diag%tempf=((sib%diag%ta_bar-273.15)*1.8)+32.0	
+
 
 
 !EL-conversion of avg. daily temperature (ta_bar) from Kelvin to Celcius
@@ -144,23 +148,23 @@ subroutine corn_phen
 !Calculate the planting date
 !---------------------------
 
-!EL...ndf60= no. of days withe avg. temperature above 57F
+!EL...ndf_opt= no. of days withe avg. temperature above 57F
 
     if (sib%diag%tempf<57.0) then
 
-       ndf60=0			!ndf60= no. of days withe avg. temperature above 57F
+       ndf_opt=0			!ndf_opt= no. of days withe avg. temperature above 57F
     
     elseif (sib%diag%tempf>=57.0) then
   
-       ndf60=ndf60+1
+       ndf_opt=ndf_opt+1
 
    endif
 
-   if (ndf60==7)  then
+   if (ndf_opt==7)  then
       pd7_est=time%doy
       pdindx7=pdindx7+(time%doy)
    endif
-   if (ndf60==7 .and. pdindx7<(pd7_est+7)) then
+   if (ndf_opt==7 .and. pdindx7<(pd7_est+7)) then
       pd7=time%doy
       pd=pd7
    endif
@@ -187,22 +191,20 @@ subroutine corn_phen
 
 !EL...added to avoid gdd calculation before real planting date, 
 !EL...since pd is printed out as 0 before the real planting 
-!EL...date based on the above ndf60==5 criterion
+!EL...date based on the above ndf_opt==5 criterion
 
 	if (pd>0                  .AND.         & 
 		time%doy >= pd        .AND.         &
         sib%diag%tempf>50.0   .AND.         &
         sib%diag%tempf<86.0)      then
 
-    	     sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
+  	     sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
 	endif
    
 	if (time%doy>300) then
              sib%diag%gdd=0.0001
 	endif
-
-
 
 
 !------------------------------
@@ -430,6 +432,7 @@ endif
        sib%diag%phen_maintr(1) = sib%diag%cum_wt(time%doy-1,1)       &
              * 0.18 * temp1  
 
+
 !EL...(de Vries et al., 1989)
 !EL.. 0.27 is the nonstructural fraction of leaf C needing 
 !EL...maintenance (calculations based on Brouquisse et al., 1998)
@@ -508,6 +511,7 @@ endif
 		sib%diag%cum_drywt(time%doy,4)=0.0001
 	  endif
 
+
 !------------------------------------------------
 !final leaf weight (C g m-2) 
 !-------------------------------------------------
@@ -547,10 +551,12 @@ endif
 !                     sib%diag%cum_wt(time%doy,2),sib%diag%assim_d,   &
 !                     sib%diag%alloc(2)
 
-print*,pd,sib%diag%tempf,sib%diag%gdd,sib%diag%phen_LAI
+print*,ndf_opt,pd
+pause
 
 
- 	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
+
+	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
 !itb_crop...at the moment that growing degree days (gdd) passes
@@ -599,21 +605,21 @@ subroutine soy_phen
 !Calculate the planting date
 !---------------------------
 
-!EL...ndf65= no. of days with avg. temperature above 67F
+!EL...ndf_opt= no. of days with avg. temperature above 67F
 
 	if (sib%diag%tempf<67.0) then
 
-    	ndf65=0			
+    	ndf_opt=0			
 
-!EL...ndf65= no. of days with avg. temperature above 67F
+!EL...ndf_opt= no. of days with avg. temperature above 67F
 
 	elseif (sib%diag%tempf>=67.0) then
    	
-           ndf65=ndf65+1
+           ndf_opt=ndf_opt+1
 
 	endif
 
-	if (ndf65==10  .AND. sib%diag%gdd<200.0) then !gdd factor added to avoid taking any other pds later...
+	if (ndf_opt==10  .AND. sib%diag%gdd<200.0) then !gdd factor added to avoid taking any other pds later...
 
     	   pd=time%doy
 
@@ -631,7 +637,7 @@ subroutine soy_phen
 
 !EL...added to avoid gdd calculation before real planting date, 
 !EL...since pd is printed out as 0 before the real planting 
-!EL...date based on the above ndf60==5 criterion
+!EL...date based on the above ndf_opt==5 criterion
 
 	if (pd>0                  .AND.         & 
 		time%doy >= pd        .AND.         &
@@ -1005,7 +1011,7 @@ subroutine soy_phen
  	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-!print*,pd,sib%diag%phen_LAI,timevar%lai
+print*,pd,sib%diag%tempf,sib%diag%phen_LAI
 
 !itb_crop...at the moment that growing degree days (gdd) passes
 !itb_crop...100, we will initialize the LAI
@@ -1028,7 +1034,7 @@ if (time%doy < pd .and. time%doy > 300)then
 		sib%diag%assim_d =0.0001
 	    pd=0
 endif
-print*,sib%diag%tempf,time%doy,sib%diag%phen_LAI,timevar%lai
+!print*,sib%diag%tempf,time%doy,sib%diag%phen_LAI,timevar%lai
 
  	write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
