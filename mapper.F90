@@ -534,7 +534,7 @@ subroutine aparnew ( lai, green, ltran, lref, gmudmu, fvcover, fpar, &
     ! variance in projected leaf area wrt solar zenith angle
     ! (Sellers et al. Part II (1996), eqn. 13b)
     ! PAR absorption coefficient = (1 - scatp)
-print*,(1. - scatp)
+
     park = sqrt(1. - scatp) * gmudmu
 
 
