@@ -21,7 +21,11 @@ integer k
 
 !itb_crop
     sib%diag%tb_indx = 0
-
+    sib%diag%pd      = 0
+    sib%diag%ndf_opt = 0
+    sib%diag%pd7     = 0
+    sib%diag%pd7_est = 0
+    sib%diag%pdindx7 = 0
 
     do j=1,20000
       sib%diag%tb_temp(j) = 0.0
@@ -51,17 +55,15 @@ integer k
 			sib%diag%wch(j) = 0.0
 			sib%diag%allocwt(j) = 0.0
 			sib%diag%cum_w(j)=0.0
+                        sib%diag%cum_wt_prev(j)=0.0
+                        sib%diag%cum_drywt_prev(j)=0.0
 			sib%diag%final_drywt(j)=0.0
     enddo
 
 
     sib%diag%ta_bar = 0.0
     sib%diag%gdd    = 0.0
-
-!    sib%diag%year   = 0
-!	sib%diag%doy   = 0   !for planting dates- EL
-!    time%year	   =0
-!    time%doy       =0
+  
 
     sib%diag%use_phen = 0
 	sib%diag%phen_switch=0
