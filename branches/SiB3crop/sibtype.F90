@@ -414,40 +414,47 @@ type diagnostic_vars
     real(kind=dbl_kind) :: tb_temp(20000) 
 									 ! placeholder for accumulating
                                      ! temperature for GDD
-! The following variables were added from the phenology scheme- EL
-	real(kind=dbl_kind) :: assim_d	 ! daily assimilation	
-	real(kind=dbl_kind) :: tempf	 ! daily mean CAS air temp (F)     
-	real(kind=dbl_kind) :: tempc	 ! daily mean CAS air temp (C) 
+!EL.. The following variables were added from the phenology scheme
+    real(kind=dbl_kind) :: assim_d ! daily assimilation	
+    real(kind=dbl_kind) :: tempf	 ! daily mean CAS air temp (F)     
+    real(kind=dbl_kind) :: tempc	 ! daily mean CAS air temp (C) 
     real(kind=dbl_kind) :: w_main 	 ! dryweight+maintenance respiration for the whole plant   
-	real(kind=dbl_kind) :: leafwt_c  ! final leaf weight
-	real(kind=dbl_kind) :: phen_LAI  ! LAI from phenology model
-	real(kind=dbl_kind) :: tb_assim (20000) 
+    real(kind=dbl_kind) :: leafwt_c  ! final leaf weight
+    real(kind=dbl_kind) :: phen_LAI  ! LAI from phenology model
+    real(kind=dbl_kind) :: tb_assim (20000) 
 									 ! placeholder for accumulating assimilation within a day
     real(kind=dbl_kind) :: day_allocwt (4)  !place holder for accumulating allocwt                             	
-	real(kind=dbl_kind)	:: alloc(4)			! basic allocation fractions for different plant parts (1-roots;2-leaves;3-stems;4-products)
-	real(kind=dbl_kind)	:: allocwt(4)		! dryweight+maintenance respiration for different plant parts 
-	real(kind=dbl_kind) :: cum_wt(365,4)	! cumulative (dryweight+maintenance respiration) for different plant parts
-	real(kind=dbl_kind)	:: cum_w (4)		!variable used to output cum_wt in a separate text file
+    real(kind=dbl_kind)	:: alloc(4)			! basic allocation fractions for different plant parts (1-roots;2-leaves;3-stems;4-products)
+    real(kind=dbl_kind)	:: allocwt(4)		! dryweight+maintenance respiration for different plant parts 
+    real(kind=dbl_kind) :: cum_wt(365,4)	! cumulative (dryweight+maintenance respiration) for different plant parts
+    real(kind=dbl_kind) :: cum_wt_prev(4)	! cumulative (dryweight+maintenance respiration) of the previous day for different plant parts
+    real(kind=dbl_kind)	:: cum_w (4)		!variable used to output cum_wt in a separate text file
 
-	real(kind=dbl_kind)	:: phen_maintr(4)	! maintenance respiration from phenology model 
+    real(kind=dbl_kind)	:: phen_maintr(4)	! maintenance respiration from phenology model 
     real(kind=dbl_kind)	:: phen_growthr(4)	! maintenance respiration from phenology model 
-	real(kind=dbl_kind)	:: wch(4)			! dry wt change per day
+    real(kind=dbl_kind)	:: wch(4)			! dry wt change per day
     real(kind=dbl_kind)	:: cum_drywt(365,4)		! final, cumulative dry wt of each plant part
+    real(kind=dbl_kind)	:: cum_drywt_prev(4)		! final, cumulative dry wt of each plant part
     real(kind=dbl_kind)	:: tot_biomass		! total biomass of all plant parts
-	real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt in a separate text file
-	integer(kind=int_kind) :: tb_indx
-                                    ! index for counting up sib timesteps
-                                   
+    real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt in a separate text file
+
+    integer(kind=int_kind) :: tb_indx           ! index for counting up sib timesteps                                                           
     integer(kind=int_kind) :: year  ! to represent years with different crops
-	integer(kind=int_kind) :: doy	! to calculate planting dates and growth stages of certain crops- EL
-
-
+    integer(kind=int_kind) :: doy ! to calculate planting dates and growth stages of certain crops- EL
+    integer(kind=int_kind) :: pd  ! planting date
+    integer(kind=int_kind) :: pd7 ! seventh day with the optimum temperature for planting
+    integer(kind=int_kind) :: pd7_est    ! estimated seventh day with the optimum temperature for planting
+    integer(kind=int_kind) :: ndf_opt    ! the number of consecutive days with the optimum temperature for planting
+    integer(kind=int_kind) :: pdindx7    ! a counter for counting the number of days after the day wehn ndf_opt=7
     integer(kind=int_kind) :: use_phen   ! logical variable: are we using the phenology model?
                                          ! if 1 ==> yes; use phenology model for all 
                                          !          time-varying veg params
                                          ! if 0 ==> no; use minimum NDVI/fvcover value
                                          !          (min_ndvi_crop,min_fvcov_crop)
 	integer(kind=int_kind) :: phen_switch! switch to trigger (or not) the phenology model
+
+        integer(kind=int_kind) :: ndf_opt! to count the number of days with an optimum growth temperature
+        integer(kind=int_kind) :: pd     ! the planting date
 
     real(kind=dbl_kind) :: min_ndvi_crop = 0.07 
                                          ! this is the minimum NDVI value to use when 

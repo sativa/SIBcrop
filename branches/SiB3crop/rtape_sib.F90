@@ -32,6 +32,9 @@ integer(kind=int_kind) :: nsibdid   ! dimension id - nsib
 integer(kind=int_kind) :: nsoildid  ! dimension id - nsoil
 integer(kind=int_kind) :: nsnowdid  ! dimension id - nsnow
 integer(kind=int_kind) :: nphysdid  ! dimension id - physiology types(6)
+!EL...crop pool no.ID  added..
+integer(kind=int_kind) :: npooldid  ! dimension id - crop pool types(4)
+!EL....crop pool no.ID..end
 integer(kind=int_kind) :: ntotdid   ! dimension id - soil + snow 
 integer(kind=int_kind) :: monthid   ! dimension id - number of months
 integer(kind=int_kind) :: nsibvid   ! variable id - nsib
@@ -65,11 +68,25 @@ integer(kind=int_kind) :: nsecvid   ! variable id - nsecond
 integer(kind=int_kind) :: nsectemp  ! temporary var to hold time%sec_year
 integer(kind=int_kind) :: shavid    ! variable id - sha
 integer(kind=int_kind) :: totssid   ! variable id - totss
+!EL..crop vars added
+integer(kind=int_kind) :: tempfid    ! variable id - tempf 
+integer(kind=int_kind) :: gddvid    ! variable id - gdd 
+integer(kind=int_kind) :: w_mainid  ! variable id - w_main
+integer(kind=int_kind) :: pdvid     ! variable id - pd 
+integer(kind=int_kind) :: pd7vid    ! variable id - pd7
+integer(kind=int_kind) :: pd7_estid ! variable id - pd7_est 
+integer(kind=int_kind) :: pdindx7id ! variable id - pdindx7
+integer(kind=int_kind) :: ndf_optid ! variable id - ndf_opt
+integer(kind=int_kind) :: cum_wt_previd    ! variable id - cum_wt_prev
+integer(kind=int_kind) :: cum_drywt_previd ! variable id - cum_drywt_prev
+!EL..crop vars end..
+
 
 character*10 curmon  !jlc
 character*256 rmon  !jk
 
 integer(kind=int_kind), dimension(nsib) :: nsl
+
 
 real(kind=dbl_kind), dimension(nsib) ::  &
     ta,         &
@@ -86,6 +103,22 @@ real(kind=dbl_kind), dimension(nsib) ::  &
     capac2,     &
     coszbar,    &
     dayflag
+
+!EL..crop variables integer(kind=int_kind)
+
+integer(kind=int_kind), dimension(nsib) :: pd
+integer(kind=int_kind), dimension(nsib) :: pd7
+integer(kind=int_kind), dimension(nsib) :: pd7_est
+integer(kind=int_kind), dimension(nsib) :: pdindx7
+integer(kind=int_kind), dimension(nsib) :: ndf_opt
+
+!EL...crop variables (real(kind=dbl_kind))
+
+real(kind=dbl_kind), dimension(nsib) :: tempf,gdd,w_main
+
+real(kind=dbl_kind), dimension(nsib,4) :: cum_wt_prev,cum_drywt_prev
+
+!EL...end crop vars (real(kind=dbl_kind))     
     
 real(kind=dbl_kind), dimension(12,nsib) :: tot_an
 
@@ -129,6 +162,18 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     nz_snow(:,:) = 1.e36
     lz_snow(:,:) = 1.e36
     tot_ss(:,:,:) = 1.e36
+!EL...crop vars added..
+    tempf(:)   = 1.e36
+    gdd(:)     = 1.e36
+    w_main(:)  = 1.e36
+    pd(:)      = 0
+    pd7(:)     = 0
+    pd7_est(:) = 0
+    pdindx7(:) = 0
+    ndf_opt(:) = 0
+    cum_wt_prev(:,:) = 1.e36
+    cum_drywt_prev(:,:) = 1.e36
+!EL..end initializing crop vars.
     
     do i = 1, subcount
         ta(subset(i)) = sib(i)%prog%ta
@@ -147,6 +192,17 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
         coszbar(subset(i)) = sib(i)%stat%coszbar
         dayflag(subset(i)) = sib(i)%stat%dayflag
         tot_an(:,subset(i)) = sib(i)%diag%tot_an(1:12)
+!EL..crop vars added.
+        tempf(subset(i)) = sib(i)%diag%tempf
+        gdd(subset(i)) = sib(i)%diag%gdd
+        w_main(subset(i)) = sib(i)%diag%w_main
+        pd(subset(i)) = sib(i)%diag%pd
+        pd7(subset(i)) = sib(i)%diag%pd7
+        pd7_est(subset(i)) = sib(i)%diag%pd7_est
+        pdindx7(subset(i)) = sib(i)%diag%pdindx7
+        ndf_opt(subset(i)) = sib(i)%diag%ndf_opt
+       
+!EL..crop vars contd below..
     enddo
 
     do j = 1, nsoil
@@ -172,6 +228,20 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
             endif
         enddo
     enddo
+!EL...crop vars contd..
+    do j=1,4
+        do i=1,subcount
+           cum_wt_prev(subset(i),j) = sib(i)%diag%cum_wt_prev(j)
+        enddo
+    enddo
+
+    do j=1,4
+        do i=1,subcount
+            cum_drywt_prev(subset(i),j) = sib(i)%diag%cum_drywt_prev(j)
+        enddo
+    enddo
+!EL..crop vars end..
+    
     !jlc...is this a typo in sibtype? does layer_z have the same
     !      indicies as node_z and dz?
     !itb...layer_z has one more value, since it holds the edges
@@ -211,6 +281,8 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',6)
     ierr = nf90_def_dim( ncid, 'nmonths', 12, monthid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',7)
+    ierr = nf90_def_dim( ncid, 'npool', 4, npooldid )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',8)
 
 
     !itb... define scalar variables...
@@ -219,13 +291,13 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     vdims(3) = ntotdid
 
     ierr = nf90_def_var( ncid, 'nsib', nf90_int, nsibvid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',8)
-    ierr = nf90_def_var( ncid, 'nsoil', nf90_int, nsoilvid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',9)
-    ierr = nf90_def_var( ncid, 'nsnow', nf90_int, nsnowvid )
+    ierr = nf90_def_var( ncid, 'nsoil', nf90_int, nsoilvid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',10)
+    ierr = nf90_def_var( ncid, 'nsnow', nf90_int, nsnowvid )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',11)
     ierr = nf90_def_var( ncid, 'version', nf90_float, vervid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',11) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',12) 
 
 !itb...if nsecond = 86400 * 356, set nsecond = 0
     nsectemp = time%sec_year
@@ -233,132 +305,186 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
 
 
     ierr = nf90_def_var( ncid, 'nsecond', nf90_int, nsecvid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',12)
-    ierr = nf90_def_var( ncid, 'subcount', nf90_int, subcountid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',13)
+    ierr = nf90_def_var( ncid, 'subcount', nf90_int, subcountid )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',14)
 
 
     !itb...define vector (length=nsib ) variables...
     ierr = nf90_def_var( ncid, 'ta', nf90_double, vdims(2), tavid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',14)
-    ierr = nf90_def_var( ncid, 'tc', nf90_double, vdims(2), tcvid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',15)
-    ierr = nf90_def_var( ncid, 'nsl', nf90_int, vdims(2), nslvid )
+    ierr = nf90_def_var( ncid, 'tc', nf90_double, vdims(2), tcvid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',16)
-    ierr = nf90_def_var( ncid, 'pco2a', nf90_double, vdims(2), pco2avid )
+    ierr = nf90_def_var( ncid, 'nsl', nf90_int, vdims(2), nslvid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',17)
-    ierr = nf90_def_var( ncid, 'd13cca', nf90_double, vdims(2), d13ccaid )
+    ierr = nf90_def_var( ncid, 'pco2a', nf90_double, vdims(2), pco2avid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',18)
-    ierr = nf90_def_var( ncid, 'snow_veg', nf90_double, vdims(2), svegvid )
+    ierr = nf90_def_var( ncid, 'd13cca', nf90_double, vdims(2), d13ccaid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',19)
-    ierr = nf90_def_var( ncid, 'snow_age', nf90_double, vdims(2), sagevid )
+    ierr = nf90_def_var( ncid, 'snow_veg', nf90_double, vdims(2), svegvid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',20)
-    ierr = nf90_def_var( ncid, 'snow_depth', nf90_double, vdims(2), sdepthid )
+    ierr = nf90_def_var( ncid, 'snow_age', nf90_double, vdims(2), sagevid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',21)
-    ierr = nf90_def_var( ncid, 'snow_mass', nf90_double, vdims(2), smassid )
+    ierr = nf90_def_var( ncid, 'snow_depth', nf90_double, vdims(2), sdepthid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',22)
-    ierr = nf90_def_var( ncid, 'capac1', nf90_double, vdims(2), capac1vid )
+    ierr = nf90_def_var( ncid, 'snow_mass', nf90_double, vdims(2), smassid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',23)
-    ierr = nf90_def_var( ncid, 'capac2', nf90_double, vdims(2), capac2vid )
+    ierr = nf90_def_var( ncid, 'capac1', nf90_double, vdims(2), capac1vid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',24)
-    ierr = nf90_def_var( ncid, 'coszbar', nf90_double, vdims(2), coszbarid )
+    ierr = nf90_def_var( ncid, 'capac2', nf90_double, vdims(2), capac2vid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',25)
-    ierr = nf90_def_var( ncid, 'dayflag', nf90_double, vdims(2), dayflagid )
+    ierr = nf90_def_var( ncid, 'coszbar', nf90_double, vdims(2), coszbarid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',26)
-    ierr = nf90_def_var( ncid, 'tke', nf90_double, vdims(2), tkevid )
+    ierr = nf90_def_var( ncid, 'dayflag', nf90_double, vdims(2), dayflagid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',27)
-    ierr = nf90_def_var( ncid, 'sha', nf90_double, vdims(2), shavid )
+    ierr = nf90_def_var( ncid, 'tke', nf90_double, vdims(2), tkevid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',28)
-    ierr = nf90_def_var( ncid, 'tot_an', nf90_double, vdims(1:2), totanid )
+    ierr = nf90_def_var( ncid, 'sha', nf90_double, vdims(2), shavid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',29)
+    ierr = nf90_def_var( ncid, 'tot_an', nf90_double, vdims(1:2), totanid )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',30)
 
 
     !itb...define 2-D variables...
     ierr = nf90_def_var( ncid, 'td', nf90_double, vdims(2:3), tdvid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',30)
-    ierr = nf90_def_var( ncid, 'www_liq', nf90_double, vdims(2:3), wwwlvid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',31)
-    ierr = nf90_def_var( ncid, 'www_ice', nf90_double, vdims(2:3), wwwivid )
+    ierr = nf90_def_var( ncid, 'www_liq', nf90_double, vdims(2:3), wwwlvid )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',32)
+    ierr = nf90_def_var( ncid, 'www_ice', nf90_double, vdims(2:3), wwwivid )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',33)
+
+    !EL...crop vars added..
+    !EL..define crop vars..
+    !EL..define..define vector crop variables...
+    
+    ierr = nf90_def_var( ncid, 'tempf', nf90_double, vdims(2), tempfid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',34)
+    ierr = nf90_def_var( ncid, 'gdd', nf90_double, vdims(2), gddvid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',35)
+    ierr = nf90_def_var( ncid, 'w_main', nf90_double, vdims(2), w_mainid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',36)
+    ierr = nf90_def_var( ncid, 'pd', nf90_int, vdims(2), pdvid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',37)
+    ierr = nf90_def_var( ncid, 'pd7', nf90_int, vdims(2), pd7vid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',38)
+    ierr = nf90_def_var( ncid, 'pd7_est', nf90_int, vdims(2), pd7_estid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',39)
+    ierr = nf90_def_var( ncid, 'pdindx7', nf90_int, vdims(2), pdindx7id) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',40)
+    ierr = nf90_def_var( ncid, 'ndf_opt', nf90_int, vdims(2), ndf_optid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',41)
+
+    vdims(3) = npooldid
+    ierr = nf90_def_var( ncid, 'cum_wt_prev', nf90_double, vdims(2:3),cum_wt_previd)  
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',42)
+    ierr = nf90_def_var( ncid, 'cum_drywt_prev', nf90_double, vdims(2:3), cum_drywt_previd) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',43)
+     
+    !EL...end defining crop vars..
 
     vdims(3) = nsnowdid
     ierr = nf90_def_var( ncid, 'dzsnow', nf90_double, vdims(2:3), dzsvid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',33)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',44)
     ierr = nf90_def_var( ncid, 'nzsnow', nf90_double, vdims(2:3), nzsvid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',34)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',45)
     ierr = nf90_def_var( ncid, 'lzsnow', nf90_double, vdims(2:3), lzsvid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',35)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',46)
 
     vdims(3) = nphysdid
     ierr = nf90_def_var( ncid, 'rst', nf90_double, vdims(2:3), rstvid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',36)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',47)
 
     vdims(3) = nsoildid
     ierr = nf90_def_var( ncid, 'tot_ss', nf90_double, vdims, totssid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',37)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',48)
 
     !itb...take file out of define mode, into data mode
     ierr = nf90_enddef( ncid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',38)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',49)
 
     !itb...load the variables...
     ierr = nf90_put_var( ncid, nsibvid, nsib )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',39)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',50)
     ierr = nf90_put_var( ncid, nsoilvid, nsoil )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',40)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',51)
     ierr = nf90_put_var( ncid, nsnowvid, nsnow )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',41)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',52)
     ierr = nf90_put_var( ncid, nsecvid, nsectemp )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',42)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',53)
     ierr = nf90_put_var( ncid, vervid, version )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',43)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',54)
     ierr = nf90_put_var( ncid, subcountid, subcount )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',44)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',55)
 
     ierr = nf90_put_var( ncid, tavid, ta )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',45)
-    ierr = nf90_put_var( ncid, tcvid, tc )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',46)
-    ierr = nf90_put_var( ncid, nslvid, nsl )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',47)
-    ierr = nf90_put_var( ncid, pco2avid, pco2ap )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',48)
-    ierr = nf90_put_var( ncid, d13ccaid, d13cca )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',49)
-    ierr = nf90_put_var( ncid, svegvid, snow_veg )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',50)
-    ierr = nf90_put_var( ncid, sagevid, snow_age )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',51)
-    ierr = nf90_put_var( ncid, sdepthid, snow_depth )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',52)
-    ierr = nf90_put_var( ncid, smassid, snow_mass )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',53)
-    ierr = nf90_put_var( ncid, tkevid, tke )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',54)
-    ierr = nf90_put_var( ncid, shavid, sha )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',55)
-    ierr = nf90_put_var( ncid, coszbarid, coszbar )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',56)
-    ierr = nf90_put_var( ncid, dayflagid, dayflag )
+    ierr = nf90_put_var( ncid, tcvid, tc )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',57)
-    ierr = nf90_put_var( ncid, totanid, tot_an )
+    ierr = nf90_put_var( ncid, nslvid, nsl )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',58)
+    ierr = nf90_put_var( ncid, pco2avid, pco2ap )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',59)
+    ierr = nf90_put_var( ncid, d13ccaid, d13cca )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',60)
+    ierr = nf90_put_var( ncid, svegvid, snow_veg )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',61)
+    ierr = nf90_put_var( ncid, sagevid, snow_age )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',62)
+    ierr = nf90_put_var( ncid, sdepthid, snow_depth )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',63)
+    ierr = nf90_put_var( ncid, smassid, snow_mass )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',64)
+    ierr = nf90_put_var( ncid, tkevid, tke )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',65)
+    ierr = nf90_put_var( ncid, shavid, sha )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',66)
+    ierr = nf90_put_var( ncid, coszbarid, coszbar )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',67)
+    ierr = nf90_put_var( ncid, dayflagid, dayflag )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',68)
+    ierr = nf90_put_var( ncid, totanid, tot_an )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',69)
 
     !jlc...these are the temporary arrays
     ierr = nf90_put_var( ncid, tdvid, deept )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',59)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',70)
     ierr = nf90_put_var( ncid, wwwlvid, www_liq )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',60)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',71)
     ierr = nf90_put_var( ncid, wwwivid, www_ice )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',61)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',72)
     ierr = nf90_put_var( ncid, rstvid, rst )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',62)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',73)
 
     !itb...slabs...
     ierr = nf90_put_var( ncid, capac1vid, capac1 )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',63)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',74)
     ierr = nf90_put_var( ncid, capac2vid, capac2 )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',64)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',75)
+
+    
+    !EL..load the crop vars.
+   
+    ierr = nf90_put_var( ncid, tempfid, tempf )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',76)
+    ierr = nf90_put_var( ncid, gddvid, gdd )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',77)
+    ierr = nf90_put_var( ncid, w_mainid, w_main )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',78)
+    ierr = nf90_put_var( ncid, pdvid, pd )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',79)
+    ierr = nf90_put_var( ncid, pd7vid, pd7 )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',80)
+    ierr = nf90_put_var( ncid, pd7_estid, pd7_est )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',81)
+    ierr = nf90_put_var( ncid, pdindx7id, pdindx7 )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',82)
+    ierr = nf90_put_var( ncid, ndf_optid, ndf_opt )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',83)
+    ierr = nf90_put_var( ncid, cum_wt_previd, cum_wt_prev )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',84)
+    ierr = nf90_put_var( ncid, cum_drywt_previd, cum_drywt_prev )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',85)
+    !EL...crop vars end..
 
 
     !itb...netcdf does not deal well with negative indices: the 
@@ -371,18 +497,18 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
 
 
     ierr = nf90_put_var( ncid, dzsvid, dz_snow, start, vcount )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',65)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',86)
     ierr = nf90_put_var( ncid, nzsvid, nz_snow, start, vcount )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',66)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',87)
     ierr = nf90_put_var( ncid, lzsvid, lz_snow, start,vcount )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',67)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',88)
 
 
     ierr = nf90_put_var( ncid, totssid, tot_ss )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',68)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',89)
 
     !itb...close the file
     ierr = nf90_close( ncid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',69)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',90)
 
 end subroutine rtape_sib

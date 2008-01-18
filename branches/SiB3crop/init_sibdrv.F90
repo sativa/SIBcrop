@@ -419,6 +419,9 @@ integer(kind=int_kind), dimension(2) :: start
 integer(kind=int_kind), dimension(2) :: finish
 real(kind=dbl_kind), dimension(nsib) :: ta
 real(kind=dbl_kind), dimension(nsib) :: tc
+!EL...crop vars (kind=int_kind)
+integer(kind=int_kind), dimension(nsib) :: ndf_opt,pd,pd7,pd7_est,pdindx7
+!EL...crop vars (kind=int_kind) end..
 integer(kind=int_kind), dimension(nsib) :: nsl
 real(kind=dbl_kind), dimension(nsib) :: pco2ap
 real(kind=dbl_kind), dimension(nsib) :: d13cca
@@ -432,6 +435,13 @@ real(kind=dbl_kind), dimension(nsib) :: capac1
 real(kind=dbl_kind), dimension(nsib) :: capac2
 real(kind=dbl_kind), dimension(nsib) :: coszbar
 real(kind=dbl_kind), dimension(nsib) :: dayflag
+!EL...crop vars..real(kind=dbl_kind)
+real(kind=dbl_kind), dimension(nsib) :: tempf
+real(kind=dbl_kind), dimension(nsib) :: gdd
+real(kind=dbl_kind), dimension(nsib) :: w_main
+real(kind=dbl_kind), dimension(nsib,4) :: cum_wt_prev
+real(kind=dbl_kind), dimension(nsib,4) :: cum_drywt_prev
+!EL...crop vars..real(kind=dbl_kind) end..
 real(kind=dbl_kind), dimension(12,nsib) :: tot_an
 real(kind=dbl_kind), dimension(nsib,6) :: rst
 real(kind=dbl_kind), dimension(nsib,-nsnow+1:nsoil) :: deept
@@ -541,6 +551,40 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     ierr = nf90_inq_varid( ncid, 'rst', varid )
     ierr = nf90_get_var( ncid, varid, rst )
 
+    !EL...crop variables..
+
+    ierr = nf90_inq_varid( ncid, 'pd', varid )
+    ierr = nf90_get_var( ncid, varid, tempf )
+
+    ierr = nf90_inq_varid( ncid, 'pd7', varid )
+    ierr = nf90_get_var( ncid, varid, gdd )
+
+    ierr = nf90_inq_varid( ncid, 'pd7_est', varid )
+    ierr = nf90_get_var( ncid, varid, w_main )
+
+    ierr = nf90_inq_varid( ncid, 'pdindx7', varid )
+    ierr = nf90_get_var( ncid, varid,cum_wt_prev )
+
+    ierr = nf90_inq_varid( ncid, 'ndf_opt', varid )
+    ierr = nf90_get_var( ncid, varid, cum_wt_prev )
+    
+    ierr = nf90_inq_varid( ncid, 'tempf', varid )
+    ierr = nf90_get_var( ncid, varid, tempf )
+
+    ierr = nf90_inq_varid( ncid, 'gdd', varid )
+    ierr = nf90_get_var( ncid, varid, gdd )
+
+    ierr = nf90_inq_varid( ncid, 'w_main', varid )
+    ierr = nf90_get_var( ncid, varid, w_main )
+
+    ierr = nf90_inq_varid( ncid, 'cum_wt_prev', varid )
+    ierr = nf90_get_var( ncid, varid,cum_wt_prev )
+
+    ierr = nf90_inq_varid( ncid, 'cum_drywt_prev', varid )
+    ierr = nf90_get_var( ncid, varid, cum_wt_prev )
+
+    !El.. end crop vars
+
     print*,'\t\t read in slabs...'
 
     !itb...don't know how to read slabs directly into the structure yet...
@@ -587,6 +631,27 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%prog%capac(1) = capac1(subset(i))
         sib(i)%prog%capac(2) = capac2(subset(i))
         
+     !EL..crop vars added
+        sib(i)%diag%tempf = tempf(subset(i))
+        sib(i)%diag%gdd = gdd(subset(i))
+        sib(i)%diag%w_main = w_main(subset(i))
+        sib(i)%diag%pd = pd(subset(i))
+        sib(i)%diag%pd7 = pd7(subset(i))
+        sib(i)%diag%pd7_est = pd7_est(subset(i))
+        sib(i)%diag%pdindx7 = pdindx7(subset(i))
+        sib(i)%diag%ndf_opt = ndf_opt(subset(i))
+   
+        do j = 1, 4
+            sib(i)%diag%cum_wt_prev(j) = cum_wt_prev(subset(i),j)
+        enddo
+       
+        do j = 1, 4
+            sib(i)%diag%cum_drywt_prev(j) = cum_drywt_prev(subset(i),j)
+        enddo
+
+
+      !EL...end crop vars..
+
         do k = 1, 12
             sib(i)%diag%tot_an(k) = tot_an(k,subset(i))
 
@@ -638,6 +703,30 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
     endif
 
+!EL..manipulating crop vars for restart/initial conditions...
+   
+
+
+
+
+      do i=1,subcount
+!itb...sanity check
+       if(sib(i)%diag%pd > 365) then
+          sib(i)%diag%pd = 0.0_int_kind
+          sib(i)%diag%pd7 = 0.0_int_kind
+          sib(i)%diag%pd7_est = 0.0_int_kind
+          sib(i)%diag%pdindx7 = 0.0_int_kind
+          sib(i)%diag%ndf_opt = 0.0_int_kind
+          sib(i)%diag%tempf = 0.0_dbl_kind
+          sib(i)%diag%gdd = 0.0_dbl_kind
+          sib(i)%diag%w_main = 0.0001_dbl_kind
+          sib(i)%diag%cum_wt_prev(:) = 0.0001_dbl_kind
+          sib(i)%diag%cum_drywt_prev(:)   = 0.0001_dbl_kind
+        endif
+
+      enddo
+   
+        
 
 end subroutine read_ic
 
