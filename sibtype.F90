@@ -450,7 +450,7 @@ type diagnostic_vars
     integer(kind=int_kind) :: ndf_opt    ! the number of consecutive days with the 
                                          !  optimum temperature for planting
     integer(kind=int_kind) :: pdindx7    ! a counter for counting the number of days 
-                                         !  after the day wehn ndf_opt=7
+                                         !  after the day when ndf_opt=7
     integer(kind=int_kind) :: use_phen   ! logical variable: are we using the phenology model?
                                          ! if 1 ==> yes; use phenology model for all 
                                          !          time-varying veg params
