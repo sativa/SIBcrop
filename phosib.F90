@@ -252,9 +252,6 @@ subroutine phosib(sib,sib_loc)
 
 
 
-
-
-
     !itb...start PHYSIOLOGY LOOP here...
     !itb...potentially 5 different physiologies can share the same
     !itb...soil and CAS (making it different from a normal tile).

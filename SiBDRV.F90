@@ -82,12 +82,10 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     ! initialize all values and prepare for timestep loop
     call init_sibdrv( sib,time )
 
-print*,'PLANTING DATE 1:',sib%diag%pd
 
     ! set time varaibles for initial time step
     call time_check( time)
    
- print*,'PLANTING DATE 2:',sib%diag%pd
       
     ! call output_control
     call output_control( sib, time, rank )
@@ -109,15 +107,14 @@ print*,'PLANTING DATE 3:',sib%diag%pd
     endif
 
 
-print*,'PLANTING DATE 4:',sib%diag%pd
-    
     ! timestep loop
     do t = time%start_second, time%end_second - time%dtsib, time%dtsib
      
 	! print out date information once a day
         if ( time%sec_day == time%dtsib ) then
+
           print*, time%month_names(time%month),time%day,time%year
-!  print*,'pfrac:',sib(1)%param%physfrac(1),sib(1)%param%physfrac(2)
+
         endif
 	
 
@@ -130,10 +127,8 @@ print*,'PLANTING DATE 4:',sib%diag%pd
         if ( time%new_day .AND. time%doy > time%init_doy)  then
   
           call crop_accum(sib,time,timevar)
-!          print*,'phen_lai=',sib%diag%phen_lai
 
-print*,'PLANTING DATE 5:',sib%diag%pd
-       
+
         endif
 !itb_crop_end
 
@@ -190,7 +185,6 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
                  sib(i)%param%physfrac1(k) = sib(i)%param%physfrac2(k)
              enddo
          enddo
-!print*,sib(1)%param%phystype(1),sib(1)%param%phystype(2),sib(1)%param%physfrac2(1),sib(1)%param%physfrac2(2) 
 
     temptran(1,1) = sib(1)%param%tran(1,1)
     temptran(1,2) = sib(1)%param%tran(1,2)
