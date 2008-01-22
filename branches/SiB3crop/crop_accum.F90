@@ -191,6 +191,7 @@ subroutine corn_phen
 
    endif
   
+print'(a,5i8)','PD:',sib%diag%pd,sib%diag%ndf_opt,sib%diag%pdindx7,sib%diag%pd7,sib%diag%pd7_est
 
 !----------------------------
 !Calculate growing degree days
