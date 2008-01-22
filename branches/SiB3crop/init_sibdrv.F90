@@ -554,7 +554,9 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     !EL...crop variables..
 
     ierr = nf90_inq_varid( ncid, 'pd', varid )
-    ierr = nf90_get_var( ncid, varid, tempf )
+    ierr = nf90_get_var( ncid, varid, pd )
+
+print*,'init: PD=',pd
 
     ierr = nf90_inq_varid( ncid, 'pd7', varid )
     ierr = nf90_get_var( ncid, varid, gdd )
@@ -640,6 +642,8 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%diag%pd7_est = pd7_est(subset(i))
         sib(i)%diag%pdindx7 = pdindx7(subset(i))
         sib(i)%diag%ndf_opt = ndf_opt(subset(i))
+
+print*,'PLANTING DATE 0:',sib%diag%pd
    
         do j = 1, 4
             sib(i)%diag%cum_wt_prev(j) = cum_wt_prev(subset(i),j)
