@@ -161,8 +161,10 @@ subroutine corn_phen
    endif
 
    if (sib%diag%ndf_opt==7)  then
+
       sib%diag%pd7_est=time%doy
       sib%diag%pdindx7=sib%diag%pdindx7+(time%doy)
+
    endif
 
 !EL...pdindx7 was added to avoid any second date with ndf_opt=7 becoming a planting date..
@@ -170,25 +172,25 @@ subroutine corn_phen
    if (sib%diag%ndf_opt == 7 .AND.      &
        sib%diag%pdindx7 < (sib%diag%pd7_est+7) ) then
 
-      sib%diag%pd7=time%doy
-      sib%diag%pd=sib%diag%pd7
+      sib%diag%pd7 = time%doy
+      sib%diag%pd  = sib%diag%pd7
+
 
    endif
  
 
 
-   if (sib%diag%pd7>0 .AND.    &
+   if (sib%diag%pd7 > 0 .AND.    &
        (time%doy==(sib%diag%pd7+1) .OR. time%doy==(sib%diag%pd7+1)    &
    .OR. time%doy==(sib%diag%pd7+3) .OR. time%doy==(sib%diag%pd7+4)    &
    .OR. time%doy==(sib%diag%pd7+5) .OR. time%doy==(sib%diag%pd7+6)    &
    .OR. time%doy==(sib%diag%pd7+7)) .AND. sib%diag%tempf<53.0) then
 
-      sib%diag%gdd=0.0
-      sib%diag%pd=sib%diag%pd7+21
-          
+      sib%diag%gdd = 0.0
+      sib%diag%pd  = sib%diag%pd7+21
+
    endif
   
-print'(f18.8,2i15)',sib%diag%tempf,sib%diag%ndf_opt,sib%diag%pd
 
 !----------------------------
 !Calculate growing degree days
@@ -204,10 +206,10 @@ print'(f18.8,2i15)',sib%diag%tempf,sib%diag%ndf_opt,sib%diag%pd
 !EL...since pd is printed out as 0 before the real planting 
 !EL...date based on the above ndf_opt criterion
 
-	if (sib%diag%pd>0                  .AND.         & 
-		time%doy >= sib%diag%pd        .AND.         &
-        sib%diag%tempf>50.0   .AND.         &
-        sib%diag%tempf<86.0)      then
+	if (sib%diag%pd > 0                  .AND.         & 
+		time%doy  >=  sib%diag%pd        .AND.         &
+        sib%diag%tempf > 50.0   .AND.         &
+        sib%diag%tempf < 86.0)      then
 
   	     sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
@@ -279,10 +281,6 @@ print'(f18.8,2i15)',sib%diag%tempf,sib%diag%ndf_opt,sib%diag%pd
 		sib%diag%alloc(3)=0.35-(0.3-0.2)*(sib%diag%gdd-1180)/(1360-1180)	
 		sib%diag%alloc(4)=0.0-(0.0-0.15)*(sib%diag%gdd-1180)/(1360-1180)
 
-        print*,'allocallocallocalloc'
-        print'(4f12.5)',sib%diag%alloc(1),sib%diag%alloc(2),	&
-                        sib%diag%alloc(3),sib%diag%alloc(4)
-        stop
 
 	elseif(sib%diag%gdd>=1360.0 .and. sib%diag%gdd<1660.0)then
 
@@ -390,13 +388,17 @@ print'(f18.8,2i15)',sib%diag%tempf,sib%diag%ndf_opt,sib%diag%pd
  
 endif
 
-if (time%doy>sib%diag%pd+175)then
-        sib%diag%w_main =0.0001
-	    sib%diag%assim_d=0.0001
-	    sib%diag%pd=0
-            sib%diag%pd7=0        
-            sib%diag%pd7_est=0
-            sib%diag%pdindx7=0 
+
+if (time%doy > sib%diag%pd + 175)then
+
+        sib%diag%w_main      = 0.0001
+	    sib%diag%assim_d     = 0.0001
+	    sib%diag%pd          = 0
+        sib%diag%pd7         = 0        
+        sib%diag%pd7_est     = 0
+        sib%diag%pdindx7     = 0 
+        sib%diag%phen_switch = 0
+
 endif
 
 
@@ -534,7 +536,7 @@ endif
      
 	  	endif
  
-          enddo
+      enddo
 	  
 !EL..The following renaming was done simply to avoid array-related problems.. 
 !EL...in outputting the values in a separate .txt file.
@@ -545,10 +547,12 @@ endif
 	  sib%diag%final_drywt(4)=sib%diag%cum_drywt(time%doy,4)
 
 	  if (time%doy>sib%diag%pd+175) then
+
 		sib%diag%cum_drywt(time%doy,1)=0.0001
 		sib%diag%cum_drywt(time%doy,2)=0.0001
 		sib%diag%cum_drywt(time%doy,3)=0.0001
 		sib%diag%cum_drywt(time%doy,4)=0.0001
+
 	  endif
 
 
@@ -592,9 +596,8 @@ endif
 !                     sib%diag%alloc(2)
 
 
-!print*,ndf_opt,pd,sib%diag%tempf
-!pause
-!print*,sib%diag%pd,timevar%lai,sib%diag%phen_LAI
+
+
 
 
 	sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
@@ -610,9 +613,7 @@ endif
     endif
 
 		
-    if(sib%diag%doy>=sib%diag%pd+175) then
-      sib%diag%phen_switch = 0
-    endif  
+
 
  
 		write(20,'(i4.4,2x,i3.3,2x,46(1x,f11.2))')time%year,   &
@@ -627,7 +628,6 @@ endif
     if ((time%year==time%year + 1) .AND. sib%diag%doy==1) then
             sib%diag%assim_d=0.0001
     endif
-
 
 
 end subroutine corn_phen
@@ -1147,9 +1147,12 @@ print*,sib%diag%pd,sib%diag%tempf,sib%diag%ndf_opt,time%doy,sib%diag%gdd,sib%dia
 !sib%diag%tb_indx = 0	!at the end of each day tb_index is set to zero
 
     if (time%doy < sib%diag%pd .and. time%doy>sib%diag%pd+175)then
-        sib%diag%w_main =0.0001
-		sib%diag%assim_d =0.0001
-	    sib%diag%pd=0
+
+        sib%diag%w_main      = 0.0001
+		sib%diag%assim_d     = 0.0001
+	    sib%diag%pd          = 0
+        sib%diag%phen_switch = 1
+
     endif
 
 !print*,sib%diag%tempf,time%doy,sib%diag%phen_LAI,timevar%lai

@@ -559,16 +559,16 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 print*,'init: PD=',pd
 
     ierr = nf90_inq_varid( ncid, 'pd7', varid )
-    ierr = nf90_get_var( ncid, varid, gdd )
+    ierr = nf90_get_var( ncid, varid, pd7 )
 
     ierr = nf90_inq_varid( ncid, 'pd7_est', varid )
-    ierr = nf90_get_var( ncid, varid, w_main )
+    ierr = nf90_get_var( ncid, varid, pd7_est )
 
     ierr = nf90_inq_varid( ncid, 'pdindx7', varid )
-    ierr = nf90_get_var( ncid, varid,cum_wt_prev )
+    ierr = nf90_get_var( ncid, varid,pdindx7 )
 
     ierr = nf90_inq_varid( ncid, 'ndf_opt', varid )
-    ierr = nf90_get_var( ncid, varid, cum_wt_prev )
+    ierr = nf90_get_var( ncid, varid, ndf_opt )
     
     ierr = nf90_inq_varid( ncid, 'tempf', varid )
     ierr = nf90_get_var( ncid, varid, tempf )

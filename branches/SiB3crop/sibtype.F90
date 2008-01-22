@@ -436,25 +436,27 @@ type diagnostic_vars
     real(kind=dbl_kind)	:: cum_drywt(365,4)		! final, cumulative dry wt of each plant part
     real(kind=dbl_kind)	:: cum_drywt_prev(4)		! final, cumulative dry wt of each plant part
     real(kind=dbl_kind)	:: tot_biomass		! total biomass of all plant parts
-    real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt in a separate text file
+    real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt 
+                                            !   in a separate text file
 
     integer(kind=int_kind) :: tb_indx           ! index for counting up sib timesteps                                                           
-    integer(kind=int_kind) :: year  ! to represent years with different crops
-    integer(kind=int_kind) :: doy ! to calculate planting dates and growth stages of certain crops- EL
-    integer(kind=int_kind) :: pd  ! planting date
-    integer(kind=int_kind) :: pd7 ! seventh day with the optimum temperature for planting
-    integer(kind=int_kind) :: pd7_est    ! estimated seventh day with the optimum temperature for planting
-    integer(kind=int_kind) :: ndf_opt    ! the number of consecutive days with the optimum temperature for planting
-    integer(kind=int_kind) :: pdindx7    ! a counter for counting the number of days after the day wehn ndf_opt=7
+    integer(kind=int_kind) :: year       ! to represent years with different crops
+    integer(kind=int_kind) :: doy        ! to calculate planting dates and growth stages 
+                                         !   of certain crops- EL
+    integer(kind=int_kind) :: pd         ! planting date
+    integer(kind=int_kind) :: pd7        ! seventh day with the optimum temperature for planting
+    integer(kind=int_kind) :: pd7_est    ! estimated seventh day with the optimum 
+                                         !    temperature for planting
+    integer(kind=int_kind) :: ndf_opt    ! the number of consecutive days with the 
+                                         !  optimum temperature for planting
+    integer(kind=int_kind) :: pdindx7    ! a counter for counting the number of days 
+                                         !  after the day wehn ndf_opt=7
     integer(kind=int_kind) :: use_phen   ! logical variable: are we using the phenology model?
                                          ! if 1 ==> yes; use phenology model for all 
                                          !          time-varying veg params
                                          ! if 0 ==> no; use minimum NDVI/fvcover value
                                          !          (min_ndvi_crop,min_fvcov_crop)
 	integer(kind=int_kind) :: phen_switch! switch to trigger (or not) the phenology model
-
-        integer(kind=int_kind) :: ndf_opt! to count the number of days with an optimum growth temperature
-        integer(kind=int_kind) :: pd     ! the planting date
 
     real(kind=dbl_kind) :: min_ndvi_crop = 0.07 
                                          ! this is the minimum NDVI value to use when 
