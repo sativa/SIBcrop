@@ -81,12 +81,18 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     
     ! initialize all values and prepare for timestep loop
     call init_sibdrv( sib,time )
+
+print*,'PLANTING DATE 1:',sib%diag%pd
+
     ! set time varaibles for initial time step
     call time_check( time)
-    
+   
+ print*,'PLANTING DATE 2:',sib%diag%pd
       
     ! call output_control
     call output_control( sib, time, rank )
+
+print*,'PLANTING DATE 3:',sib%diag%pd
  
 !
 ! test file to test CO2 conservation
@@ -103,6 +109,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     endif
 
 
+print*,'PLANTING DATE 4:',sib%diag%pd
     
     ! timestep loop
     do t = time%start_second, time%end_second - time%dtsib, time%dtsib
@@ -120,9 +127,14 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 !itb_crop...calculate Ta_bar (and any other crop stuff we 
 !itb_crop...need )
 
-        if ( time%new_day .AND. time%doy > time%init_doy)    &
-                                    call crop_accum(sib,time,timevar)
-!print*,sib%diag%phen_lai
+        if ( time%new_day .AND. time%doy > time%init_doy)  then
+  
+          call crop_accum(sib,time,timevar)
+!          print*,'phen_lai=',sib%diag%phen_lai
+
+print*,'PLANTING DATE 5:',sib%diag%pd
+       
+        endif
 !itb_crop_end
 
 
@@ -251,6 +263,9 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
         !$OMP DO
 
         do i = 1, subcount
+
+!print*,'LAI:',sib(i)%param%zlt,' GDD=',sib%diag%gdd
+
             call sib_main( sib(i),time )
         enddo
         !$OMP END DO
