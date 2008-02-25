@@ -63,6 +63,7 @@ type(time_dep_var) TimeVar
 
 type(aero_var),dimension(50,50) :: tempaerovar
 real(kind=real_kind),dimension(2,2) :: temptran,tempref
+integer(kind=int_kind) :: temp_biome
 
 
     print *, 'INIT_SIBDRV:'
@@ -103,15 +104,23 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 
 
 !itb_crop...still need to read in the time-invariant values.
+!itb_crop...CHECK HOW THIS IS TREATED IN TRUNK CODE
     call previous_bc( sib, time )
 
 !itb_crop...now replace the time-varying params
     print*,'previous_bc'
 
 
+!itb_crop...WHAT ABOUT MULTI-POINT RUNS?
     call read_ti_crop_single(sib)
 
-    tempaerovar = aerovar(:,:,int(sib(1)%param%biome))
+    if( sib(1)%param%biome >= 20.0 ) then
+       temp_biome = 12
+    else
+       temp_biome =int(sib(1)%param%biome)
+    endif
+
+    tempaerovar = aerovar(:,:,temp_biome)
 
 !itb_crop...assign values to tempaerovar
 
@@ -127,7 +136,23 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
 
 
     print*,'read_ti_crop'
-    call mapper(          &
+
+!itb_crop...NEED TO READ INITIAL CONDITIONS PRIOR TO 
+!itb_crop...FIRST CALL TO MAPPER
+
+    print *, '\t reading in initial conditions '
+    call read_ic(sib,time)
+
+
+
+!itb_crop...mapper call depends on crop in field or fallow
+!itb_crop...conditions
+
+
+
+    if( sib(1)%diag%phen_switch == 0) then   ! FALLOW
+
+      call mapper(          &
             latsib(1),        &
             time%mid_month(time%pmonth),           &
             sib(1)%diag%min_ndvi_crop,      &
@@ -136,11 +161,64 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
             sib(1)%param%chil,   &
             temptran,         &
             tempref,          &
-            morphtab(int(sib(1)%param%biome)),      &
+            morphtab(temp_biome),      &
             tempaerovar,      &
             laigrid,          &
             fvcovergrid,      &
             timevar)
+
+    elseif(sib(1)%diag%phen_switch == 1) then   ! CROP
+
+      call leaf_weight(sib,time)
+
+
+!itb_crop...LAI
+      sib(1)%diag%phen_lai = sib(1)%diag%leafwt_c * 2 * 0.02
+
+      timevar%lai = sib(1)%diag%phen_lai
+
+
+      call phen_mapper(                              &
+         latsib(1),                             &
+         time%mid_month(time%pmonth),           &
+         sib(1)%param%vcover,                  &
+         sib(1)%param%chil,                     &
+         temptran,                              &
+         tempref,                               & 
+         morphtab(temp_biome),          &
+         tempaerovar,                           &
+         laigrid,                               &
+         fvcovergrid,                           &
+         timevar)
+
+	     sib(1)%param%aparc1 = timevar%fpar
+         sib(1)%param%zlt1 = timevar%lai
+         sib(1)%param%green1 = timevar%green
+         sib(1)%param%z0d1 = timevar%zo
+         sib(1)%param%zp_disp1 = timevar%zp_disp
+         sib(1)%param%rbc1 = timevar%rbc
+         sib(1)%param%rdc1 = timevar%rdc
+         sib(1)%param%gmudmu1 = timevar%gmudmu
+
+	     sib(1)%param%aparc2 = timevar%fpar
+         sib(1)%param%zlt2 = timevar%lai
+         sib(1)%param%green2 = timevar%green
+         sib(1)%param%z0d2 = timevar%zo
+         sib(1)%param%zp_disp2 = timevar%zp_disp
+         sib(1)%param%rbc2 = timevar%rbc
+         sib(1)%param%rdc2 = timevar%rdc
+         sib(1)%param%gmudmu2 = timevar%gmudmu
+
+
+         call bc_interp(sib, time)  
+
+    else
+
+      print*,'phen_switch=',sib(1)%diag%phen_switch
+
+      stop'INCORRECT VALUE FOR PHENOLOGY SWITCH'
+
+    endif
 
 
 
@@ -154,7 +232,6 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
         sib(1)%param%gmudmu2 = timevar%gmudmu
 
 !itb_crop_end...
-
 
 
     call soil_properties( sib )
@@ -175,10 +252,7 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     else
         stop 'Invalid drvr_type specified'
     endif
-!
-! read in initial conditions
-    print *, '\t reading in initial conditions '
-    call read_ic(sib,time)
+
 
 ! read in respfactor file
     print *, '\t read in respFactor'
@@ -439,8 +513,8 @@ real(kind=dbl_kind), dimension(nsib) :: dayflag
 real(kind=dbl_kind), dimension(nsib) :: tempf
 real(kind=dbl_kind), dimension(nsib) :: gdd
 real(kind=dbl_kind), dimension(nsib) :: w_main
-real(kind=dbl_kind), dimension(nsib,4) :: cum_wt_prev
-real(kind=dbl_kind), dimension(nsib,4) :: cum_drywt_prev
+real(kind=dbl_kind), dimension(nsib,4) :: cum_wt
+real(kind=dbl_kind), dimension(nsib,4) :: cum_drywt
 !EL...crop vars..real(kind=dbl_kind) end..
 real(kind=dbl_kind), dimension(12,nsib) :: tot_an
 real(kind=dbl_kind), dimension(nsib,6) :: rst
@@ -556,8 +630,6 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     ierr = nf90_inq_varid( ncid, 'pd', varid )
     ierr = nf90_get_var( ncid, varid, pd )
 
-print*,'init: PD=',pd
-
     ierr = nf90_inq_varid( ncid, 'pd7', varid )
     ierr = nf90_get_var( ncid, varid, pd7 )
 
@@ -580,10 +652,10 @@ print*,'init: PD=',pd
     ierr = nf90_get_var( ncid, varid, w_main )
 
     ierr = nf90_inq_varid( ncid, 'cum_wt_prev', varid )
-    ierr = nf90_get_var( ncid, varid,cum_wt_prev )
+    ierr = nf90_get_var( ncid, varid,cum_wt )
 
     ierr = nf90_inq_varid( ncid, 'cum_drywt_prev', varid )
-    ierr = nf90_get_var( ncid, varid, cum_wt_prev )
+    ierr = nf90_get_var( ncid, varid, cum_drywt )
 
     !El.. end crop vars
 
@@ -643,14 +715,17 @@ print*,'init: PD=',pd
         sib(i)%diag%pdindx7 = pdindx7(subset(i))
         sib(i)%diag%ndf_opt = ndf_opt(subset(i))
 
-print*,'PLANTING DATE 0:',sib%diag%pd
+
+!itb...crop phenology: on or off?
+        if(sib(i)%diag%gdd > 100.0 ) sib(i)%diag%phen_switch = 1
+
    
         do j = 1, 4
-            sib(i)%diag%cum_wt_prev(j) = cum_wt_prev(subset(i),j)
+            sib(i)%diag%cum_wt(j) = cum_wt(subset(i),j)
         enddo
        
         do j = 1, 4
-            sib(i)%diag%cum_drywt_prev(j) = cum_drywt_prev(subset(i),j)
+            sib(i)%diag%cum_drywt(j) = cum_drywt(subset(i),j)
         enddo
 
 
@@ -724,8 +799,8 @@ print*,'PLANTING DATE 0:',sib%diag%pd
           sib(i)%diag%tempf = 0.0_dbl_kind
           sib(i)%diag%gdd = 0.0_dbl_kind
           sib(i)%diag%w_main = 0.0001_dbl_kind
-          sib(i)%diag%cum_wt_prev(:) = 0.0001_dbl_kind
-          sib(i)%diag%cum_drywt_prev(:)   = 0.0001_dbl_kind
+          sib(i)%diag%cum_wt(:) = 0.0001_dbl_kind
+          sib(i)%diag%cum_drywt(:)   = 0.0001_dbl_kind
         endif
 
       enddo
@@ -785,7 +860,6 @@ real(kind=dbl_kind), dimension(nsib,nsoil) :: respfactor
     do i=1,subcount
         do j=1,nsoil
             sib(i)%param%respfactor(j) = respfactor(subset(i),j)
-      print*,i,j,sib(i)%param%respfactor(j)
         enddo
     enddo
 
@@ -820,6 +894,8 @@ real(kind=real_kind) :: zbot       ! (-) normalized depth of soil layer bottom
 real(kind=real_kind) :: pot_fc     ! water potential at field capacity (J/kg)
 real(kind=real_kind) :: pot_wp     ! water potential at wilt point (J/kg)
 
+integer(kind=int_kind) :: temp_biome
+
 
 !
 ! assign values of root density profiles
@@ -827,6 +903,16 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
 
 
     do i = 1,subcount
+
+!itb_crop...
+      if(sib(i)%param%biome >= 20.0) then
+         temp_biome = 12
+      else
+         temp_biome = int(sib(i)%param%biome)
+      endif
+
+
+
         !Bio------------------------------------------------------------------
         !Bio   miscellaneous soil properties
         !Bio-------------------------------------------------------------------
@@ -908,16 +994,16 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
         !Bio-------------------------------------------------------------
 !
 ! total roots
-        totalroot = (1.0 - exp(-kroot(int(sib(i)%param%biome))*     &
-          sib(i)%prog%layer_z(nsoil))) / kroot(int(sib(i)%param%biome))
+        totalroot = (1.0 - exp(-kroot(temp_biome)*     &
+          sib(i)%prog%layer_z(nsoil))) / kroot(temp_biome)
 !
 ! root fraction per soil layer
         ztop = 0.0
         do j=1,nsoil
             zbot = ztop + sib(i)%prog%dz(j)
-            sib(i)%param%rootf(j) = (exp(-kroot(int(sib(i)%param%biome))*ztop) &
-                - exp(-kroot(int(sib(i)%param%biome))*zbot))/ &
-                (kroot(int(sib(i)%param%biome)) * totalroot)
+            sib(i)%param%rootf(j) = (exp(-kroot(temp_biome)*ztop) &
+                - exp(-kroot(temp_biome)*zbot))/ &
+                (kroot(temp_biome) * totalroot)
 
 !          print*, j,sib(i)%param%rootf(j)
 

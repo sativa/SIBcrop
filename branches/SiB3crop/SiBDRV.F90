@@ -49,6 +49,7 @@ type(time_dep_var) TimeVar
 
 type(aero_var),dimension(50,50) :: tempaerovar
 real(kind=real_kind),dimension(2,2) :: temptran,tempref
+integer(kind=int_kind) :: temp_biome
 
 !itb_crop_end
 
@@ -90,21 +91,12 @@ real(kind=real_kind),dimension(2,2) :: temptran,tempref
     ! call output_control
     call output_control( sib, time, rank )
 
-print*,'PLANTING DATE 3:',sib%diag%pd
  
 !
 ! test file to test CO2 conservation
 !      open(unit=85, file='test', form='formatted')
 
 
-!itb_crop...open some files for diagnostic output. These will be 
-!itb_crop...removed when we figure out the best way to include
-!itb_crop...these diagnostics into the 'standard' output
-    if(mod(time%year,2) /= 0) then
-    	open(unit=20,file='phen_corn_test.dat',form='formatted')
-    else
-    	open(unit=21,file='phen_soy_test.dat',form='formatted')
-    endif
 
 
     ! timestep loop
@@ -171,6 +163,8 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
 !itb_crop...set in sibtype, unless the phenology model is
 !itb_crop...being utilized
 
+    if(sib(1)%param%biome >= 20.0) temp_biome = 12
+
         do i = 1, subcount
              sib(i)%param%aparc1       = sib(i)%param%aparc2
              sib(i)%param%zlt1         = sib(i)%param%zlt2
@@ -196,7 +190,7 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
     tempref(2,1) = sib(1)%param%ref(2,1)
     tempref(2,2) = sib(1)%param%ref(2,2)
 
-    tempaerovar = aerovar(:,:,int(sib(1)%param%biome))
+    tempaerovar = aerovar(:,:,temp_biome)
 	
 	If (sib(1)%diag%phen_switch==0) then
 
@@ -210,7 +204,7 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
             sib(1)%param%chil,                     &
             temptran,                              &
             tempref,                               & 
-            morphtab(int(sib(1)%param%biome)),          &
+            morphtab(temp_biome),                  &
             tempaerovar,                           &
             laigrid,                               &
             fvcovergrid,                           &
@@ -258,7 +252,7 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
 
         do i = 1, subcount
 
-!print*,'LAI:',sib(i)%param%zlt,' GDD=',sib%diag%gdd
+!print*,'LAI:',sib(i)%diag%phen_lai,sib(i)%diag%leafwt_c
 
             call sib_main( sib(i),time )
         enddo

@@ -77,8 +77,8 @@ integer(kind=int_kind) :: pd7vid    ! variable id - pd7
 integer(kind=int_kind) :: pd7_estid ! variable id - pd7_est 
 integer(kind=int_kind) :: pdindx7id ! variable id - pdindx7
 integer(kind=int_kind) :: ndf_optid ! variable id - ndf_opt
-integer(kind=int_kind) :: cum_wt_previd    ! variable id - cum_wt_prev
-integer(kind=int_kind) :: cum_drywt_previd ! variable id - cum_drywt_prev
+integer(kind=int_kind) :: cum_wt_id    ! variable id - cum_wt
+integer(kind=int_kind) :: cum_drywt_id ! variable id - cum_drywt
 !EL..crop vars end..
 
 
@@ -116,7 +116,7 @@ integer(kind=int_kind), dimension(nsib) :: ndf_opt
 
 real(kind=dbl_kind), dimension(nsib) :: tempf,gdd,w_main
 
-real(kind=dbl_kind), dimension(nsib,4) :: cum_wt_prev,cum_drywt_prev
+real(kind=dbl_kind), dimension(nsib,4) :: cum_wt,cum_drywt
 
 !EL...end crop vars (real(kind=dbl_kind))     
     
@@ -171,8 +171,8 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     pd7_est(:) = 0
     pdindx7(:) = 0
     ndf_opt(:) = 0
-    cum_wt_prev(:,:) = 1.e36
-    cum_drywt_prev(:,:) = 1.e36
+    cum_wt(:,:) = 1.e36
+    cum_drywt(:,:) = 1.e36
 !EL..end initializing crop vars.
     
     do i = 1, subcount
@@ -231,13 +231,13 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
 !EL...crop vars contd..
     do j=1,4
         do i=1,subcount
-           cum_wt_prev(subset(i),j) = sib(i)%diag%cum_wt_prev(j)
+           cum_wt(subset(i),j) = sib(i)%diag%cum_wt(j)
         enddo
     enddo
 
     do j=1,4
         do i=1,subcount
-            cum_drywt_prev(subset(i),j) = sib(i)%diag%cum_drywt_prev(j)
+            cum_drywt(subset(i),j) = sib(i)%diag%cum_drywt(j)
         enddo
     enddo
 !EL..crop vars end..
@@ -375,9 +375,9 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',41)
 
     vdims(3) = npooldid
-    ierr = nf90_def_var( ncid, 'cum_wt_prev', nf90_double, vdims(2:3),cum_wt_previd)  
+    ierr = nf90_def_var( ncid, 'cum_wt', nf90_double, vdims(2:3),cum_wt_id)  
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',42)
-    ierr = nf90_def_var( ncid, 'cum_drywt_prev', nf90_double, vdims(2:3), cum_drywt_previd) 
+    ierr = nf90_def_var( ncid, 'cum_drywt', nf90_double, vdims(2:3), cum_drywt_id) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',43)
      
     !EL...end defining crop vars..
@@ -480,9 +480,9 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',82)
     ierr = nf90_put_var( ncid, ndf_optid, ndf_opt )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',83)
-    ierr = nf90_put_var( ncid, cum_wt_previd, cum_wt_prev )
+    ierr = nf90_put_var( ncid, cum_wt_id, cum_wt )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',84)
-    ierr = nf90_put_var( ncid, cum_drywt_previd, cum_drywt_prev )
+    ierr = nf90_put_var( ncid, cum_drywt_id, cum_drywt )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',85)
     !EL...crop vars end..
 
