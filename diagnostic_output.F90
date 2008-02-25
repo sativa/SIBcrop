@@ -1020,16 +1020,16 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                 sib(imultpbpsib(n))%diag%gdd
 
             pbp1(indxpbp1(191),n) = pbp1(indxpbp1(191),n) +    &
-                sib(imultpbpsib(n))%diag%final_drywt(1)
+                sib(imultpbpsib(n))%diag%cum_drywt(1)
 
             pbp1(indxpbp1(192),n) = pbp1(indxpbp1(192),n) +    &
-                sib(imultpbpsib(n))%diag%final_drywt(2)
+                sib(imultpbpsib(n))%diag%cum_drywt(2)
 
             pbp1(indxpbp1(193),n) = pbp1(indxpbp1(193),n) +    &
-                sib(imultpbpsib(n))%diag%final_drywt(3)
+                sib(imultpbpsib(n))%diag%cum_drywt(3)
 
             pbp1(indxpbp1(194),n) = pbp1(indxpbp1(194),n) +    &
-                sib(imultpbpsib(n))%diag%final_drywt(4)
+                sib(imultpbpsib(n))%diag%cum_drywt(4)
 		
         enddo
     endif

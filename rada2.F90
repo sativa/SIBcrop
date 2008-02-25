@@ -154,7 +154,7 @@ subroutine rada2(sib,sib_loc)
 
     !-----------------------------------------------------------------------
     do iwave = 1, 2
-!print*,sib%prog%snow_veg/1000.0,sib%param%satcap(1)
+
         scov =  min( 0.5_dbl_kind, (sib%prog%snow_veg/1000.0)/sib%param%satcap(1) )
 
         reff1 = ( 1. - scov ) * sib%param%ref(iwave,1) + scov * ( 1.2 -     &

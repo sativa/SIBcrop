@@ -46,6 +46,11 @@ type(aero_var) :: tempaerovar(50,50)
     do i = 1, subcount 
 
         k = int(sib(i)%param%biome)
+
+!itb_crop...
+        if(sib(i)%param%biome >= 20.0) k = 12
+!itb_crop...
+
         temptran = sib(i)%param%tran(:,:)
         tempref = sib(i)%param%ref(:,:)
         tempaerovar = aerovar(:,:,k)

@@ -232,6 +232,11 @@ character*100 filename  ! filename used to read in ndvi data
  
         read(32,*) dummy
 
+        if(i == 4) then
+         print*,'biome =',dummy
+         sib%param%biome = dummy
+        endif
+
     enddo
        
         ! read in the phys fracs from the current month

@@ -111,8 +111,8 @@ character(len=10) name
     if (status /= nf90_noerr) call handle_err (status)
 
     ! biome
-    status = nf90_inq_varid ( tiid, 'biome', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+!    status = nf90_inq_varid ( tiid, 'biome', varid )
+!    if (status /= nf90_noerr) call handle_err (status)
 !    status = nf90_get_var ( tiid, varid, biome )
 !    if (status /= nf90_noerr) call handle_err (status)
 
