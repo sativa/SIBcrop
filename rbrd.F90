@@ -66,6 +66,7 @@ real(kind=dbl_kind) :: tgs    ! composite soil/snow sfc temperature
     tgs = sib%diag%areas*sib%prog%td(sib%prog%nsl+1) +   &
         (1.0 - sib%diag%areas)*sib%prog%td(1)
     temdif = MAX( 0.1_dbl_kind, tgs-sib%prog%ta )
+!print*,sib%param%z2
 
     fih = SQRT( 1.+9.* grav * temdif * sib%param%z2 / (tgs*u2*u2) )
     

@@ -29,22 +29,44 @@ integer k
 
     do j=1,20000
       sib%diag%tb_temp(j) = 0.0
-	  sib%diag%tb_assim(j) = 0.0 !added for daily accumulation of assimilation-EL
+      sib%diag%tb_assim(j) = 0.0 !added for daily accumulation of assimilation-EL
+!El...the following added for testing..
+     sib%diag%tb_rst(j) =0.0
     enddo
 	
 		sib%diag%tempf = 0.0
 		sib%diag%tempc=0.0
 		sib%diag%assim_d = 0.0
 		sib%diag%w_main=0.0
-        sib%diag%tot_biomass=0.0
+	        sib%diag%w_main_pot=0.0
+!                sib%diag%cropht=0.0
+                sib%diag%tot_biomass=0.0
+!                sib%diag%tot_prod_an=0.0
+!                sib%diag%tot_BM_an= 0.0
+!                sib%diag%prodwt=0.0
 		sib%diag%leafwt_c = 0.0
 		sib%diag%phen_LAI=0.0
-	
+!     do i=1,13
+		
+!                sib%diag%tot_BM_an= 0.0
+ !               sib%diag%tot_prod_an=0.0
+  !   enddo
 
-	 do j=1,4
+
+!	 do j=1,4
+
+!			sib%diag%allocwt(i,j) = 0.0
+!			sib%diag%cum_wt(i,j) = 0.0
+!			sib%diag%cum_drywt(i,j) = 0.0
+!	 enddo
+!    enddo
+      
+     do j=1,4		
+
 
 			sib%diag%cum_wt(j) = 0.0
 			sib%diag%cum_drywt(j) = 0.0
+
 			sib%diag%alloc(j) = 0.0
 			sib%diag%phen_maintr(j) = 0.0
 			sib%diag%phen_growthr(j) = 0.0
@@ -54,8 +76,10 @@ integer k
 
 
     sib%diag%ta_bar = 0.0
+!EL..added for testing..
+    sib%diag%rstfac_d = 0.0
     sib%diag%gdd    = 0.0
-  
+    sib%diag%gdd_c  = 0.0 !added temporarily
 
     sib%diag%use_phen = 0
 	sib%diag%phen_switch=0
@@ -205,7 +229,7 @@ integer k
 	sib%param%chil = 0.0
 	sib%param%phc  = 0.0
 	sib%param%z1  = 0.0
-	sib%param%z2 = 0.0
+!	sib%param%z2 = 0.0
 	sib%param%poros = 0.0
 	sib%param%satco  = 0.0
 	sib%param%bee  = 0.0

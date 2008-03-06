@@ -330,7 +330,7 @@ subroutine phosib(sib,sib_loc)
         templ = 1. + EXP(sib%param%slti(i) * (sib%param%hltii(i) - sib%prog%tc))
 
         temph = 1. + EXP(sib%param%shti(i) * (sib%prog%tc - sib%param%hhti(i) ))
-!print*,templ,temph
+!print*,templ,temph,sib%prog%tc
 
         rstfac3(i) = 1./( templ*temph)
 !print*,templ,temph,rstfac3(i),i
