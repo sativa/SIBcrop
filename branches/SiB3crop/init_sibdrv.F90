@@ -230,9 +230,11 @@ integer(kind=int_kind) :: temp_biome
         sib(1)%param%rbc2 = timevar%rbc
         sib(1)%param%rdc2 = timevar%rdc
         sib(1)%param%gmudmu2 = timevar%gmudmu
-
+!EL...making initial crop ht to the minimum crop ht defined..
+ !       sib(1)%param%z2=sib(1)%diag%min_z2_crop
 !itb_crop_end...
 
+print*,sib(1)%param%z2,sib(1)%diag%cropht
 
     call soil_properties( sib )
     
@@ -627,8 +629,8 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
     !EL...crop variables..
 
-    ierr = nf90_inq_varid( ncid, 'pd', varid )
-    ierr = nf90_get_var( ncid, varid, pd )
+ !   ierr = nf90_inq_varid( ncid, 'pd', varid )
+  !  ierr = nf90_get_var( ncid, varid, pd )
 
     ierr = nf90_inq_varid( ncid, 'pd7', varid )
     ierr = nf90_get_var( ncid, varid, pd7 )

@@ -55,11 +55,12 @@ subroutine vntlat(sib,sib_loc)
     !itb...PATCH...make sure that temv is not negative
     temv = max(temv,1.00_dbl_kind)
     temv = log(temv) 
+!print*,sib%prog%spdm, cuni,vkrmn,temv, log(temv) 
     u2     = sib%prog%spdm / (cuni * vkrmn)
     u2 = u2 * temv
 
     !itb...HARDWIRE PATCH...keeping u2 from being zero. That's bad...
-!    u2 = MAX(u2,1.0_dbl_kind)
+    u2 = MAX(u2,1.0_dbl_kind)
 
     sib%diag%drag(1) = sib%prog%ros * sib%diag%cu * sib%diag%ustar
 

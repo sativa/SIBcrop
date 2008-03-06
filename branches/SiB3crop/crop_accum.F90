@@ -1102,6 +1102,7 @@ subroutine soy_phen
 !EL...(calculations based on Allen et al., 1998 and Rogers et al., 2006)&
 !EL...maint. coeff. info from Penning de Vries,1989, Amthor, 1984, 
 !EL...and Norman and Arkebauer, 1991)
+ coeff = 2.0_dbl_kind * 12.0_dbl_kind/ 44.0_dbl_kind
    
        temp1 = (0.03 * coeff) *                   &
              (2.0**((sib%diag%tempc - 20.0) / 10.0))
@@ -1174,7 +1175,7 @@ subroutine soy_phen
 !Calculate growth respiration
 !----------------------------
  
-        coeff = 2.0_dbl_kind * 12.0_dbl_kind * 44.0_dbl_kind
+        coeff = 2.0_dbl_kind * 12.0_dbl_kind/ 44.0_dbl_kind
 
         sib%diag%phen_growthr(1) = sib%diag%allocwt(1) * 0.537 * coeff
         sib%diag%phen_growthr(2) = sib%diag%allocwt(2) * 0.790 * coeff
@@ -1266,7 +1267,7 @@ subroutine soy_phen
  	  sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
 
 
-!print*,sib%diag%pd,sib%diag%tempf,sib%diag%ndf_opt,time%doy,sib%diag%gdd,sib%diag%cum_drywt(1)
+print*,sib%diag%allocwt(2),sib%diag%pd,sib%diag%w_main,sib%diag%phen_maintr(2),sib%diag%phen_growthr(2),sib%diag%cum_drywt(2),sib%diag%leafwt_c,sib%diag%phen_LAI
 
 !itb_crop...at the moment that growing degree days (gdd) passes
 !itb_crop...100, we will initialize the LAI

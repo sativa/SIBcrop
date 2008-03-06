@@ -411,15 +411,20 @@ type diagnostic_vars
     real(kind=dbl_kind) :: ta_bar    ! daily mean CAS air temp (K)
                                      ! used for calculating growing degree days
     real(kind=dbl_kind) :: gdd       ! growing degree days
+    real(kind=dbl_kind) :: gdd_c     !added temporarily  
     real(kind=dbl_kind) :: tb_temp(20000) 
-									 ! placeholder for accumulating
+!EL.. the following added for testing
+    real(kind=dbl_kind) :: rstfac_d
+    real(kind=dbl_kind) :: tb_rst(20000) 									 ! placeholder for accumulating
                                      ! temperature for GDD
 
 !EL.. The following variables were added from the phenology scheme
     real(kind=dbl_kind) :: assim_d ! daily assimilation	
     real(kind=dbl_kind) :: tempf	 ! daily mean CAS air temp (F)     
     real(kind=dbl_kind) :: tempc	 ! daily mean CAS air temp (C) 
-    real(kind=dbl_kind) :: w_main 	 ! dryweight+maintenance respiration for the whole plant   
+    real(kind=dbl_kind) :: w_main 	 ! dryweight+maintenance respiration for the whole plant
+    real(kind=dbl_kind) :: w_main_pot
+    real(kind=dbl_kind) :: cropht        !for calculation of crop height based on a daily growth rate   
     real(kind=dbl_kind) :: leafwt_c  ! final leaf weight
     real(kind=dbl_kind) :: phen_LAI  ! LAI from phenology model
     real(kind=dbl_kind) :: tb_assim (20000) 
@@ -438,6 +443,14 @@ type diagnostic_vars
     real(kind=dbl_kind)	:: wch(4)			! dry wt change per day
     real(kind=dbl_kind)	:: cum_drywt(4)		! final, cumulative dry wt of each plant part
     real(kind=dbl_kind)	:: tot_biomass		! total biomass of all plant parts
+
+!    real(kind=dbl_kind)	:: tot_bM_an(13)            ! annual sum of total biomass of all plant parts
+    real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt 
+                                                !   in a separate text file
+!    real(kind=dbl_kind)	:: tot_prod_an(13)          ! annual sum of total biomass in products
+!    real(kind=dbl_kind)	:: prodwt(365)               !weight of products renamed for facilitating respfactor in resp_control.F90 
+
+
 
     integer(kind=int_kind) :: tb_indx           ! index for counting up sib timesteps                                                           
     integer(kind=int_kind) :: year       ! to represent years with different crops
@@ -460,6 +473,9 @@ type diagnostic_vars
 
     real(kind=dbl_kind) :: min_ndvi_crop = 0.07 
                                          ! this is the minimum NDVI value to use when 
+                                         ! phenology model is NOT being used
+    real(kind=dbl_kind) :: min_z2_crop = 0.25 
+                                         ! this is the minimum crop height to be used when 
                                          ! phenology model is NOT being used
     real(kind=dbl_kind) :: min_fvcov_crop = 0.1
 

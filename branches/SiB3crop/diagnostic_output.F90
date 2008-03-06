@@ -552,7 +552,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                 qp2(out_index,indxqp2(110)) = qp2(out_index,indxqp2(110)) +    &
                     sib(out_index)%diag%www_tot_soil
             endif
-    	    
+
         enddo ! index
     endif
 
@@ -1030,7 +1030,19 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
             pbp1(indxpbp1(194),n) = pbp1(indxpbp1(194),n) +    &
                 sib(imultpbpsib(n))%diag%cum_drywt(4)
-		
+
+!EL...temporarily added canopy maint resp for output  
+
+           out_index = 195
+            do l =1,5
+                pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                    sib(imultpbpsib(n))%diag%respc(l)*1.E6
+            
+                out_index = out_index + 1
+            enddo
+    
+          
+
         enddo
     endif
 
