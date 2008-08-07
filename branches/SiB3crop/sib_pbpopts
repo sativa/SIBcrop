@@ -201,5 +201,6 @@ t 0 'respc1      ' 195 ' canopy manintenance respiration,phystype 1 (mmol/m^2/se
 t 0 'respc2      ' 196 ' canopy manintenance respiration,phystype 2 (mmol/m^2/sec) $' 
 t 0 'respc3      ' 197 ' canopy manintenance respiration,phystype 3 (mmol/m^2/sec) $' 
 t 0 'respc4      ' 198 ' canopy manintenance respiration,phystype 4 (mmol/m^2/sec) $' 
-t 0 'respc5      ' 199 ' canopy manintenance respiration,phystype 5 (mmol/m^2/sec) $' 
+t 0 'respc5      ' 199 ' canopy manintenance respiration,phystype 5 (mmol/m^2/sec) $'
+t 0 'tempf  ' 200 ' mean daily temperature (K)' 
 

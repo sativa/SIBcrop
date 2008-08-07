@@ -29,13 +29,13 @@ type(time_struct), intent(in) :: time
 
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(2)
 	
-      elseif (sib%diag%gdd >= 2500.0 .and. sib%diag%gdd < 2950.0) then
+      elseif (sib%diag%gdd >= 2650.0 .and. sib%diag%gdd < 2900.0) then
 
           sib%diag%leafwt_c = 0.95 * sib%diag%cum_drywt(2) -   &
           (0.95-0.1) * sib%diag%cum_drywt(2) *      &
-                              ((sib%diag%gdd - 2500.0) / 450.0)
+                              ((sib%diag%gdd - 2650.0) / 250.0)
        
-      elseif( sib%diag%gdd >= 2950.0 .or. time%doy>=sib%diag%pd+175) then
+      elseif( sib%diag%gdd >= 2900.0 .or. time%doy>=sib%diag%pd+175) then
 
           sib%diag%leafwt_c=sib%diag%cum_drywt(2)*0.01
 
@@ -55,28 +55,60 @@ type(time_struct), intent(in) :: time
               time%doy   <  (sib%diag%pd+100))   then
 
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(2) * 0.85 
- 
-      elseif (sib%diag%pd >  0                    .AND.      &
+  
+            elseif (sib%diag%pd >  0                    .AND.      &
              time%doy    >= (sib%diag%pd+100)    .AND.      &
-             time%doy    <  (sib%diag%pd+121))   then
+             time%doy    <  (sib%diag%pd+140))   then
 
-               x=(time%doy - (sib%diag%pd+100)) / 21.0
+               x=(time%doy - (sib%diag%pd+100)) / 40.0
 
-	           sib%diag%leafwt_c = 0.85 * sib%diag%cum_drywt(2) -   &
-                 (0.85-0.001) * sib%diag%cum_drywt(2) * x 
+	           sib%diag%leafwt_c = sib%diag%cum_drywt(2)*0.85 -   &
+                 (0.85-0.1) * sib%diag%cum_drywt(2) * x 
 
-       else
 
-	       sib%diag%leafwt_c = sib%diag%cum_drywt(2) * 0.001
+              elseif (sib%diag%pd >  0                .AND.      &
+             time%doy    >= sib%diag%pd+121) then
+                 sib%diag%leafwt_c = sib%diag%cum_drywt(2)*0.01
+
+
+	 else
+
+	       sib%diag%leafwt_c = sib%diag%cum_drywt(2) * 0.01
+
+       
 
        endif
 
-   else
+  
+
+   elseif(sib%param%biome == 22.0) then
+
+      if( sib%diag%gdd == 0.0 ) then
+
+           sib%diag%leafwt_c =  0.01 
+      
+      elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2230) then
+
+	       sib%diag%leafwt_c = sib%diag%cum_drywt(2)
+	
+      elseif (sib%diag%gdd >= 2230.0 .and. sib%diag%gdd < 2450.0) then
+
+          sib%diag%leafwt_c = 0.95 * sib%diag%cum_drywt(2) -   &
+          (0.95-0.1) * sib%diag%cum_drywt(2) *      &
+                              ((sib%diag%gdd - 2230.0) / 220.0)
+       
+      elseif( sib%diag%gdd >= 2450.0) then
+
+          sib%diag%leafwt_c=sib%diag%cum_drywt(2)*0.01
+
+      endif
+ else
 
       print*,'INCORRECT CROP TYPE SELECTED'
       print*,'Biome Number=',sib%param%biome
       stop'SUBROUTINE LEAF_WEIGHT'
    endif
+
 
    end subroutine leaf_weight
 

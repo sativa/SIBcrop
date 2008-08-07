@@ -659,6 +659,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     ierr = nf90_inq_varid( ncid, 'cum_drywt_prev', varid )
     ierr = nf90_get_var( ncid, varid, cum_drywt )
 
+
     !El.. end crop vars
 
     print*,'\t\t read in slabs...'

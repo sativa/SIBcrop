@@ -4,6 +4,7 @@ subroutine phosib(sib,sib_loc)
     use kinds
     use sibtype
     use cfrax
+    !use crop_accum
     use sib_const_module, only: &
         po2m, &
         pdb,  &
@@ -305,6 +306,7 @@ subroutine phosib(sib,sib_loc)
         endif
 
 
+       
         !-----------------------------------------------------------------------
         !
         !     Q-10 AND STRESS TEMPERATURE EFFECTS

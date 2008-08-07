@@ -1,3 +1,4 @@
+
 subroutine create_pbp( npoints, year, month, numvars, totnumvars,  &
                        latitude, longitude, dopbpsib, namepbpsib, listpbpsib,  &
                        indxpbpsib, drvr_type, biome_source, soil_source,  &
@@ -163,7 +164,7 @@ integer :: pbpid
         write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(outpath)//'psib_',  &
            year, month, 'p', rank1, '.pbp1.nc'
         status = nf90_open( trim(filename), nf90_write, pbpid )
-  
+ 
 
     ! find next time step
     status = nf90_inq_dimid( pbpid, 'time', dimid )
@@ -176,7 +177,7 @@ integer :: pbpid
 
     write( char_time, '(i2.2,a1,i2.2,a1,i4.4)' ) month, '/', day, '/', year
     status = nf90_put_var( pbpid, pbpcid, char_time, (/1,step/), (/10,1/) )
-    
+  
     ! write out data variables
     do i = 1, numvars
         status = nf90_put_var( pbpid, pbpvid(i), pbp(i,:),  &
