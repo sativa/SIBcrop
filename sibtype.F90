@@ -413,17 +413,19 @@ type diagnostic_vars
     real(kind=dbl_kind) :: gdd       ! growing degree days
     real(kind=dbl_kind) :: gdd_c     !added temporarily  
     real(kind=dbl_kind) :: tb_temp(20000) 
+	 ! placeholder for accumulating
+                                     ! temperature for GDD
+
 !EL.. the following added for testing
     real(kind=dbl_kind) :: rstfac_d
-    real(kind=dbl_kind) :: tb_rst(20000) 									 ! placeholder for accumulating
-                                     ! temperature for GDD
+    real(kind=dbl_kind) :: tb_rst(20000) 								
 
 !EL.. The following variables were added from the phenology scheme
     real(kind=dbl_kind) :: assim_d ! daily assimilation	
     real(kind=dbl_kind) :: tempf	 ! daily mean CAS air temp (F)     
     real(kind=dbl_kind) :: tempc	 ! daily mean CAS air temp (C) 
     real(kind=dbl_kind) :: w_main 	 ! dryweight+maintenance respiration for the whole plant
-    real(kind=dbl_kind) :: w_main_pot
+!    real(kind=dbl_kind) :: w_main_pot
     real(kind=dbl_kind) :: cropht        !for calculation of crop height based on a daily growth rate   
     real(kind=dbl_kind) :: leafwt_c  ! final leaf weight
     real(kind=dbl_kind) :: phen_LAI  ! LAI from phenology model
@@ -436,7 +438,7 @@ type diagnostic_vars
                                             !   for different plant parts 
     real(kind=dbl_kind) :: cum_wt(4)	! cumulative (dryweight+maintenance respiration)
                                             !   for different plant parts
-
+    real(kind=dbl_kind) :: cum_wt_P(4)
 
     real(kind=dbl_kind)	:: phen_maintr(4)	! maintenance respiration from phenology model 
     real(kind=dbl_kind)	:: phen_growthr(4)	! maintenance respiration from phenology model 

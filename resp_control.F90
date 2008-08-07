@@ -145,8 +145,6 @@ double precision :: xbg         ! fraction of annual respiration from
 double precision :: roota       ! rooting distribution parameters
 double precision :: rootb
 
-
-
 parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
     kxag=5.e-3, roota = 5.0, rootb = 1.5)
 

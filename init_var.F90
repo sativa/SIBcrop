@@ -38,7 +38,7 @@ integer k
 		sib%diag%tempc=0.0
 		sib%diag%assim_d = 0.0
 		sib%diag%w_main=0.0
-	        sib%diag%w_main_pot=0.0
+!	        sib%diag%w_main_pot=0.0
 !                sib%diag%cropht=0.0
                 sib%diag%tot_biomass=0.0
 !                sib%diag%tot_prod_an=0.0
@@ -65,6 +65,7 @@ integer k
 
 
 			sib%diag%cum_wt(j) = 0.0
+                        sib%diag%cum_wt_P(j)=0.0
 			sib%diag%cum_drywt(j) = 0.0
 
 			sib%diag%alloc(j) = 0.0
