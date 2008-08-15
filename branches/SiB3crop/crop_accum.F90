@@ -895,7 +895,7 @@ subroutine soy_phen
 			sib%diag%alloc(2) = 0.25 - (0.25 - 0.3) *      &
                                 (time%doy - (sib%diag%pd + 30)) / 10
 
-			sib%diag%alloc(3) = 0.25 - (0.25 - 0.22) *      &
+			sib%diag%alloc(3) = 0.25 - (0.25 - 0.25) *      &
                                 (time%doy - (sib%diag%pd + 30)) / 10
 	
 			sib%diag%alloc(4) = 0.0   
@@ -904,13 +904,13 @@ subroutine soy_phen
                  time%doy    >= (sib%diag%pd + 40)    .AND.     &
                  time%doy    <  (sib%diag%pd + 50) )  then
 
-            sib%diag%alloc(1) = 0.45 - (0.45 - 0.35) *     &
+            sib%diag%alloc(1) = 0.45 - (0.45 - 0.3) *     &
                                 (time%doy - (sib%diag%pd + 40)) / 10
 
 			sib%diag%alloc(2) = 0.3 - (0.3 - 0.45) *     &
                                 (time%doy - (sib%diag%pd + 40)) / 10
 
-			sib%diag%alloc(3) = 0.22 - (0.22 - 0.25) *     &
+			sib%diag%alloc(3) = 0.25 - (0.25 - 0.25) *     &
                                 (time%doy - (sib%diag%pd + 40)) / 10
 	
 			sib%diag%alloc(4) = 0.0   
@@ -920,7 +920,7 @@ subroutine soy_phen
                  time%doy    >= (sib%diag%pd + 50)  .AND.     &
                  time%doy    <  (sib%diag%pd + 60)) then
 
-            sib%diag%alloc(1) = 0.35 - (0.35 - 0.22) *      &
+            sib%diag%alloc(1) = 0.3 - (0.3 - 0.22) *      &
                                 (time%doy - (sib%diag%pd + 50)) / 10
 
 			sib%diag%alloc(2) = 0.45 - (0.45 - 0.53) *      &
@@ -936,13 +936,13 @@ subroutine soy_phen
                  time%doy    >= (sib%diag%pd + 60)   .AND.    &
                  time%doy    <  (sib%diag%pd + 75))  then
 
-            sib%diag%alloc(1) = 0.22 - (0.22 - 0.21) *      &
+            sib%diag%alloc(1) = 0.22 - (0.22 - 0.22) *      &
                                 (time%doy - (sib%diag%pd + 60)) / 15
 
 			sib%diag%alloc(2) = 0.53 - (0.53 - 0.40) *      &
                                 (time%doy - (sib%diag%pd + 60)) / 15
 
-			sib%diag%alloc(3) = 0.25 - (0.25 - 0.29) *      &
+			sib%diag%alloc(3) = 0.25 - (0.25 - 0.38) *      &
                                 (time%doy - (sib%diag%pd + 60)) / 15	
 
 			sib%diag%alloc(4) = 0.0
@@ -952,31 +952,31 @@ subroutine soy_phen
                  time%doy    >= (sib%diag%pd + 75)   .AND.     &
                  time%doy    <  (sib%diag%pd + 80))  then
 
-            sib%diag%alloc(1) = 0.21 - (0.21 - 0.15) *      &
+            sib%diag%alloc(1) = 0.21 - (0.22 - 0.15) *      &
                                 (time%doy - (sib%diag%pd + 75)) / 5
 
 			sib%diag%alloc(2) = 0.40 - (0.40 - 0.3) *      &
                                 (time%doy - (sib%diag%pd + 75)) / 5
 
-			sib%diag%alloc(3) = 0.29 - (0.29 - 0.15) *      &
+			sib%diag%alloc(3) = 0.38 - (0.38 - 0.18) *      &
                                 (time%doy - (sib%diag%pd + 75)) / 5	
 
-			sib%diag%alloc(4) = 0.0 - (0.0-0.4) *      &
+			sib%diag%alloc(4) = 0.0 - (0.0-0.37) *      &
                                 (time%doy - (sib%diag%pd + 75)) / 5 
 
         else if (sib%diag%pd >  0                      .AND.      &
                  time%doy    >= (sib%diag%pd + 80)     .AND.     &
                  time%doy    <  (sib%diag%pd + 89))    then
 
-            sib%diag%alloc(1) = 0.15 
+            sib%diag%alloc(1) = 0.17 
 
 			sib%diag%alloc(2) = 0.3 - (0.3 - 0.2) *      &
                                 (time%doy - (sib%diag%pd + 80)) / 9 
 
-			sib%diag%alloc(3) = 0.15 - (0.15 - 0.15) *      &
+			sib%diag%alloc(3) = 0.18 - (0.18 - 0.18) *      &
                                 (time%doy - (sib%diag%pd + 80)) / 9	
 
-			sib%diag%alloc(4) = 0.4 - (0.4 - 0.43) *      &
+			sib%diag%alloc(4) = 0.37 - (0.37 - 0.45) *      &
                                 (time%doy - (sib%diag%pd + 80)) / 9 
 
         else if (sib%diag%pd >  0                .AND.     &
@@ -988,17 +988,17 @@ subroutine soy_phen
 			sib%diag%alloc(2) = 0.2 - 0.0 *      &
                                 (time%doy - (sib%diag%pd + 89)) / 9
 
-			sib%diag%alloc(3) = 0.15 - (0.15 - 0.015) *      &
+			sib%diag%alloc(3) = 0.18 - (0.18 - 0.015) *      &
                                 (time%doy - (sib%diag%pd + 89)) / 9	
 
-			sib%diag%alloc(4) = 0.43 - (0.43 - 0.815) *      &
+			sib%diag%alloc(4) = 0.45 - (0.45 - 0.815) *      &
                                 (time%doy - (sib%diag%pd + 89)) / 9
 
         else if (sib%diag%pd >  0                .AND.     &
                  time%doy    >= (sib%diag%pd+98) .AND.     &
                  time%doy    <  (sib%diag%pd+108)) then
 
-            sib%diag%alloc(1) = 0.2 - (0.2 - 0.1) *      &
+            sib%diag%alloc(1) = 0.17 - (0.17 - 0.05) *      &
                                 (time%doy - (sib%diag%pd + 98)) / 10
 
 			sib%diag%alloc(2) = 0.0 *      &
@@ -1514,16 +1514,16 @@ real(kind=dbl_kind) :: temp1
 
 	if(sib%diag%gdd>=105.0 .and.sib%diag%gdd <310.0)then
 
-		sib%diag%alloc(1)=0.5
+		sib%diag%alloc(1)=0.4
 		sib%diag%alloc(2)=0.4
-		sib%diag%alloc(3)=0.1	
+		sib%diag%alloc(3)=0.2	
 		sib%diag%alloc(4)=0.0	
 
        elseif(sib%diag%gdd>=310.0 .and. time%doy>227 .and. time%doy<366)then
 
                 sib%diag%alloc(1)=0.4
-   		sib%diag%alloc(2)=0.5
-		sib%diag%alloc(3)=0.1
+   		sib%diag%alloc(2)=0.4
+		sib%diag%alloc(3)=0.2
 		sib%diag%alloc(4)=0.0
           if  (sib%diag%gdd > 769.0 .and. sib%diag%pd>0) then
                 sib%diag%gdd=769.0
@@ -1534,52 +1534,52 @@ real(kind=dbl_kind) :: temp1
 		
 		sib%diag%gdd=769.0
                 sib%diag%alloc(1)=0.4
-		sib%diag%alloc(2)=0.5
-		sib%diag%alloc(3)=0.1
+		sib%diag%alloc(2)=0.4
+		sib%diag%alloc(3)=0.2
 		sib%diag%alloc(4)=0.0
 
 
       elseif(sib%diag%gdd>=769.0 .and. sib%diag%gdd<1074.0)then 
-    		sib%diag%alloc(1)=0.4-(0.4-0.35)*(sib%diag%gdd-769.0)/(1074.0-769.0)
-		sib%diag%alloc(2)=0.5-(0.5-0.55)*(sib%diag%gdd-769.0)/(1074.0-769.0)
-		sib%diag%alloc(3)=0.1	
+    		sib%diag%alloc(1)=0.4-(0.4-0.3)*(sib%diag%gdd-769.0)/(1074.0-769.0)
+		sib%diag%alloc(2)=0.4-(0.4-0.4)*(sib%diag%gdd-769.0)/(1074.0-769.0)
+		sib%diag%alloc(3)=0.2-(0.2-0.3)*(sib%diag%gdd-769.0)/(1074.0-769.0)	
 		sib%diag%alloc(4)=0.0
 
       elseif(sib%diag%gdd>=1074.0 .and. sib%diag%gdd<1569.0)then
 
-        	sib%diag%alloc(1)=0.35-(0.35-0.2)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)
-		sib%diag%alloc(2)=0.55-(0.55-0.4)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)	
-		sib%diag%alloc(3)=0.1-(0.1-0.4)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)		
+        	sib%diag%alloc(1)=0.3-(0.3-0.2)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)
+		sib%diag%alloc(2)=0.4-(0.4-0.5)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)	
+		sib%diag%alloc(3)=0.3-(0.3-0.3)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)		
 		sib%diag%alloc(4)=0.0
 
 
 	elseif(sib%diag%gdd>=1569.0 .and. sib%diag%gdd<1629.0)then
 
-        sib%diag%alloc(1)=0.35-(0.35-0.15)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)
-		sib%diag%alloc(2)=0.4-(0.4-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)	
-		sib%diag%alloc(3)=0.4-(0.4-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)		
+        sib%diag%alloc(1)=0.35-(0.2-0.1)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)
+		sib%diag%alloc(2)=0.5-(0.5-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)	
+		sib%diag%alloc(3)=0.3-(0.3-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)		
 		sib%diag%alloc(4)=0.0-(0.0-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)	
 
 !EL...winterwheat root fraction reaches 0.1 towards maturity (ref: Baret et al., 1992)
 
 	elseif(sib%diag%gdd>=1629.0 .and. sib%diag%gdd<1773.0)then
 
-        	sib%diag%alloc(1)=0.15
-		sib%diag%alloc(2)=0.3-(0.3-0.03)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)	
-		sib%diag%alloc(3)=0.3-(0.3-0.03)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)		
+        	sib%diag%alloc(1)=0.1
+		sib%diag%alloc(2)=0.3-(0.3-0.06)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)	
+		sib%diag%alloc(3)=0.3-(0.3-0.06)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)		
 		sib%diag%alloc(4)=0.3-(0.3-0.78)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)		
 
 
 	elseif(sib%diag%gdd < 1773.0 .or. sib%diag%gdd >= 2184.0)then
-		sib%diag%alloc(1)=0.11	
-		sib%diag%alloc(2)=0.06-(0.06-0.025)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
-		sib%diag%alloc(3)=0.06-(0.06-0.025)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
+		sib%diag%alloc(1)=0.1	
+		sib%diag%alloc(2)=0.06-(0.06-0.03)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
+		sib%diag%alloc(3)=0.06-(0.06-0.03)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
 		sib%diag%alloc(4)=0.78-(0.78-0.84)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)
 
 	elseif(sib%diag%gdd < 2184.0 .or. sib%diag%gdd >= 2269.0)then
-		sib%diag%alloc(1)=0.11-(0.11-0.1)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)
-		sib%diag%alloc(2)=0.025-(0.025-0.0)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)		
-		sib%diag%alloc(3)=0.025-(0.025-0.0)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)		
+		sib%diag%alloc(1)=0.1-(0.1-0.1)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)
+		sib%diag%alloc(2)=0.03-(0.03-0.0)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)		
+		sib%diag%alloc(3)=0.03-(0.03-0.0)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)		
 		sib%diag%alloc(4)=0.84-(0.84-0.9)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)
 
 
@@ -1905,7 +1905,7 @@ endif
 
 
 
-print*,sib%diag%pd,sib%diag%gdd,sib%diag%phen_maintr(2),sib%diag%leafwt_c,sib%diag%cum_drywt(2),time%doy
+print*,sib%diag%pd,sib%diag%gdd,sib%diag%phen_LAI,time%doy
 !print*,sib%diag%doy,sib%diag%gdd,w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
 !print'(a,i8,4f12.4)','PD:',sib%diag%pd,(sib%diag%cum_wt(j),j=1,4)
 
