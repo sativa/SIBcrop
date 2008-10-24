@@ -26,6 +26,8 @@ integer k
     sib%diag%pd7     = 0
     sib%diag%pd7_est = 0
     sib%diag%pdindx7 = 0
+   
+
 
     do j=1,20000
       sib%diag%tb_temp(j) = 0.0

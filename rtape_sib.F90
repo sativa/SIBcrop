@@ -373,7 +373,7 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',40)
     ierr = nf90_def_var( ncid, 'ndf_opt', nf90_int, vdims(2), ndf_optid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',41)
-
+   
     vdims(3) = npooldid
     ierr = nf90_def_var( ncid, 'cum_wt', nf90_double, vdims(2:3),cum_wt_id)  
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',42)

@@ -203,4 +203,4 @@ t 0 'respc3      ' 197 ' canopy manintenance respiration,phystype 3 (mmol/m^2/se
 t 0 'respc4      ' 198 ' canopy manintenance respiration,phystype 4 (mmol/m^2/sec) $' 
 t 0 'respc5      ' 199 ' canopy manintenance respiration,phystype 5 (mmol/m^2/sec) $'
 t 0 'tempf  ' 200 ' mean daily temperature (K)' 
-
+t 0 'tot_biomass' 201 'total abovegound biomass (g m-2)'

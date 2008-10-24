@@ -444,14 +444,13 @@ type diagnostic_vars
     real(kind=dbl_kind)	:: phen_growthr(4)	! maintenance respiration from phenology model 
     real(kind=dbl_kind)	:: wch(4)			! dry wt change per day
     real(kind=dbl_kind)	:: cum_drywt(4)		! final, cumulative dry wt of each plant part
-    real(kind=dbl_kind)	:: tot_biomass		! total biomass of all plant parts
+    real(kind=dbl_kind)	:: tot_biomass		! total aboveground biomass of all plant parts
 
 !    real(kind=dbl_kind)	:: tot_bM_an(13)            ! annual sum of total biomass of all plant parts
     real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt 
                                                 !   in a separate text file
 !    real(kind=dbl_kind)	:: tot_prod_an(13)          ! annual sum of total biomass in products
 !    real(kind=dbl_kind)	:: prodwt(365)               !weight of products renamed for facilitating respfactor in resp_control.F90 
-
 
 
     integer(kind=int_kind) :: tb_indx           ! index for counting up sib timesteps                                                           

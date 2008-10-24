@@ -1044,6 +1044,9 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
           pbp1(indxpbp1(200),n) = pbp1(indxpbp1(200),n) +    &
                 sib(imultpbpsib(n))%diag%tempf
 
+          pbp1(indxpbp1(201),n) = pbp1(indxpbp1(201),n) +    &
+                sib(imultpbpsib(n))%diag%tot_biomass
+
         enddo
     endif
 

@@ -234,7 +234,7 @@ integer(kind=int_kind) :: temp_biome
  !       sib(1)%param%z2=sib(1)%diag%min_z2_crop
 !itb_crop_end...
 
-print*,sib(1)%param%z2,sib(1)%diag%cropht
+!print*,sib(1)%param%z2,sib(1)%diag%cropht
 
     call soil_properties( sib )
     
@@ -643,7 +643,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
     ierr = nf90_inq_varid( ncid, 'ndf_opt', varid )
     ierr = nf90_get_var( ncid, varid, ndf_opt )
-    
+
     ierr = nf90_inq_varid( ncid, 'tempf', varid )
     ierr = nf90_get_var( ncid, varid, tempf )
 
@@ -717,7 +717,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%diag%pd7_est = pd7_est(subset(i))
         sib(i)%diag%pdindx7 = pdindx7(subset(i))
         sib(i)%diag%ndf_opt = ndf_opt(subset(i))
-
+     
 
 !itb...crop phenology: on or off?
         if(sib(i)%diag%gdd > 100.0 ) sib(i)%diag%phen_switch = 1
@@ -1020,6 +1020,24 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
             sib(i)%param%vcover = sib(i)%param%vcover * 10.0
         endif
     enddo  ! subcount loop
+
+    !EL...make each layer in biome 12 have 95% saturation for initialization relevant to NaCP  site interim syn
+   
+      if(temp_biome==12) then 
+
+          do j = 1,nsoil 
+
+
+             sib%prog%www_liq(j) = (sib%param%poros * &  
+                  
+                  sib%prog%dz(j) * denh2o) * 0.95 
+
+! EL...The above formulation was based on wfrac calculation in respsib.F90; i.e.
+!wfrac(j) = 0.95= sib%prog%www_liq(j) / (sib%prog%dz(j) * sib%param%poros * denh2o) 
+
+          enddo
+      
+      endif 
 
 
 end subroutine soil_properties

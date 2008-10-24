@@ -67,7 +67,8 @@ type(time_struct), intent(in) :: time
 
 !EL-conversion of avg. daily temperature (ta_bar) from Kelvin to Fahrenheit
 
-sib%diag%tempf=((sib%diag%ta_bar-273.15)*1.8)+32.0	
+sib%diag%tempf=((sib%diag%ta_bar-273.15)*1.8)+32.0
+!print*,sib%diag%ta_bar,sib%diag%tempf	
 
 
 
@@ -228,6 +229,8 @@ subroutine corn_phen
       sib%diag%pd  = sib%diag%pd7
 
 
+
+
    endif
  
 
@@ -364,12 +367,13 @@ subroutine corn_phen
 
 !EL...Multiplication factors below were derived using the info taken 
 !EL...from past studies; mainly from de Vries et al., 1989.
-!EL...seedling weight at emergence was determined based on Horri et al., 2007.
+
+!EL...seedling weight at emergence was determined based on Richardson and Bacon (1993) and Pinhero and Fletcher (1994), and Horri et al., 2007.
 !EL...also considering a planting density most commonly used (i.e. row 
 !EL...spacing- 30", and plant spacing 6")
 
     if(sib%diag%gdd == 100.0_dbl_kind) then
-                sib%diag%w_main=2.7 
+                sib%diag%w_main=0.37 
  
     elseif (sib%diag%gdd < 100.0_dbl_kind) then
                 sib%diag%w_main=0.0    
@@ -407,37 +411,47 @@ subroutine corn_phen
 !EL...and slightly modified  by looking 
 !EL...at the observed LAI ranges for corn in Bondville.
              
-  
+        
+        dgrowth_opt=(max_wmain-0.37)*drate
+
 	if (sib%diag%tempc<=8) then
 
-	dgrowth = max_wmain * drate * sib%diag%rstfac_d * 0.01
+	dgrowth = dgrowth_opt * sib%diag%rstfac_d * 0.01
 
 	elseif (sib%diag%tempc >= 8 .and. sib%diag%tempc < 14) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (0.01-((0.01-0.2)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (0.01-((0.01-0.2)      &
                   * (sib%diag%tempc - 8) / (14 - 8)))
 
 	elseif (sib%diag%tempc >= 14 .and. sib%diag%tempc < 19) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (0.2 - ((0.2 - 0.6)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (0.2 - ((0.2 - 0.6)      &
                  * (sib%diag%tempc - 14) / (19 - 14)))
 
 	elseif (sib%diag%tempc >= 19 .and. sib%diag%tempc < 28) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (0.6-((0.6-1.0)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (0.6-((0.6-1.0)      &
                   * (sib%diag%tempc - 19) / (28 - 19)))
 
 	elseif (sib%diag%tempc >= 28 .and. sib%diag%tempc < 35) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (1.0 - ((1.0 - 0.9)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (1.0 - ((1.0 - 0.9)      &
                    * (sib%diag%tempc - 28) / (35 - 28)))
 
 	elseif (sib%diag%tempc>=35 .and. sib%diag%tempc<45) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (0.9-((0.9-0.01)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (0.9-((0.9-0.01)      &
                   * (sib%diag%tempc - 35) / (45 - 35)))
 
 	endif
+
+        if (sib%diag%gdd == 100.0_dbl_kind) then
+           
+           w_main_pot=0.37
+           sib%diag%w_main=0.37
+
+        endif
+           
 
         w_main_pot=w_main_pot+dgrowth
 
@@ -508,7 +522,7 @@ endif
        temp1 = (0.03 * 2.0 * 12.0 / 44.0) *                   &
              (2.0**((sib%diag%tempc - 20.0) / 10.0))
    
-       sib%diag%phen_maintr(1) = sib%diag%cum_wt(1)       &
+       sib%diag%phen_maintr(1) = sib%diag%cum_wt_P(1)       &
              * 0.18 * temp1  
 
 
@@ -516,7 +530,7 @@ endif
 !EL.. 0.27 is the nonstructural fraction of leaf C needing 
 !EL...maintenance (calculations based on Brouquisse et al., 1998)
 
-       sib%diag%phen_maintr(2) = sib%diag%cum_wt(2) *     &
+       sib%diag%phen_maintr(2) = sib%diag%cum_wt_P(2) *     &
               0.27 * temp1
 
 
@@ -525,7 +539,7 @@ endif
 
        temp1 = 0.01 * 2.0 * 12.0 / 44.0 * (2.0**((sib%diag%tempc-20.0) / 10.0))
 
-       sib%diag%phen_maintr(3) = sib%diag%cum_wt(3)          &
+       sib%diag%phen_maintr(3) = sib%diag%cum_wt_P(3)          &
               * 0.24 * temp1
 
 
@@ -535,7 +549,7 @@ endif
        temp1 = 0.015 * 2.0 * 12.0 / 44.0 *      &
                (2.0 ** ((sib%diag%tempc - 20.0) / 10.0))
 
-       sib%diag%phen_maintr(4) = sib%diag%cum_wt(4) * 0.7 * temp1
+       sib%diag%phen_maintr(4) = sib%diag%cum_wt_P(4) * 0.7 * temp1
 
 
 
@@ -562,7 +576,7 @@ endif
        
 
 		
-        if (time%doy > sib%diag%pd + 175) then
+        if (sib%diag%gdd>=3800.0 .or. time%doy > sib%diag%pd + 175) then
       
               do i = 1,4
 		
@@ -586,7 +600,7 @@ endif
 
 !itb_crop...harvest: reset
 		
-	if (time%doy > sib%diag%pd+175) then
+	if (sib%diag%gdd>2730.0) then
 	
             do i = 1,4
                  
@@ -640,7 +654,7 @@ endif
 
 
 !itb_crop...harvest: reset
-	  if ( sib%diag%gdd >= 2900.0 .or. time%doy>=sib%diag%pd+175)  then
+	  if ( sib%diag%gdd >= 3800.0 .or. time%doy>=sib%diag%pd+175)  then
 
              do i = 1,4
                 sib%diag%cum_drywt(i) = 0.0001
@@ -649,6 +663,7 @@ endif
 	  endif
 
 
+sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_drywt(4)
 !------------------------------------------------
 !final leaf weight (C g m-2) 
 !-------------------------------------------------
@@ -682,9 +697,9 @@ endif
           litter=((sib%diag%cum_drywt(2)- sib%diag%leafwt_c))
 
  !EL...introducing harvest towards  the end of field drying     
-      elseif( sib%diag%gdd >= 2900.0 .or. time%doy>=sib%diag%pd+175) then
+      elseif( sib%diag%gdd >= 2900.0) then
 
-          sib%diag%leafwt_c=sib%diag%cum_drywt(2)*0.01
+          sib%diag%leafwt_c=0.0001
  	 litter=sib%diag%cum_drywt(1)+sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)
 
       endif
@@ -699,7 +714,11 @@ endif
 
       sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02 
 
-
+      sib%diag%tb_indx = 0      !at the end of each day tb_index is set to zero
+           sib%diag%cum_wt_P(1)=sib%diag%cum_wt(1)
+           sib%diag%cum_wt_P(2)=sib%diag%cum_wt(2)
+           sib%diag%cum_wt_P(3)=sib%diag%cum_wt(3)
+           sib%diag%cum_wt_P(4)=sib%diag%cum_wt(4)
 
 
 !itb_crop...at the moment that growing degree days (gdd) passes
@@ -716,7 +735,7 @@ endif
             sib%diag%assim_d=0.0001
     endif
 
-print*,sib%diag%gdd, sib%diag%phen_LAI, sib%diag%pd, time%doy,sib%diag%cum_drywt(4),litter
+print*,sib%diag%pd,sib%diag%gdd,time%doy
 !print*,sib%diag%doy,sib%diag%gdd,w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
 !print'(a,i8,4f12.4)','PD:',sib%diag%pd,(sib%diag%cum_wt(j),j=1,4)
 
@@ -749,13 +768,15 @@ subroutine soy_phen
 
    real(kind=dbl_kind) :: temp1, litter
 
+
+
 !--------------------------
 !Calculate the planting date
 !---------------------------
 
 !EL...sib%diag%ndf_opt = no. of days with avg. temperature above 67F
 
-	if (sib%diag%tempf < 68.0) then
+	if (sib%diag%tempf < 65.0) then
 
     	sib%diag%ndf_opt = 0			
 
@@ -789,8 +810,6 @@ subroutine soy_phen
 
    endif
   
-
-
 
 !----------------------------
 !Calculate growing degree days
@@ -829,7 +848,7 @@ subroutine soy_phen
 !EL...to avoid gdd calculation after harvesting is done, allowing 
 !EL...ample time between planting and harvesting
 
-	if (time%doy > sib%diag%pd + 175) then
+	if (time%doy > sib%diag%pd + 160) then
 
              sib%diag%gdd = 0.0001
 
@@ -1012,7 +1031,7 @@ subroutine soy_phen
 
         else if (sib%diag%pd >  0                   .AND.     &
                  time%doy    >= (sib%diag%pd+108)   .AND.     &
-                 time%doy    < (sib%diag%pd+130)) then
+                 time%doy    < (sib%diag%pd+121)) then
 
                         sib%diag%alloc(1) = 0.05 
 			sib%diag%alloc(2) = 0.0 
@@ -1022,7 +1041,7 @@ subroutine soy_phen
 
 	elseif ( sib%diag%pd  > 0                   .AND.    &
                 ((time%doy    < sib%diag%pd+10)     .OR.     &
-                 (time%doy    > sib%diag%pd+130)))  then
+                 (time%doy    > sib%diag%pd+121)))  then
 
 			sib%diag%alloc(:)=0.0
 
@@ -1040,7 +1059,7 @@ subroutine soy_phen
 
     if (sib%diag%pd  >  0                       .AND.     &
         (time%doy    <  (sib%diag%pd + 10)      .OR.     &
-         time%doy    >= (sib%diag%pd + 175)))   then 
+         time%doy    >= (sib%diag%pd + 160)))   then 
 
         sib%diag%w_main =0.0001
 
@@ -1048,8 +1067,8 @@ subroutine soy_phen
 
 
     if(sib%diag%pd >  0                       .AND.     &
-       time%doy    >  (sib%diag%pd + 60)      .AND.     &
-       time%doy    <= (sib%diag%pd + 130))    then
+       time%doy    >  (sib%diag%pd + 10)      .AND.     &
+       time%doy    <= (sib%diag%pd + 121))    then
 
        	sib%diag%w_main = sib%diag%assim_d /      &
                              ((sib%diag%alloc(1)* 1.2929) +    &
@@ -1065,11 +1084,11 @@ subroutine soy_phen
 !EL...related to temperature(Muchow and Carberry, 1989) &
 !EL...considering total daily growth, based on the growth rate 
 !EL...information given in de Vries et al.1989...
-!EL...seedling weight at emergence was determined based on Horri et al., 2007.
+!EL...seedling weight at emergence was determined based on Green and Sudia (1969) and Smiciklas et al. (1992).
 
 	if (sib%diag%pd > 0 .AND.time%doy == (sib%diag%pd + 10)) then
 
-		sib%diag%w_main=1.5 
+		sib%diag%w_main=0.26 
 
 !EL...(initial w_main g m-2 at emergence=mean of w_main from several 
 !EL...runs from the offline model using sib assimilation, 
@@ -1082,11 +1101,11 @@ subroutine soy_phen
 !EL.. between planting and observed max LAI
 !EL...initial phase when the growth depends on the seed and cotyledon C stores was considered to extend from pd to pd+16(McWilliams et al., 1999)
 
- if (sib%diag%pd >  0                        .AND.      &
+ if (sib%diag%pd >  0 .AND. time%doy > (sib%diag%pd +10)  .AND.      &
 
      time%doy    <= (sib%diag%pd + 21))      then 
 
-		drate=0.05	
+		drate=0.091	
 
 		max_wmain=8.0
 
@@ -1097,12 +1116,12 @@ subroutine soy_phen
 !EL...and slightly modified  by looking 
 !EL...at the observed results  for soybean in Bondville.
 
-    dgrowth_opt = max_wmain * drate
+    dgrowth_opt = (max_wmain-0.26) * drate
 
 
 	if (sib%diag%tempc<=8) then
 
-		dgrowth = max_wmain * drate * sib%diag%rstfac_d * 0.01
+		dgrowth = dgrowth_opt * sib%diag%rstfac_d * 0.01
 
 	
 	elseif (sib%diag%tempc >= 8.0 .AND. sib%diag%tempc<10.0) then
@@ -1131,6 +1150,13 @@ subroutine soy_phen
                   * (sib%diag%tempc - 30.0) / (40.0 - 30.0)))
 
 	endif
+ 
+        if (time%doy==(sib%diag%pd +10)) then
+
+           w_main_pot=0.26
+           sib%diag%w_main=0.26
+
+         endif
    
 
    w_main_pot=w_main_pot+dgrowth
@@ -1205,7 +1231,7 @@ subroutine soy_phen
 
 
 	
-	  if (time%doy>sib%diag%pd+175) then
+	  if (time%doy>sib%diag%pd+121) then
 		sib%diag%phen_maintr(:)=0.0001
 	  endif
 
@@ -1234,7 +1260,7 @@ subroutine soy_phen
        
 
 	 
-	  if (time%doy > sib%diag%pd + 175) then
+	  if (time%doy > sib%diag%pd + 160) then
 		sib%diag%cum_wt(:)=0.0001
 	  endif
 
@@ -1260,7 +1286,7 @@ subroutine soy_phen
         sib%diag%wch(i) = sib%diag%allocwt(i) - sib%diag%phen_maintr(i)
       enddo
 !print*, sib%diag%tempc,temp1,sib%diag%wch(1),sib%diag%allocwt(1),sib%diag%phen_maintr(1),sib%diag%cum_wt(1),sib%diag%cum_wt_P(1)
-	 if (time%doy > sib%diag%pd + 175) then
+	 if (time%doy > sib%diag%pd + 160) then
 		sib%diag%wch(:)=0.0001
 	 endif
 
@@ -1284,12 +1310,14 @@ subroutine soy_phen
 
 
 !itb_crop...harvest: reset
- 	if (time%doy > sib%diag%pd + 175) then
+ 	if (time%doy > sib%diag%pd + 160) then
 
 		sib%diag%cum_drywt(:)=0.0001
 	 
 	endif
 
+
+        sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum_drywt(4)
 !------------------------------------------------
 !final leaf weight (C g m-2) 
 !-------------------------------------------------
@@ -1336,7 +1364,7 @@ subroutine soy_phen
 
           elseif (sib%diag%pd >  0                .AND.      &
              time%doy    >= sib%diag%pd+121) then
-                 sib%diag%leafwt_c = sib%diag%cum_drywt(2)*0.01
+                 sib%diag%leafwt_c = 0.0001
                  litter=sib%diag%cum_drywt(1)+sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)
 
 	 else
@@ -1375,7 +1403,7 @@ subroutine soy_phen
 
     endif
 
-    if (time%doy < sib%diag%pd .or. time%doy>sib%diag%pd + 175)then
+    if (time%doy < sib%diag%pd .or. time%doy>sib%diag%pd + 160)then
 
         sib%diag%w_main      = 0.0001
 		sib%diag%assim_d     = 0.0001
@@ -1384,7 +1412,7 @@ subroutine soy_phen
 
     endif
 
-print *, sib%diag%phen_LAI, sib%diag%cum_drywt(1), sib%diag%cum_drywt(2),sib%diag%cum_drywt(4),sib%diag%pd
+!print *, sib%diag%phen_LAI, sib%diag%cum_drywt(1), sib%diag%cum_drywt(2),sib%diag%cum_drywt(4),sib%diag%pd,sib%diag%tempf
 
 
 	
@@ -1395,14 +1423,10 @@ print *, sib%diag%phen_LAI, sib%diag%cum_drywt(1), sib%diag%cum_drywt(2),sib%dia
 
     endif
 
-!print*,sib%diag%alloc(4), sib%diag%pd, time%doy	 
+print*,sib%diag%pd,time%doy	 
 
 
 end subroutine soy_phen
-
-
-
-
 
 
 
@@ -1512,78 +1536,99 @@ real(kind=dbl_kind) :: temp1
 !-----------------------------------------------------------   
 !EL...1-roots, 2-leaves,3-stems,4-products (flowers and grains)
 
-	if(sib%diag%gdd>=105.0 .and.sib%diag%gdd <310.0)then
+	if(sib%diag%gdd>=105.0 .and.sib%diag%gdd <350.0)then
 
 		sib%diag%alloc(1)=0.4
 		sib%diag%alloc(2)=0.4
 		sib%diag%alloc(3)=0.2	
 		sib%diag%alloc(4)=0.0	
 
-       elseif(sib%diag%gdd>=310.0 .and. time%doy>227 .and. time%doy<366)then
+
+        elseif(sib%diag%gdd>=350.0 .and.sib%diag%gdd <680.0)then
+
+                sib%diag%alloc(1)=0.4-(0.4-0.3)*(sib%diag%gdd-350.0)/(680.0-350.0)
+		sib%diag%alloc(2)=0.4-(0.4-0.25)*(sib%diag%gdd-350.0)/(680.0-350.0)
+		sib%diag%alloc(3)=0.2-(0.2-0.45)*(sib%diag%gdd-350.0)/(680.0-350.0)		
+		sib%diag%alloc(4)=0.0
+
+
+       elseif(sib%diag%gdd>=680 .and. sib%diag%gdd<769)then
+
+                sib%diag%alloc(1)=0.3-(0.3-0.4)*(sib%diag%gdd-680.0)/(769.0-680.0)
+		sib%diag%alloc(2)=0.25-(0.25-0.001)*(sib%diag%gdd-680.0)/(769.0-680.0)
+		sib%diag%alloc(3)=0.45-(0.45-0.599)*(sib%diag%gdd-680.0)/(769.0-680.0)		
+		sib%diag%alloc(4)=0.0
+
+       elseif  (sib%diag%gdd > 769.0 .and. sib%diag%pd>0  .and. time%doy<366) then
+                
+                sib%diag%gdd=769.0
 
                 sib%diag%alloc(1)=0.4
-   		sib%diag%alloc(2)=0.4
-		sib%diag%alloc(3)=0.2
+		sib%diag%alloc(2)=0.001
+		sib%diag%alloc(3)=0.599
 		sib%diag%alloc(4)=0.0
-          if  (sib%diag%gdd > 769.0 .and. sib%diag%pd>0) then
-                sib%diag%gdd=769.0
-          endif
-               
+   
 
-       elseif (sib%diag%doy==1) then
+       elseif(sib%diag%gdd>=769.0 .and. sib%diag%gdd<910.0) then
+          
+          if (sib%diag%doy==1) then
 		
 		sib%diag%gdd=769.0
+          endif
+                
                 sib%diag%alloc(1)=0.4
-		sib%diag%alloc(2)=0.4
-		sib%diag%alloc(3)=0.2
+		sib%diag%alloc(2)=0.001
+		sib%diag%alloc(3)=0.599
 		sib%diag%alloc(4)=0.0
+                
 
+      elseif(sib%diag%gdd>=910.0 .and. sib%diag%gdd<1074.0)then 
 
-      elseif(sib%diag%gdd>=769.0 .and. sib%diag%gdd<1074.0)then 
-    		sib%diag%alloc(1)=0.4-(0.4-0.3)*(sib%diag%gdd-769.0)/(1074.0-769.0)
-		sib%diag%alloc(2)=0.4-(0.4-0.4)*(sib%diag%gdd-769.0)/(1074.0-769.0)
-		sib%diag%alloc(3)=0.2-(0.2-0.3)*(sib%diag%gdd-769.0)/(1074.0-769.0)	
+    		sib%diag%alloc(1)=0.3
+		sib%diag%alloc(2)=0.34
+		sib%diag%alloc(3)=0.36	
 		sib%diag%alloc(4)=0.0
 
       elseif(sib%diag%gdd>=1074.0 .and. sib%diag%gdd<1569.0)then
 
-        	sib%diag%alloc(1)=0.3-(0.3-0.2)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)
-		sib%diag%alloc(2)=0.4-(0.4-0.5)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)	
-		sib%diag%alloc(3)=0.3-(0.3-0.3)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)		
+        	sib%diag%alloc(1)=0.3-(0.3-0.25)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)
+		sib%diag%alloc(2)=0.34-(0.34-0.35)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)	
+		sib%diag%alloc(3)=0.36-(0.36-0.4)*(sib%diag%gdd-1074.0)/(1569.0-1074.0)		
 		sib%diag%alloc(4)=0.0
 
 
 	elseif(sib%diag%gdd>=1569.0 .and. sib%diag%gdd<1629.0)then
 
-        sib%diag%alloc(1)=0.35-(0.2-0.1)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)
-		sib%diag%alloc(2)=0.5-(0.5-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)	
-		sib%diag%alloc(3)=0.3-(0.3-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)		
-		sib%diag%alloc(4)=0.0-(0.0-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)	
+        sib%diag%alloc(1)=0.25-(0.25-0.25)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)
+		sib%diag%alloc(2)=0.35-(0.35-0.3)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)	
+		sib%diag%alloc(3)=0.4-(0.4-0.35)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)		
+		sib%diag%alloc(4)=0.0-(0.0-0.1)*(sib%diag%gdd-1569.0)/(1629.0-1569.0)	
 
-!EL...winterwheat root fraction reaches 0.1 towards maturity (ref: Baret et al., 1992)
+
 
 	elseif(sib%diag%gdd>=1629.0 .and. sib%diag%gdd<1773.0)then
 
-        	sib%diag%alloc(1)=0.1
+        	sib%diag%alloc(1)=0.25-(0.25-0.2)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)
 		sib%diag%alloc(2)=0.3-(0.3-0.06)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)	
-		sib%diag%alloc(3)=0.3-(0.3-0.06)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)		
-		sib%diag%alloc(4)=0.3-(0.3-0.78)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)		
+		sib%diag%alloc(3)=0.35-(0.35-0.15)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)		
+		sib%diag%alloc(4)=0.1-(0.3-0.59)*(sib%diag%gdd-1629.0)/(1773.0-1629.0)		
 
 
-	elseif(sib%diag%gdd < 1773.0 .or. sib%diag%gdd >= 2184.0)then
-		sib%diag%alloc(1)=0.1	
-		sib%diag%alloc(2)=0.06-(0.06-0.03)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
-		sib%diag%alloc(3)=0.06-(0.06-0.03)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
-		sib%diag%alloc(4)=0.78-(0.78-0.84)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)
+	elseif(sib%diag%gdd>= 1773.0 .or. sib%diag%gdd < 2184.0)then
+		sib%diag%alloc(1)=0.2-(0.2-0.15)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
+		sib%diag%alloc(2)=0.06-(0.06-0.01)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
+		sib%diag%alloc(3)=0.15-(0.15-0.1)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)	
+		sib%diag%alloc(4)=0.59-(0.59-0.74)*(sib%diag%gdd-1773.0)/(2184.0-1773.0)
 
-	elseif(sib%diag%gdd < 2184.0 .or. sib%diag%gdd >= 2269.0)then
-		sib%diag%alloc(1)=0.1-(0.1-0.1)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)
-		sib%diag%alloc(2)=0.03-(0.03-0.0)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)		
-		sib%diag%alloc(3)=0.03-(0.03-0.0)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)		
-		sib%diag%alloc(4)=0.84-(0.84-0.9)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)
+!EL...winterwheat root fraction reaches 0.1 towards maturity (ref: Baret et al., 1992)
+	elseif(sib%diag%gdd >= 2184.0 .or. sib%diag%gdd < 2269.0)then
+		sib%diag%alloc(1)=0.15-(0.15-0.1)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)
+		sib%diag%alloc(2)=0.01-(0.01-0.0)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)		
+		sib%diag%alloc(3)=0.1-(0.1-0.05)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)		
+		sib%diag%alloc(4)=0.74-(0.74-0.85)*(sib%diag%gdd-2184.0)/(2269.0-2184.0)
 
 
-	elseif(sib%diag%gdd < 105.0 .or. sib%diag%gdd >= 2269.0)then
+	elseif(sib%diag%gdd < 105.0 .or. sib%diag%gdd > 2269.0)then
 
 		sib%diag%alloc(:)=0.0
         
@@ -1597,14 +1642,16 @@ real(kind=dbl_kind) :: temp1
 
 !EL...Multiplication factors below were derived using the info taken 
 !EL...from past studies; mainly from de Vries et al., 1989.
-!EL...initial seeding density (215 seeds/m2 or 20/ft2) was taken from the info from ag extension services.
-!EL...Seedling weight (80mg each) was extracted from Obel et al., 2002.
+!EL...initial seeding density (215-222 seeds/m2 or 20-30/ft2) was taken from the info from ag extension services.
+!EL...Average seedling weight (5 mg each) was taken using several past studies (e.g.Blum et al., 1979,Hameed et al., 2003)
 
     if(sib%diag%gdd == 105.0_dbl_kind) then
-                sib%diag%w_main=8.6 
+                sib%diag%w_main=0.48
     elseif (sib%diag%gdd < 105.0_dbl_kind) then
                 sib%diag%w_main=0.0    
-     
+       
+
+
     elseif((sib%diag%gdd >= 105.0) .AND. (sib%diag%gdd < 2269.0)) then
 
        	sib%diag%w_main = sib%diag%assim_d /       &
@@ -1612,6 +1659,7 @@ real(kind=dbl_kind) :: temp1
                 (sib%diag%alloc(2) * 1.2515) +     & 
                 (sib%diag%alloc(3) * 1.2225) +     &
                 (sib%diag%alloc(4) * 1.1893))
+    
 
     endif
 
@@ -1631,56 +1679,71 @@ real(kind=dbl_kind) :: temp1
 !EL...on the average no. of days between planting until the tillers come out, and then from Jan. 01st to spring green.
 
 
- if ((sib%diag%gdd>105.0 .AND. sib%diag%gdd<=310.0) .or.(sib%diag%gdd>769.0 .AND. sib%diag%gdd<=1074.0)) then 
+ if (sib%diag%gdd>105.0 .AND. sib%diag%gdd<=310.0) then 
 	
-	drate=0.015  
- 
- 	max_wmain=8.0
+	drate=0.07
+        max_wmain= 4.0
+
+elseif (sib%diag%gdd>769.0 .and. sib%diag%gdd<1074.0) then
+
+        drate=0.015
+        max_wmain= 8.0
+endif
 
 !EL...Temperatures and relevant fractions from the basic 
 !EL...drates based on temperature 
 !EL...were set based on the info in de Vries et al. 1989 
 
-             
+       dgrowth_opt=(max_wmain-0.48)*drate
+
+if ((sib%diag%gdd>105.0 .AND. sib%diag%gdd<=310.0) .or. (sib%diag%gdd>769.0 .and. sib%diag%gdd<1074.0)) then             
   
 	if (sib%diag%tempc<=2.0) then
 
-	dgrowth = max_wmain * drate * sib%diag%rstfac_d * 0.0
+	dgrowth = dgrowth_opt * sib%diag%rstfac_d * 0.0
 
 	elseif (sib%diag%tempc >= 2.0 .and. sib%diag%tempc < 10.0) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (0.0-((0.0-0.68)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (0.0-((0.0-0.68)      &
                   * (sib%diag%tempc - 2.0) / (10.0 - 2.0)))
 
 	elseif (sib%diag%tempc >= 10.0 .and. sib%diag%tempc < 15.0) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (0.68 - ((0.68 - 0.89)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (0.68 - ((0.68 - 0.89)      &
                  * (sib%diag%tempc - 10.0) / (15.0 - 10.0)))
 
 	elseif (sib%diag%tempc >= 15.0 .and. sib%diag%tempc < 20.0) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (0.89-((0.89-1.0)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (0.89-((0.89-1.0)      &
                   * (sib%diag%tempc - 15) / (20 - 15)))
 
 	elseif (sib%diag%tempc >= 20.0 .and. sib%diag%tempc < 25.0) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (1.0 - ((1.0 - 1.03)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (1.0 - ((1.0 - 1.03)      &
                    * (sib%diag%tempc - 20) / (25 - 20)))
 
 	elseif (sib%diag%tempc>=25.0 .and. sib%diag%tempc<30.0) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (1.03-((1.03-1.05)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (1.03-((1.03-1.05)      &
                   * (sib%diag%tempc - 25) / (25 - 30)))
 
 	elseif (sib%diag%tempc>=30.0 .and. sib%diag%tempc<35.0) then
 
-     	dgrowth = max_wmain * drate * sib%diag%rstfac_d * (1.05-((1.05-1.06)      &
+     	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (1.05-((1.05-1.06)      &
                   * (sib%diag%tempc - 30) / (30 - 35)))
 	endif
 
-        w_main_pot=w_main_pot+dgrowth
+        if(sib%diag%gdd == 105.0_dbl_kind .or. sib%diag%gdd==769.0_dbl_kind) then
+                w_main_pot=0.48
+                sib%diag%w_main=0.48
+        endif
 
-        if ((sib%diag%gdd >= 105 .and. sib%diag%gdd < 310.0) .or.(sib%diag%gdd >= 769 .and. sib%diag%gdd < 1074.0 )) then
+        w_main_pot=w_main_pot+dgrowth
+ 
+        
+print*, w_main_pot,sib%diag%w_main
+
+        if ((sib%diag%gdd >= 105 .and. sib%diag%gdd < 310.0) .or.(sib%diag%gdd >= 769.0 .and. sib%diag%gdd < 1074.0 )) then
        
            sib%diag%w_main=max(w_main_pot,sib%diag%w_main) 
            sib%diag%w_main=min(sib%diag%w_main,max_wmain)
@@ -1701,17 +1764,17 @@ real(kind=dbl_kind) :: temp1
 endif
 
 !EL.. crop harvest reset
-if (time%doy > sib%diag%pd + 175)then
+!if (time%doy > sib%diag%pd + 175)then
 
-        sib%diag%w_main      = 0.0001
-	sib%diag%assim_d     = 0.0001
-	sib%diag%pd          = 0
-        sib%diag%pd7         = 0        
-        sib%diag%pd7_est     = 0
-        sib%diag%pdindx7     = 0 
-        sib%diag%phen_switch = 0
+ !       sib%diag%w_main      = 0.0001
+!	sib%diag%assim_d     = 0.0001
+!	sib%diag%pd          = 0
+  !      sib%diag%pd7         = 0        
+  !      sib%diag%pd7_est     = 0
+   !     sib%diag%pdindx7     = 0 
+  !      sib%diag%phen_switch = 0
 
-endif
+!endif
 !print*,time%doy,sib%diag%gdd,sib%diag%rstfac_d,dgrowth,w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
 
 !EL...Calculate w_main allocation (i.e. allocwt) to different plant parts
@@ -1735,7 +1798,7 @@ endif
 !EL...maint. coeff. info from Norman and Arkebauer, 1991)
 
 
-       temp1 = (0.015 * 2.0 * 12.0 / 44.0) *                   &
+       temp1 = (0.03 * 2.0 * 12.0 / 44.0) *                   &
              (2.0**((sib%diag%tempc - 20.0) / 10.0))
    
        sib%diag%phen_maintr(1) = sib%diag%cum_wt(1)       &
@@ -1780,7 +1843,7 @@ endif
        
 
 		
-	  if (time%doy > sib%diag%pd + 175) then
+	  if (sib%diag%gdd>2290.0) then
       
             do i = 1,4
 		
@@ -1841,9 +1904,11 @@ endif
           enddo
 	  
 
-
+          if (sib%diag%gdd > 2440.0) then
+             sib%diag%gdd=0.0
+          endif
 !EL...harvest adjustment
-	  if (sib%diag%gdd > 2290.0 .or. sib%diag%gdd==0.0) then
+	  if (sib%diag%gdd > 2440.0 .or. sib%diag%gdd==0.0) then
 
              do i = 1,4
                 sib%diag%cum_drywt(i) = 0.0001
@@ -1852,6 +1917,16 @@ endif
 	  endif
 
 
+
+
+!           if(sib%diag%gdd>=310.0 .and. time%doy>227 .and. time%doy<366 .and. sib%diag%tempc<=7.0)then
+
+!           sib%diag%cum_drywt(2)=0.0001
+ !          sib%diag%w_main=0.0001
+           
+  !         endif
+
+sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum_drywt(4)
 !------------------------------------------------
 !final leaf weight (C g m-2) 
 !-------------------------------------------------
@@ -1860,23 +1935,26 @@ endif
       if( sib%diag%gdd == 0.0 ) then
 
            sib%diag%leafwt_c =  0.01 
-      
-      elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2269) then
 
+      
+      elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd <= 2269.0) then
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(2)
-	
-      elseif (sib%diag%gdd >= 2269.0 .and. sib%diag%gdd < 2300.0) then
+
+
+      elseif (sib%diag%gdd >= 2269.0 .and. sib%diag%gdd < 2440.0) then
 
           sib%diag%leafwt_c = sib%diag%cum_drywt(2) -   &
           (1.0-0.01) * sib%diag%cum_drywt(2) *      &
-                              ((sib%diag%gdd - 2269.0) / 31.0)
+                              ((sib%diag%gdd - 2269.0) / 171.0)
+
+     
        
  !EL...introducing harvest towards  the end of field drying     
 
-      elseif(sib%diag%gdd >2290.0) then
+      elseif(sib%diag%gdd >2440.0) then
 
-          sib%diag%leafwt_c=sib%diag%cum_drywt(2)*0.01
-          sib%diag%gdd=0.0
+          sib%diag%leafwt_c=0.0001
+!          sib%diag%gdd=0.0
 
       endif
         
@@ -1905,13 +1983,25 @@ endif
 
 
 
-print*,sib%diag%pd,sib%diag%gdd,sib%diag%phen_LAI,time%doy
+print*,sib%diag%pd,time%doy,sib%diag%phen_LAI,sib%diag%rstfac_d
 !print*,sib%diag%doy,sib%diag%gdd,w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
 !print'(a,i8,4f12.4)','PD:',sib%diag%pd,(sib%diag%cum_wt(j),j=1,4)
 
 
-
-end subroutine wheat_phen
+   end subroutine wheat_phen
 
 
 end subroutine crop_accum
+
+
+
+
+
+
+
+
+
+
+
+
+
