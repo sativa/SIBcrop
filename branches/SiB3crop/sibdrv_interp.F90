@@ -109,7 +109,7 @@ integer(kind=int_kind) :: i      ! index
     if( time%sec_tot == time%init_second ) then
         print*, 'sibdrv_interp: init CAS humidity'
         do i=1,subcount
-	print*, sib(i)%prog%sh,sib(i)%prog%ps,sib(i)%prog%spdm,sib(i)%prog%tm
+!	print*, sib(i)%prog%sh,sib(i)%prog%ps,sib(i)%prog%spdm,sib(i)%prog%tm
             sib(i)%prog%sha = sib(i)%prog%sh
         enddo
     endif

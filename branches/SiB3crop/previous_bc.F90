@@ -159,6 +159,7 @@ print*,'file=',trim(filename)
             read(32,*) sib%param%physfrac2(4)
             read(32,*) sib%param%physfrac2(5)
         enddo
+
         close( 32 )
 
 print*,'init:',sib%param%physfrac2(1),sib%param%physfrac2(2)

@@ -54,7 +54,7 @@ data subname/'sibdrv_read '/
 !    print *,'SiBDRV_init_std'
 !    print *,'opening drive files for ',time%sec_day
 !    print *, 'dr_form=',trim(dr_format)
- !   print *, 'filename=',trim(filename)
+ !  print *, 'filename=',trim(filename)
     do i = 1, time%driver_recnum
         do  ! Read until not a comment.
             read( 87,'(a)', iostat=status ) record
@@ -74,6 +74,7 @@ data subname/'sibdrv_read '/
 !
 ! calculate large scale precipitation
         sib(1)%prog%lspr2 = sib(1)%prog%lspr2 !- sib(1)%prog%cupr2 
+!print *,sib(1)%prog%lspr2
 !EL the latter part of the above line was commented out since the driver data&
 !for bondville had large scale ppt separately.
 !
