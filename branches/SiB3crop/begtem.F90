@@ -329,7 +329,9 @@ subroutine begtem(sib,sib_loc)
     !itb...maintain rstfac2 at or above 0.1
     sib%diag%rstfac(2) = MAX(sib%diag%rstfac(2), 0.1_dbl_kind)
 
-    !
+    !EL..under irrigated conditions, temporarily changed the rstfac(2) to 1.0 (and commented out the above line) &
+    !EL.. to avoid the moisture stress.
+    !sib%diag%rstfac(2) = MAX(sib%diag%rstfac(2), 1.0_dbl_kind)
 
     !----------------------------------------------------------------------
     !

@@ -243,7 +243,7 @@ subroutine corn_phen
 
    endif
   
-!sib%diag%pd=130
+
 
 !----------------------------
 !Calculate growing degree days
@@ -305,7 +305,7 @@ if(sib%diag%gdd >= 100.0_dbl_kind) gdd_flag = 1
 
    do i0 = 1, sib%diag%tb_indx
 
-!EL...multiplied by the no. secs per each timestep (i.e. tbsib)
+!EL...multiplied by the no. secs per each timestep (i.e. dtsib)
 !EL...to convert assim mol sec-1 to mol
     
       assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) 
@@ -422,7 +422,7 @@ if(sib%diag%gdd >= 100.0_dbl_kind) gdd_flag = 1
 !EL...drates based on temperature 
 !EL...were set based on the info in de Vries et al. 1989, 
 !EL...and slightly modified  by looking 
-!EL...at the observed LAI ranges for corn in Bondville.
+!EL...at the observed data.
              
 !print*,'rstfac_d',sib%diag%rstfac_d        
         dgrowth_opt=(max_wmain-0.37)*drate
@@ -752,18 +752,6 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
     endif
 
 !print*,sib%diag%tempf,time%doy,sib%diag%pd,sib%diag%gdd,sib%diag%phen_LAI
-!print*,sib%diag%pd,sib%diag%ndf_opt,sib%diag%nd_emerg,sib%diag%emerg_d,time%doy,sib%diag%gdd
-!print*,sib%diag%doy,sib%diag%gdd,w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
-!print'(a,i8,4f12.4)','PD:',sib%diag%pd,(sib%diag%cum_wt(j),j=1,4)
-
-write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
-            time%doy,sib%diag%tempf,sib%diag%tempc,            &
-            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
-            sib%diag%w_main,sib%diag%allocwt(1:4),             &
-            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
-            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
-            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
-            sib%diag%phen_LAI, sib%diag%tot_biomass
 
 
 end subroutine corn_phen
@@ -803,13 +791,13 @@ subroutine soy_phen
 
 !EL...sib%diag%ndf_opt = no. of days with avg. temperature above 67F
 
-	if (sib%diag%tempf < 65.0) then
+	if (sib%diag%tempf < 67.0) then
 
     	sib%diag%ndf_opt = 0			
 
 !EL...sib%diag%ndf_opt = no. of days with avg. temperature above 67F
 
-	elseif (sib%diag%tempf >= 68.0) then
+	elseif (sib%diag%tempf >= 67.0) then
    	
            sib%diag%ndf_opt = sib%diag%ndf_opt + 1
 
@@ -1141,7 +1129,7 @@ subroutine soy_phen
 !EL...drates based on temperature 
 !EL...were set based on the info in de Vries et al. 1989, 
 !EL...and slightly modified  by looking 
-!EL...at the observed results  for soybean in Bondville.
+!EL...at the observed data.
 
     dgrowth_opt = (max_wmain-0.26) * drate
 
@@ -1486,14 +1474,14 @@ subroutine wheat_phen
 real(kind=dbl_kind) :: temp1
 
 
-! El..calculatint the planting date of winterwheat was set to start after Aug 15 (by looking at USDA planting dates), and the !EL..optimum temperature for germination and emergence is between 15 and 25C (Lindstrom et al., 1976; Burleigh et al., 1965)
+! El..calculation of the planting date of winterwheat was set to start after Aug 15 (by looking at USDA planting dates), and the &
+!EL..optimum temperature for germination and emergence is between 15 and 25C (Lindstrom et al., 1976; Burleigh et al., 1965)
 !EL...sib%diag%ndf_opt= no. of days withe avg. temperature between 20 and 25C
 
     if (time%doy>=227 .and. sib%diag%tempc<20.0) then
 
-       sib%diag%ndf_opt=0			!sib%diag%ndf_opt= no. of days withe
-                                    !     avg. temperature above 57F
-   
+       sib%diag%ndf_opt=0		
+
     elseif (time%doy>=227 .and. sib%diag%tempc>=20.0 .and. sib%diag%tempc<25.0) then
   
        sib%diag%ndf_opt=sib%diag%ndf_opt+1
@@ -1563,7 +1551,7 @@ real(kind=dbl_kind) :: temp1
 
    do i0 = 1, sib%diag%tb_indx
 
-!EL...multiplied by the no. secs per each timestep (i.e. tbsib)
+!EL...multiplied by the no. secs per each timestep (i.e. dtsib)
 !EL...to convert assim mol sec-1 to mol
     
       assim_accum = assim_accum + (sib%diag%tb_assim(i0)*time%dtsib) 
@@ -1685,7 +1673,7 @@ real(kind=dbl_kind) :: temp1
 !EL...Multiplication factors below were derived using the info taken 
 !EL...from past studies; mainly from de Vries et al., 1989.
 !EL...initial seeding density (215-222 seeds/m2 or 20-30/ft2) was taken from the info from ag extension services.
-!EL...Average seedling weight (5 mg each) was taken using several past studies (e.g.Blum et al., 1979,Hameed et al., 2003)
+!EL...Average seedling weight (5 mg each) was taken using several past studies (e.g.Blum et al., 1980,Hameed et al., 2003)
 
     if(sib%diag%gdd == 105.0_dbl_kind) then
                 sib%diag%w_main=0.48
@@ -1714,7 +1702,7 @@ real(kind=dbl_kind) :: temp1
 !EL...iterations of the offline model using sib assimilation, 
 !EL...and also based on the observed values from past studies, ),
 !EL...and considering a planting density most commonly used (i.e. row 
-!EL...spacing- 30", and plant spacing 6")
+!EL...spacing- 0.5m (Kinry,1993)
 
 
 !EL...basic daily growth rate for the vegetative growth stages, depending 
@@ -2012,8 +2000,6 @@ sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum
       sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02 
 
 
-
-
 !itb_crop...at the moment that growing degree days (gdd) passes
 !itb_crop...105, we will initialize the LAI
 
@@ -2026,8 +2012,6 @@ sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum
 
 
 print*,sib%diag%pd,time%doy,sib%diag%phen_LAI,sib%diag%rstfac_d
-!print*,sib%diag%doy,sib%diag%gdd,w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
-!print'(a,i8,4f12.4)','PD:',sib%diag%pd,(sib%diag%cum_wt(j),j=1,4)
 
 
    end subroutine wheat_phen

@@ -581,8 +581,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                     sib(imultpbpsib(n))%diag%soilscale(l)
             enddo
 	    
-	              
-           	    
+
 	    
         !   depth independent diagnostics
             pbp1(indxpbp1(1),n) = pbp1(indxpbp1(1),n) +    &
@@ -1061,12 +1060,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
           pbp1(indxpbp1(205),n) = pbp1(indxpbp1(205),n) +    &
                 sib(imultpbpsib(n))%diag%www_tot_soil
          
-!EL.. the following was added temporarily in the modification of respiration
 
-          pbp1(indxpbp1(206),n) = pbp1(indxpbp1(206),n) +    &
-                sib(imultpbpsib(n))%diag%phen_maintr(1)
-          pbp1(indxpbp1(207),n) = pbp1(indxpbp1(207),n) +    &
-                sib(imultpbpsib(n))%diag%phen_maintr_sib
         enddo
     endif
 
