@@ -75,8 +75,10 @@ integer(kind=int_kind) :: w_mainid  ! variable id - w_main
 integer(kind=int_kind) :: pdvid     ! variable id - pd 
 integer(kind=int_kind) :: pd7vid    ! variable id - pd7
 integer(kind=int_kind) :: pd7_estid ! variable id - pd7_est 
+integer(kind=int_kind) :: emerg_did ! variable id - emerg_d
 integer(kind=int_kind) :: pdindx7id ! variable id - pdindx7
 integer(kind=int_kind) :: ndf_optid ! variable id - ndf_opt
+integer(kind=int_kind) :: nd_emergid ! variable id - nd_emerg
 integer(kind=int_kind) :: cum_wt_id    ! variable id - cum_wt
 integer(kind=int_kind) :: cum_drywt_id ! variable id - cum_drywt
 !EL..crop vars end..
@@ -109,8 +111,10 @@ real(kind=dbl_kind), dimension(nsib) ::  &
 integer(kind=int_kind), dimension(nsib) :: pd
 integer(kind=int_kind), dimension(nsib) :: pd7
 integer(kind=int_kind), dimension(nsib) :: pd7_est
+integer(kind=int_kind), dimension(nsib) :: emerg_d
 integer(kind=int_kind), dimension(nsib) :: pdindx7
 integer(kind=int_kind), dimension(nsib) :: ndf_opt
+integer(kind=int_kind), dimension(nsib) :: nd_emerg
 
 !EL...crop variables (real(kind=dbl_kind))
 
@@ -169,8 +173,10 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     pd(:)      = 0
     pd7(:)     = 0
     pd7_est(:) = 0
+    emerg_d(:) = 0
     pdindx7(:) = 0
     ndf_opt(:) = 0
+    nd_emerg(:) = 0
     cum_wt(:,:) = 1.e36
     cum_drywt(:,:) = 1.e36
 !EL..end initializing crop vars.
@@ -199,8 +205,10 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
         pd(subset(i)) = sib(i)%diag%pd
         pd7(subset(i)) = sib(i)%diag%pd7
         pd7_est(subset(i)) = sib(i)%diag%pd7_est
+        emerg_d(subset(i)) = sib(i)%diag%emerg_d
         pdindx7(subset(i)) = sib(i)%diag%pdindx7
         ndf_opt(subset(i)) = sib(i)%diag%ndf_opt
+        nd_emerg(subset(i)) = sib(i)%diag%nd_emerg
        
 !EL..crop vars contd below..
     enddo
@@ -367,11 +375,15 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',37)
     ierr = nf90_def_var( ncid, 'pd7', nf90_int, vdims(2), pd7vid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',38)
-    ierr = nf90_def_var( ncid, 'pd7_est', nf90_int, vdims(2), pd7_estid) 
+    ierr = nf90_def_var( ncid, 'pd7_est', nf90_int, vdims(2), pd7_estid)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',38)
+    ierr = nf90_def_var( ncid, 'emerg_d', nf90_int, vdims(2), emerg_did)
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',39)
     ierr = nf90_def_var( ncid, 'pdindx7', nf90_int, vdims(2), pdindx7id) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',40)
     ierr = nf90_def_var( ncid, 'ndf_opt', nf90_int, vdims(2), ndf_optid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',41)
+    ierr = nf90_def_var( ncid, 'nd_emerg', nf90_int, vdims(2), nd_emergid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',41)
    
     vdims(3) = npooldid
@@ -475,10 +487,14 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     ierr = nf90_put_var( ncid, pd7vid, pd7 )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',80)
     ierr = nf90_put_var( ncid, pd7_estid, pd7_est )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',80)
+    ierr = nf90_put_var( ncid, emerg_did, emerg_d )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',81)
     ierr = nf90_put_var( ncid, pdindx7id, pdindx7 )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',82)
     ierr = nf90_put_var( ncid, ndf_optid, ndf_opt )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',83)
+    ierr = nf90_put_var( ncid, nd_emergid, nd_emerg )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',83)
     ierr = nf90_put_var( ncid, cum_wt_id, cum_wt )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',84)

@@ -172,9 +172,10 @@ print*,'init:',sib%param%physfrac2(1),sib%param%physfrac2(2)
         ! 2 months previous
         write (filename, "(a,a1,i4,a3)") trim(param_path), '_', &
             time%ppyear, '.nc'
+
         call read_ndvi(filename, time%ppmonth, prevndvi,  &
             physfrac, d13cresp)
-
+print*,'filename',filename
         ! 1 month previous
         write (filename, "(a,a1,i4,a3)") trim(param_path), '_', &
             time%pyear, '.nc'

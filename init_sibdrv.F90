@@ -496,7 +496,7 @@ integer(kind=int_kind), dimension(2) :: finish
 real(kind=dbl_kind), dimension(nsib) :: ta
 real(kind=dbl_kind), dimension(nsib) :: tc
 !EL...crop vars (kind=int_kind)
-integer(kind=int_kind), dimension(nsib) :: ndf_opt,pd,pd7,pd7_est,pdindx7
+integer(kind=int_kind), dimension(nsib) :: ndf_opt,nd_emerg,pd,pd7,pd7_est,pdindx7,emerg_d
 !EL...crop vars (kind=int_kind) end..
 integer(kind=int_kind), dimension(nsib) :: nsl
 real(kind=dbl_kind), dimension(nsib) :: pco2ap
@@ -638,11 +638,17 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     ierr = nf90_inq_varid( ncid, 'pd7_est', varid )
     ierr = nf90_get_var( ncid, varid, pd7_est )
 
+    ierr = nf90_inq_varid( ncid, 'emerg_d', varid )
+    ierr = nf90_get_var( ncid, varid, emerg_d )
+
     ierr = nf90_inq_varid( ncid, 'pdindx7', varid )
     ierr = nf90_get_var( ncid, varid,pdindx7 )
 
     ierr = nf90_inq_varid( ncid, 'ndf_opt', varid )
     ierr = nf90_get_var( ncid, varid, ndf_opt )
+
+    ierr = nf90_inq_varid( ncid, 'nd_emerg', varid )
+    ierr = nf90_get_var( ncid, varid, nd_emerg )
 
     ierr = nf90_inq_varid( ncid, 'tempf', varid )
     ierr = nf90_get_var( ncid, varid, tempf )
@@ -715,8 +721,11 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%diag%pd = pd(subset(i))
         sib(i)%diag%pd7 = pd7(subset(i))
         sib(i)%diag%pd7_est = pd7_est(subset(i))
+        sib(i)%diag%emerg_d = emerg_d(subset(i)) 
         sib(i)%diag%pdindx7 = pdindx7(subset(i))
         sib(i)%diag%ndf_opt = ndf_opt(subset(i))
+        sib(i)%diag%nd_emerg = nd_emerg(subset(i))
+
      
 
 !itb...crop phenology: on or off?
@@ -797,8 +806,10 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
           sib(i)%diag%pd = 0.0_int_kind
           sib(i)%diag%pd7 = 0.0_int_kind
           sib(i)%diag%pd7_est = 0.0_int_kind
+          sib(i)%diag%emerg_d = 0.0_int_kind
           sib(i)%diag%pdindx7 = 0.0_int_kind
           sib(i)%diag%ndf_opt = 0.0_int_kind
+          sib(i)%diag%nd_emerg = 0.0_int_kind
           sib(i)%diag%tempf = 0.0_dbl_kind
           sib(i)%diag%gdd = 0.0_dbl_kind
           sib(i)%diag%w_main = 0.0001_dbl_kind

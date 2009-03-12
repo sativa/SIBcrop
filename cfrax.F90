@@ -190,7 +190,7 @@ module cfrax
                 sib%diag%c12assimn(i) * sib%param%physfrac(i)
 
         enddo phys_loop
-
+!print*, sib%diag%c13assimn(6),sib%diag%c12assimn(6)
 
         sib%diag%rcassimn(6) = sib%diag%c13assimn(6)/   &
                                                 sib%diag%c12assimn(6)

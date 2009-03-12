@@ -211,7 +211,7 @@ subroutine corn_phen
        sib%diag%ndf_opt=sib%diag%ndf_opt+1
 
    endif
-
+!print*,sib%diag%ndf_opt
    if (sib%diag%ndf_opt==7)  then
 
       sib%diag%pd7_est=time%doy
@@ -228,9 +228,6 @@ subroutine corn_phen
       sib%diag%pd7 = time%doy
       sib%diag%pd  = sib%diag%pd7
 
-
-
-
    endif
  
 
@@ -246,21 +243,39 @@ subroutine corn_phen
 
    endif
   
-
+!sib%diag%pd=130
 
 !----------------------------
 !Calculate growing degree days
 !-----------------------------
 
-!itb_crop...gdd flag to determine initial LAI on day that
-!itb_crop...seeds emerge from ground
 
-   if(sib%diag%gdd > 100.0_dbl_kind) gdd_flag = 1
+if(sib%diag%gdd >= 100.0_dbl_kind) gdd_flag = 1
+
+        if (sib%diag%gdd<100.0_dbl_kind) then
+
+           sib%diag%nd_emerg=0			!sib%diag%nd_emerg= no. of days since 
+                                    !  emergence
+    
+        elseif (sib%diag%gdd>=100.0_dbl_kind) then
+  
+           sib%diag%nd_emerg=sib%diag%nd_emerg+1
+
+        endif
+
+        if (sib%diag%nd_emerg ==1) then
+
+           sib%diag%emerg_d = time%doy
+
+        endif
   
 
 !EL...added to avoid gdd calculation before real planting date, 
 !EL...since pd is printed out as 0 before the real planting 
 !EL...date based on the above ndf_opt criterion
+
+!itb_crop...gdd flag to determine initial LAI on day that
+!itb_crop...seeds emerge from ground
 
 	if (sib%diag%pd > 0                  .AND.         & 
 		time%doy  >=  sib%diag%pd        .AND.         &
@@ -270,6 +285,7 @@ subroutine corn_phen
   	     sib%diag%gdd=sib%diag%gdd + sib%diag%tempf- 50.0_dbl_kind
 	
 	endif
+
 
 
 !itb_crop...harvest: reset
@@ -372,13 +388,10 @@ subroutine corn_phen
 !EL...also considering a planting density most commonly used (i.e. row 
 !EL...spacing- 30", and plant spacing 6")
 
-    if(sib%diag%gdd == 100.0_dbl_kind) then
-                sib%diag%w_main=0.37 
- 
-    elseif (sib%diag%gdd < 100.0_dbl_kind) then
-                sib%diag%w_main=0.0    
+     if (sib%diag%gdd < 100.0_dbl_kind) then
+                sib%diag%w_main=0.0   
      
-    elseif((sib%diag%gdd >= 100.0) .AND. (sib%diag%gdd < 2730.0)) then
+     elseif((sib%diag%gdd >= 100.0) .AND. (sib%diag%gdd < 2730.0)) then
 
        	sib%diag%w_main = sib%diag%assim_d /       &
                ((sib%diag%alloc(1) * 1.2214) +     &
@@ -411,7 +424,7 @@ subroutine corn_phen
 !EL...and slightly modified  by looking 
 !EL...at the observed LAI ranges for corn in Bondville.
              
-        
+!print*,'rstfac_d',sib%diag%rstfac_d        
         dgrowth_opt=(max_wmain-0.37)*drate
 
 	if (sib%diag%tempc<=8) then
@@ -443,17 +456,16 @@ subroutine corn_phen
      	dgrowth = dgrowth_opt * sib%diag%rstfac_d * (0.9-((0.9-0.01)      &
                   * (sib%diag%tempc - 35) / (45 - 35)))
 
-	endif
-
-        if (sib%diag%gdd == 100.0_dbl_kind) then
-           
-           w_main_pot=0.37
-           sib%diag%w_main=0.37
-
-        endif
-           
+	endif          
 
         w_main_pot=w_main_pot+dgrowth
+
+         if (time%doy == sib%diag%emerg_d) then
+           
+           w_main_pot=0.37+dgrowth
+           sib%diag%w_main=w_main_pot
+
+        endif
 
         if (sib%diag%gdd >= 100 .and. sib%diag%gdd < 150) then
        
@@ -463,8 +475,6 @@ subroutine corn_phen
 
         endif
        
-
-
 
 !   sib%diag%w_main = sib%diag%w_main+dgrowth
 
@@ -681,7 +691,7 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
 
           sib%diag%leafwt_c = 0.95 * sib%diag%cum_drywt(2) -   &
           (0.95-0.5) * sib%diag%cum_drywt(2) *      &
-                              ((sib%diag%gdd - 2650.0) / 80.0)
+                              ((sib%diag%gdd - 2650.0) / 120.0)
 
 !EL...allowing for carbon remobilization from senescing leaves  to growing products
   
@@ -712,7 +722,13 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
 
 
 
-      sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02 
+      sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.02
+
+!EL.. since the SLA for irrigated crops is higher, the following will be used for the irrigated corn (very slight increase was used, as no published data could be found for corn).
+
+
+!      sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.021
+
 
       sib%diag%tb_indx = 0      !at the end of each day tb_index is set to zero
            sib%diag%cum_wt_P(1)=sib%diag%cum_wt(1)
@@ -724,7 +740,7 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
 !itb_crop...at the moment that growing degree days (gdd) passes
 !itb_crop...100, we will initialize the LAI
 
-    if(sib%diag%gdd >= 100.0_dbl_kind .AND. gdd_flag == 0) then
+    if(sib%diag%gdd >= 100.0_dbl_kind .AND. time%doy >= sib%diag%emerg_d) then
 
        sib%diag%phen_switch = 1
 
@@ -735,9 +751,20 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
             sib%diag%assim_d=0.0001
     endif
 
-print*,sib%diag%pd,sib%diag%gdd,time%doy
+!print*,sib%diag%tempf,time%doy,sib%diag%pd,sib%diag%gdd,sib%diag%phen_LAI
+!print*,sib%diag%pd,sib%diag%ndf_opt,sib%diag%nd_emerg,sib%diag%emerg_d,time%doy,sib%diag%gdd
 !print*,sib%diag%doy,sib%diag%gdd,w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
 !print'(a,i8,4f12.4)','PD:',sib%diag%pd,(sib%diag%cum_wt(j),j=1,4)
+
+write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
+            time%doy,sib%diag%tempf,sib%diag%tempc,            &
+            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
+            sib%diag%w_main,sib%diag%allocwt(1:4),             &
+            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
+            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
+            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
+            sib%diag%phen_LAI, sib%diag%tot_biomass
+
 
 end subroutine corn_phen
 
@@ -1153,8 +1180,8 @@ subroutine soy_phen
  
         if (time%doy==(sib%diag%pd +10)) then
 
-           w_main_pot=0.26
-           sib%diag%w_main=0.26
+           w_main_pot=0.26+dgrowth
+           sib%diag%w_main=w_main_pot
 
          endif
    
@@ -1173,6 +1200,17 @@ subroutine soy_phen
     sib%diag%assim_d=assimd_new
  
  endif
+
+if (time%doy > sib%diag%pd + 160) then
+
+        sib%diag%w_main      = 0.0001
+	sib%diag%assim_d     = 0.0001
+	sib%diag%pd          = 0
+        sib%diag%pd7         = 0        
+        sib%diag%pd7_est     = 0
+        sib%diag%pdindx7     = 0 
+        sib%diag%phen_switch = 0
+endif
 
  print*,'humidity stress=',sib%diag%rstfac_d  
 
@@ -1382,7 +1420,11 @@ subroutine soy_phen
 !EL...convert to dry weight g m-2 and then multiply by SLA; 
 !EL..SLA determined by the averages based on several studies
 
-      sib%diag%phen_LAI = sib%diag%leafwt_c * 2.0 * 0.025 	
+      sib%diag%phen_LAI = sib%diag%leafwt_c * 2.0 * 0.025
+
+!EL..for irrigated soybean, the SLA is higher; so the LAI for irrigated soils, is as follows.
+
+!      sib%diag%phen_LAI = sib%diag%leafwt_c * 2.0 * 0.032
 
 
  	  sib%diag%tb_indx = 0	 !at the end of each day tb_index is set to zero
@@ -1412,7 +1454,7 @@ subroutine soy_phen
 
     endif
 
-!print *, sib%diag%phen_LAI, sib%diag%cum_drywt(1), sib%diag%cum_drywt(2),sib%diag%cum_drywt(4),sib%diag%pd,sib%diag%tempf
+!print *, sib%diag%pd,sib%diag%tempf
 
 
 	
@@ -1423,7 +1465,7 @@ subroutine soy_phen
 
     endif
 
-print*,sib%diag%pd,time%doy	 
+print*,sib%diag%tempf,time%doy,sib%diag%pd,sib%diag%pd7,sib%diag%phen_LAI	 
 
 
 end subroutine soy_phen
@@ -1663,7 +1705,7 @@ real(kind=dbl_kind) :: temp1
 
     endif
 
-!EL...considering the fact that early corn growth is linearly related 
+!EL...considering the fact that early wheat growth is linearly related 
 !EL...to temperature(Muchow and Carberry, 1989) &
 !EL...considering total daily growth, based on the growth rate 
 !EL...information given in de Vries et al.1989...

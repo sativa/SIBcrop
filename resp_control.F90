@@ -5,6 +5,7 @@ use timetype
 use sib_const_module
 use sib_io_module
 use sibtype
+use physical_parameters, only: tice  
 implicit none
 
 ! parameters
@@ -27,6 +28,7 @@ real(kind=dbl_kind), dimension(:,:), allocatable :: resp
                 sib(i)%diag%soilscale(s) * time%dtsib
         enddo
     enddo
+
 !EL....added new info from crop_accum.F90
 !    do i = 1, subcount
 !       sib(i)%diag%tot_biomass(time%month) = sib(i)%diag%tot_biomass(time%month) +  &
@@ -101,11 +103,12 @@ end subroutine respfactor_control
 !===============================================================================
 !===============================================================================
 
-subroutine respire( sib )
+subroutine respire( sib,time )
 
 use kinds
 use sibtype
 use sib_const_module
+use timetype
 implicit none
 
 !  calculate the annual respiration rate "respfactor" for each of 7
@@ -128,7 +131,7 @@ implicit none
 
 ! parameters
 type(sib_t), dimension(subcount), intent(inout) :: sib
-                                
+type(time_struct), intent(in) :: time                                
 ! local variables
 
 integer :: n,l,n1                  ! looping indices
@@ -144,7 +147,7 @@ double precision :: xbg         ! fraction of annual respiration from
                                 !   below-ground sources    
 double precision :: roota       ! rooting distribution parameters
 double precision :: rootb
-
+real :: temp1,tempc_sib
 parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
     kxag=5.e-3, roota = 5.0, rootb = 1.5)
 
@@ -155,6 +158,10 @@ parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
 
         ! above-ground fraction
 
+print*,'tot_an=',sib(n)%diag%tot_an(13),'anainflec=',anainflec, sib(n)%param%rootf(1),sib(n)%param%rootf(2)
+     
+
+
         xag = xagmin + (xagmax - xagmin) /  &
            ( 1.0 + exp( -kxag * ( sib(n)%diag%tot_an(13) * 12. - anainflec ) ) )
 
@@ -162,22 +169,22 @@ parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
 
         xbg = 1.0 - xag
 
-!for crops, multiply tot_an (below) by 0.6 to represent that 40% was removed in harvest..
+!for crops, multiply tot_an (below) by 0.78 to represent that 40% was removed in harvest..
         ! vertical distribution of respiration flux in the root zone   
 
 
         ! top two layers
-        sib(n)%param%respfactor(1) = sib(n)%diag%tot_an(13) * 0.6 *( 0.5 * xag  +  &
+        sib(n)%param%respfactor(1) = sib(n)%diag%tot_an(13) * 0.78 *( 0.5 * xag  +  &
             xbg * sib(n)%param%rootf(1))
 
-        sib(n)%param%respfactor(2) = sib(n)%diag%tot_an(13) * 0.6 *( 0.5 * xag  +  &
+        sib(n)%param%respfactor(2) = sib(n)%diag%tot_an(13) * 0.78 *( 0.5 * xag  +  &
             xbg * sib(n)%param%rootf(2))
 
         ! rooting layers (3..10)
         do l = 3, nsoil
-            sib(n)%param%respfactor(l) = sib(n)%diag%tot_an(13)* 0.6 * xbg  &
+            sib(n)%param%respfactor(l) = sib(n)%diag%tot_an(13)* 0.78 * xbg  &
                 * sib(n)%param%rootf(l)
-
+!print*,'rootf_l=3',sib(n)%param%rootf(l)
         end do
 
         !  divide by annual soilscale sum at each grid pt and layer
@@ -186,10 +193,11 @@ parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
         do l = 1, nsoil
             sib(n)%param%respfactor(l) = sib(n)%param%respfactor(l) /  &
                 sib(n)%diag%tot_ss(13,l)
-
+!print*,'tot_ss',sib(n)%diag%tot_ss(13,l)
         end do ! (next layer)
  
 
     end do ! (next grid cell)
+       
 
 end subroutine respire
