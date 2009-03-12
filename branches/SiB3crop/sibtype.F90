@@ -461,8 +461,12 @@ type diagnostic_vars
     integer(kind=int_kind) :: pd7        ! seventh day with the optimum temperature for planting
     integer(kind=int_kind) :: pd7_est    ! estimated seventh day with the optimum 
                                          !    temperature for planting
+    integer(kind=int_kind) :: emerg_d    ! day of emergence
+    
     integer(kind=int_kind) :: ndf_opt    ! the number of consecutive days with the 
                                          !  optimum temperature for planting
+    integer(kind=int_kind) :: nd_emerg   ! no. of days since emergence (including the 
+                                         !day of emergence
     integer(kind=int_kind) :: pdindx7    ! a counter for counting the number of days 
                                          !  after the day when ndf_opt=7
     integer(kind=int_kind) :: use_phen   ! logical variable: are we using the phenology model?
@@ -480,7 +484,8 @@ type diagnostic_vars
                                          ! phenology model is NOT being used
     real(kind=dbl_kind) :: min_fvcov_crop = 0.1
 
-
+real(kind=dbl_kind)	:: phen_maintr_sib
+real(kind=dbl_kind)	:: tempc_sib
 
 !itb_crop...initial LAI for the day when the crop emerges from seeds. 
 !itb_crop...this number is arbitrary right now, will change as we

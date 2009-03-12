@@ -44,6 +44,7 @@ data subname/'sibdrv_read '/
         write(unit=filename,fmt=dr_format)time%driver_year, time%driver_month
         open( unit=87, file=trim(filename), form='formatted', iostat=status)
         if ( status > 0 ) then
+!    print *, 'filename=',trim(filename)
             print *, 'SiBDRV_read_single'
             print *, 'Error opening file'
             stop
@@ -54,7 +55,7 @@ data subname/'sibdrv_read '/
 !    print *,'SiBDRV_init_std'
 !    print *,'opening drive files for ',time%sec_day
 !    print *, 'dr_form=',trim(dr_format)
- !  print *, 'filename=',trim(filename)
+!    print *, 'filename=',trim(filename)
     do i = 1, time%driver_recnum
         do  ! Read until not a comment.
             read( 87,'(a)', iostat=status ) record
@@ -64,6 +65,7 @@ data subname/'sibdrv_read '/
                 stop
             endif
 !print*,record
+
 !pause
             if ( record(1:1) .ne. '#' ) exit
         enddo
@@ -71,10 +73,10 @@ data subname/'sibdrv_read '/
         	read(unit=record,fmt=*)yr,doy,hr,sib(1)%prog%tm2,temp_dpt, &
             sib(1)%prog%spdm2,sib(1)%prog%ps2,sib(1)%prog%dlwbot2,   &
             sib(1)%prog%sw_dwn2,sib(1)%prog%lspr2,sib(1)%prog%cupr2
+!print*,doy,hr,sib(1)%prog%sw_dwn2
 !
 ! calculate large scale precipitation
         sib(1)%prog%lspr2 = sib(1)%prog%lspr2 !- sib(1)%prog%cupr2 
-!print *,sib(1)%prog%lspr2
 !EL the latter part of the above line was commented out since the driver data&
 !for bondville had large scale ppt separately.
 !

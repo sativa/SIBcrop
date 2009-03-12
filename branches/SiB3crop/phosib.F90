@@ -484,6 +484,9 @@ subroutine phosib(sib,sib_loc)
             c3 * sib%diag%assimn(i)/xgco2m*sib%prog%ps*100.0
         sib%diag%pco2s(i)  = sib%diag%pco2i(i) +  &
             sib%diag%assimn(i)/gsh2o *sib%prog%ps*100.0
+
+
+
         !
         !  update stomatal resistance...
         !

@@ -581,8 +581,8 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                     sib(imultpbpsib(n))%diag%soilscale(l)
             enddo
 	    
-	    
-	    
+	              
+           	    
 	    
         !   depth independent diagnostics
             pbp1(indxpbp1(1),n) = pbp1(indxpbp1(1),n) +    &
@@ -1034,19 +1034,39 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 !EL...temporarily added canopy maint resp for output  
 
            out_index = 195
-            do l =1,5
+            do l =1,6
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%diag%respc(l)*1.E6
             
                 out_index = out_index + 1
             enddo
     
-          pbp1(indxpbp1(200),n) = pbp1(indxpbp1(200),n) +    &
+          pbp1(indxpbp1(201),n) = pbp1(indxpbp1(201),n) +    &
                 sib(imultpbpsib(n))%diag%tempf
 
-          pbp1(indxpbp1(201),n) = pbp1(indxpbp1(201),n) +    &
+          pbp1(indxpbp1(202),n) = pbp1(indxpbp1(202),n) +    &
                 sib(imultpbpsib(n))%diag%tot_biomass
 
+!EL..the following was added for site synthesis
+          
+!          pbp1(indxpbp1(203),n) = pbp1(indxpbp1(203),n) +    &
+!                sib(imultpbpsib(n))%diag%tot_resp*1.E6
+          pbp1(indxpbp1(203),n) = pbp1(indxpbp1(203),n) +    &
+               (sib(imultpbpsib(n))%diag%respg + &
+               sib(imultpbpsib(n))%diag%aparkk* sib(imultpbpsib(n))%diag%respc(6))*1.E6
+
+          pbp1(indxpbp1(204),n) = pbp1(indxpbp1(204),n) +    &
+                sib(imultpbpsib(n))%prog%pco2m
+           
+          pbp1(indxpbp1(205),n) = pbp1(indxpbp1(205),n) +    &
+                sib(imultpbpsib(n))%diag%www_tot_soil
+         
+!EL.. the following was added temporarily in the modification of respiration
+
+          pbp1(indxpbp1(206),n) = pbp1(indxpbp1(206),n) +    &
+                sib(imultpbpsib(n))%diag%phen_maintr(1)
+          pbp1(indxpbp1(207),n) = pbp1(indxpbp1(207),n) +    &
+                sib(imultpbpsib(n))%diag%phen_maintr_sib
         enddo
     endif
 

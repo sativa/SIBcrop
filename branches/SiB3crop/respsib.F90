@@ -26,7 +26,7 @@ subroutine respsib(sib)
     use kinds
     use sibtype
     use sib_const_module, only : denh2o,denice
-
+use physical_parameters, only: tice 
     implicit none    
 
     type(sib_t), intent(inout) :: sib
@@ -35,7 +35,7 @@ subroutine respsib(sib)
     integer:: j
 
     real(kind=dbl_kind) :: &
-        woptzm    ! optimal soil moisture fraction for resp (wopt) to the skewness exponent (zm)
+        woptzm,temp1,tempc_sib    ! optimal soil moisture fraction for resp (wopt) to the skewness exponent (zm)
     real(kind=dbl_kind),dimension(nsoil) :: &
         wet_exp, & ! wetness exponent (b in eqn 8 from Denning et al [1996])
         wfrac,   & ! soil moisture fraction of saturation for soil layer
@@ -74,6 +74,19 @@ subroutine respsib(sib)
         sib%diag%respg = sib%diag%respg + sib%param%respfactor(j) *   &
             sib%diag%soilscale(j)
 
+!EL.. the following was added for testing purposes
+ sib%diag%tempc_sib=sib%prog%ta - tice
+      tempc_sib=sib%diag%tempc_sib
+
+       temp1 = (3.47222E-07 * 600 * 2.0 * 12.0 / 44.0) *                   &
+             (2.0**((tempc_sib - 20.0) / 10.0))
+
+       sib%diag%phen_maintr_sib = sib%diag%cum_wt_P(1)       &
+             * 0.18 * temp1  
+
+!EL.. the following was added for testing purposes
+! print*,'cumwt_p=',sib%diag%cum_wt_P(1),'tempc_sib=',tempc_sib, 'temp1=',temp1 
+!print*, 'respg=',sib%diag%respg, 'respfactor=',sib%param%respfactor(j)
     enddo  ! soil layers
 
 end subroutine respsib

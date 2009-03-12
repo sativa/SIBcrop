@@ -23,10 +23,11 @@ integer k
     sib%diag%tb_indx = 0
     sib%diag%pd      = 0
     sib%diag%ndf_opt = 0
+    sib%diag%nd_emerg= 0
     sib%diag%pd7     = 0
     sib%diag%pd7_est = 0
     sib%diag%pdindx7 = 0
-   
+    sib%diag%emerg_d = 0
 
 
     do j=1,20000
@@ -48,6 +49,8 @@ integer k
 !                sib%diag%prodwt=0.0
 		sib%diag%leafwt_c = 0.0
 		sib%diag%phen_LAI=0.0
+                sib%diag%tempc_sib=0.0
+                sib%diag%phen_maintr_sib=0.0
 !     do i=1,13
 		
 !                sib%diag%tot_BM_an= 0.0

@@ -41,7 +41,8 @@ integer(kind=int_kind) :: i      ! index
 !
 ! calculate cosine zenith angle
     call zenith_angle( time%hour, sib(:)%stat%cosz )
-!
+
+
 ! scale downwelling driver SW radiation
     do i = 1,subcount
 !
@@ -51,7 +52,7 @@ integer(kind=int_kind) :: i      ! index
         else
             sib(i)%prog%sw_dwn=0.
         endif
-
+!print*,sib(i)%prog%sw_dwn,sib(i)%prog%sw_dwn2,sib(i)%stat%cosz
 !
 ! make sure downwelling SW radiation is positive
         if(sib(i)%prog%sw_dwn<0.) sib(i)%prog%sw_dwn = 0.
@@ -109,7 +110,7 @@ integer(kind=int_kind) :: i      ! index
     if( time%sec_tot == time%init_second ) then
         print*, 'sibdrv_interp: init CAS humidity'
         do i=1,subcount
-!	print*, sib(i)%prog%sh,sib(i)%prog%ps,sib(i)%prog%spdm,sib(i)%prog%tm
+	print*, sib(i)%prog%sh,sib(i)%prog%ps,sib(i)%prog%spdm,sib(i)%prog%tm
             sib(i)%prog%sha = sib(i)%prog%sh
         enddo
     endif

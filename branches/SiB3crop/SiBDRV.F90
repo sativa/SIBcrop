@@ -91,7 +91,11 @@ integer(kind=int_kind) :: temp_biome
     ! call output_control
     call output_control( sib, time, rank )
 
- 
+  if(mod(time%year,2) /= 0) then
+    	open(unit=20,file='phen_corn_test.dat',form='formatted')
+    else
+    	open(unit=21,file='phen_soy_test.dat',form='formatted')
+    endif
 !
 ! test file to test CO2 conservation
 !      open(unit=85, file='test', form='formatted')

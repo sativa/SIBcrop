@@ -231,6 +231,7 @@ integer i        ! sib point index
         sinlat = sin( pid180 * latsib(subset(i)) )
         coslat = cos( pid180 * latsib(subset(i)) )
         cosz(i) = coslat * cos_dec * cos_hour + sinlat * sin_dec
+
     enddo
 
 end subroutine zenith_angle
