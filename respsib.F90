@@ -65,7 +65,7 @@ subroutine respsib(sib)
 !
 ! calculate soil temperature respiration scaling factor
         sib%diag%soilQ10(j) = exp(0.087547 * (sib%prog%td(j) - 298.15))
-print *,sib%diag%soilQ10(j),moist(j)
+!print *,sib%diag%soilQ10(j),moist(j)
 !
 ! calculate total soil respiration scaling factor
         sib%diag%soilscale(j) = sib%diag%soilQ10(j) * moist(j)

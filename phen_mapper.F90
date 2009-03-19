@@ -108,7 +108,7 @@ real(kind=real_kind), parameter :: fPARmin=0.01
    call aparnew (TimeVar%LAI, TimeVar%Green, LTran, LRef,   &
                  TimeVar%gmudmu, fVCover, TimeVar%fPAR,     &
                  fPARmax, fPARmin)
-print*,'prevfPAR=',prevfPAR
+!print*,'prevfPAR=',prevfPAR
 
    return
 end subroutine phen_mapper
