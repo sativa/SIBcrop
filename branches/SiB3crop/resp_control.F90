@@ -158,7 +158,7 @@ parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
 
         ! above-ground fraction
 
-print*,'tot_an=',sib(n)%diag%tot_an(13),'anainflec=',anainflec, sib(n)%param%rootf(1),sib(n)%param%rootf(2)
+!print*,'tot_an=',sib(n)%diag%tot_an(13),'anainflec=',anainflec, sib(n)%param%rootf(1),sib(n)%param%rootf(2)
      
 
 
