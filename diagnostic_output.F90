@@ -552,10 +552,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                 qp2(out_index,indxqp2(110)) = qp2(out_index,indxqp2(110)) +    &
                     sib(out_index)%diag%www_tot_soil
             endif
-            if(doqp2(111)) then
-                qp2(out_index,indxqp2(111)) = qp2(out_index,indxqp2(111)) +    &
-                    sib(out_index)%diag%tot_resp
-            endif
+ 
            
         enddo ! index
     endif
@@ -1050,14 +1047,9 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
           pbp1(indxpbp1(202),n) = pbp1(indxpbp1(202),n) +    &
                 sib(imultpbpsib(n))%diag%tot_biomass
 
-!EL..the following was added for site synthesis
-          
           pbp1(indxpbp1(203),n) = pbp1(indxpbp1(203),n) +    &
-                sib(imultpbpsib(n))%diag%tot_resp*1.E6
-
-!          pbp1(indxpbp1(203),n) = pbp1(indxpbp1(203),n) +    &
-!               (sib(imultpbpsib(n))%diag%respg + &
-!               sib(imultpbpsib(n))%diag%aparkk* sib(imultpbpsib(n))%diag%respc(6))*1.E6
+               (sib(imultpbpsib(n))%diag%respg + &
+               sib(imultpbpsib(n))%diag%aparkk* sib(imultpbpsib(n))%diag%respc(6))*1.E6
 
           pbp1(indxpbp1(204),n) = pbp1(indxpbp1(204),n) +    &
                 sib(imultpbpsib(n))%prog%pco2m
