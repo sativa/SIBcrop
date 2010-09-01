@@ -28,44 +28,29 @@ integer k
     sib%diag%pd7_est = 0
     sib%diag%pdindx7 = 0
     sib%diag%emerg_d = 0
+  
 
 
     do j=1,20000
       sib%diag%tb_temp(j) = 0.0
       sib%diag%tb_assim(j) = 0.0 !added for daily accumulation of assimilation-EL
-!El...the following added for testing..
      sib%diag%tb_rst(j) =0.0
+
     enddo
 	
 		sib%diag%tempf = 0.0
 		sib%diag%tempc=0.0
 		sib%diag%assim_d = 0.0
 		sib%diag%w_main=0.0
-!	        sib%diag%w_main_pot=0.0
-!                sib%diag%cropht=0.0
                 sib%diag%tot_biomass=0.0
-!                sib%diag%tot_prod_an=0.0
-!                sib%diag%tot_BM_an= 0.0
-!                sib%diag%prodwt=0.0
+                sib%diag%tot_an_P=0.0
+                sib%diag%tot_an_f=0.0
+                 sib%diag%tot_resp=0.0
 		sib%diag%leafwt_c = 0.0
 		sib%diag%phen_LAI=0.0
                 sib%diag%tempc_sib=0.0
                 sib%diag%phen_maintr_sib=0.0
-!     do i=1,13
-		
-!                sib%diag%tot_BM_an= 0.0
- !               sib%diag%tot_prod_an=0.0
-  !   enddo
 
-
-!	 do j=1,4
-
-!			sib%diag%allocwt(i,j) = 0.0
-!			sib%diag%cum_wt(i,j) = 0.0
-!			sib%diag%cum_drywt(i,j) = 0.0
-!	 enddo
-!    enddo
-      
      do j=1,4		
 
 

@@ -149,9 +149,11 @@ real LAId     ! dead leaf area index at current time
 ! divide by fVCover to get portion due to vegetation.  Since fVCover can
 ! be specified, check to assure that calculated fPAR does not exceed fPARMax.
 
+
 !EL-using phen_LAI to estimate fPAR
 LAI=LAI
 LAIg=LAI
+
 fPAR=(1-exp((LAIg*alog(1-fPARmax))/LAImax))*real(fvcover)
 
    if(fPAR/fVCover.ge.fPARmax) then
@@ -159,6 +161,14 @@ fPAR=(1-exp((LAIg*alog(1-fPARmax))/LAImax))*real(fvcover)
    else
      LAIg=alog(1.-fPAR/real(fVCover))*LAImax/alog(1-fPARmax)
    endif
+
+
+
+!EL.. added the following to avoid LAIg becoming zero and crashing the run, when LAI is v. low fPAR&
+!EL.. becomes very low,causing to make LAIg=log(1), which is 0.0000, giving floating pt exception..
+
+   if (LAIg==0 ) LAIg=0.0001
+
 
    if(fPARm/fVCover.ge.fPARmax) then
       LAIgm=LAImax
@@ -181,10 +191,11 @@ fPAR=(1-exp((LAIg*alog(1-fPARmax))/LAImax))*real(fvcover)
    if (LAIg.lt.LAIgm) LAId=0.5*(LAIgm-LAIg)
 
 
+
    ! Calculate greeness fraction (Green):
    ! Greeness fraction=(green leaf area index)/(total leaf area index)
    Green=LAIg/(LAIg+LAId+stems)
-
+print *,'LAIg=',LAIg,LAIgm,LAId,Green,stems, (LAIg+LAId+stems)
    return                                                                    
 end subroutine laigrn_phen
 
