@@ -113,6 +113,6 @@ t 0 'NEE_1      ' 107 'NEE: Respg - Assimn (umol/m^2/sec)'
 t 0 'NEE_2      ' 108 'NEE: conductance-based carbon flux (umol/m^2/sec)'
 t 0 'fws        ' 109 'LATENT HEAT FLUX (W/m^2)'
 t 0 'www_tot    ' 110 'soil column total water, liquid+ice (kg/m^2)'
-t 0 'tot_resp   ' 111 'total respiration (mol/m^2/s) '
+
 
 

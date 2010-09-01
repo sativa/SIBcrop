@@ -43,9 +43,6 @@ integer k
 		sib%diag%assim_d = 0.0
 		sib%diag%w_main=0.0
                 sib%diag%tot_biomass=0.0
-                sib%diag%tot_an_P=0.0
-                sib%diag%tot_an_f=0.0
-                 sib%diag%tot_resp=0.0
 		sib%diag%leafwt_c = 0.0
 		sib%diag%phen_LAI=0.0
                 sib%diag%tempc_sib=0.0
