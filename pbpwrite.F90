@@ -67,7 +67,7 @@ character(len =256) ::filename
     ! define global atts
     call global_atts( pbpid, 'sib3', 'lat/lon', '1.0', drvr_type,  &
         biome_source, soil_source, soref_source, ndvi_source, c4_source,  &
-        d13cresp_source, rank )
+        d13cresp_source, rank1 )
     
     ! define variables
     status = nf90_def_var( pbpid, 'time', nf90_double, (/tid/), pbptimeid )

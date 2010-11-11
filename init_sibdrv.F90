@@ -382,6 +382,7 @@ integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
             npbpsib = npbpsib + 1
         endif
     enddo 
+
     932  continue
     rewind 2
 

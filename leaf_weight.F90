@@ -11,6 +11,10 @@ use kinds
 use sibtype
 use timetype
 
+implicit none
+
+real(kind=dbl_kind) :: x
+
 !------------------------------------------------------------------
 type(sib_t), intent(inout) :: sib
 type(time_struct), intent(in) :: time
