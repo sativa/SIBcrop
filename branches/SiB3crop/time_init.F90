@@ -151,7 +151,7 @@ integer :: x
     time%driver_month = time%month
     time%driver_year = time%year
     time%driver_recnum = (time%day-1) * time%driver_times + 1
-    time%driver_hour = int( time%hour )
+    time%driver_hour = int( time%hour, long_kind )
     time%driver_day = time%day
     time%start_period = (time%start_year-1) * time%days_per_year +  &
         real(time%start_doy-1) + real(time%start_second) / real(time%sec_per_day)
@@ -201,7 +201,7 @@ type(time_struct), intent(inout) :: time
     else
         time%driver_recnum =  time%driver_recnum + 1
     endif
-    time%driver_hour = int( time%hour + time%driver_step/3600. )
+    time%driver_hour = int( time%hour + time%driver_step/3600., long_kind )
     if ( time%driver_hour > 24 )  &
         time%driver_day = mod(time%driver_day,time%days_per_month(time%month))+1
     time%driver_hour = mod( time%driver_hour, 24 )
