@@ -75,7 +75,7 @@ type time_struct
     integer(kind=int_kind) :: driver_recnum ! record # of data in driver data file
     integer(kind=long_kind) :: driver_month  ! month of driver data to read
     integer(kind=long_kind) :: driver_year   ! year of driver data to read
-    integer(kind=int_kind) :: driver_hour   ! hour of driver data to be read
+    integer(kind=long_kind) :: driver_hour   ! hour of driver data to be read
     integer(kind=long_kind) :: driver_day    ! day of driver data to be read
     
     real(kind=dbl_kind) :: start_period     ! start of averaged period
