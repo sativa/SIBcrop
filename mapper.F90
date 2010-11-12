@@ -333,7 +333,7 @@ subroutine aerointerpolate ( lai, fvcover, laigrid, fvcovergrid, &
     j = int(locfvcover / dfvcover) + 1
     j = min(j, 49)
 
-print *,i,j
+!print *,i,j
     ! Interpolate RbC variable
     call interpolate( laigrid(i), loclai, dlai, &
         fvcovergrid(j), locfvcover, dfvcover,   &

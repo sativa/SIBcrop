@@ -1,4 +1,4 @@
-# Makfile for sib3 SUSHI by Ian Baker
+# Makfile for SiB3crop
 # All options are set at the top of this file
 OS = $(shell uname -s)
 PROC = $(shell uname -p)
@@ -18,6 +18,7 @@ OPT = debug
 
 # Directory containing netcdf's include/ and lib/ directories.
 NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
+
 
 ifeq ($(OS),Darwin)
   SUFFIX	= mac
