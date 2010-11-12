@@ -754,14 +754,14 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
 
 !print*, 'tot_an_p=',sib%diag%tot_an_p,sib%diag%tot_an(13)
 !    print*,sib%diag%tempf,time%doy,sib%diag%pd,sib%diag%phen_LAI
-write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
-            time%doy,sib%diag%tempf,sib%diag%tempc,            &
-            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
-            sib%diag%w_main,sib%diag%allocwt(1:4),             &
-            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
-            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
-            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
-            sib%diag%phen_LAI, sib%diag%tot_biomass
+!write(20,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
+!            time%doy,sib%diag%tempf,sib%diag%tempc,            &
+!            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
+!            sib%diag%w_main,sib%diag%allocwt(1:4),             &
+!            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
+!            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
+!            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
+!            sib%diag%phen_LAI, sib%diag%tot_biomass
 
 
 end subroutine corn_phen
@@ -1472,14 +1472,14 @@ endif
 
 !print*,sib%diag%tempf,time%doy,sib%diag%pd,sib%diag%pd7,sib%diag%phen_LAI	 
 
-write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
-            time%doy,sib%diag%tempf,sib%diag%tempc,            &
-            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
-            sib%diag%w_main,sib%diag%allocwt(1:4),             &
-            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
-            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
-            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
-            sib%diag%phen_LAI, sib%diag%tot_biomass
+!write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
+!            time%doy,sib%diag%tempf,sib%diag%tempc,            &
+!            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
+!            sib%diag%w_main,sib%diag%allocwt(1:4),             &
+!            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
+!            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
+!            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
+!            sib%diag%phen_LAI, sib%diag%tot_biomass
 
 
 end subroutine soy_phen
