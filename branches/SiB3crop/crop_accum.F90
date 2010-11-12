@@ -91,7 +91,7 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
         temp_biome = int(sib%param%biome)
    endif
 
-print*,'crop accum: BIOME=',sib%param%biome
+!print*,'crop accum: BIOME=',sib%param%biome
 
 	if(sib%param%biome == 20) then  
 		call corn_phen	
@@ -164,7 +164,7 @@ print*,'crop accum: BIOME=',sib%param%biome
 !at the end of each day tb_index is set to zero
    sib%diag%tb_indx = 0   
 
-print'(a,2g12.5)','CROP ACCUM:',sib%diag%phen_LAI,sib%diag%leafwt_c
+!print'(a,2g12.5)','CROP ACCUM:',sib%diag%phen_LAI,sib%diag%leafwt_c
 
 contains
 
@@ -1470,7 +1470,7 @@ endif
 
     endif
 
-print*,sib%diag%tempf,time%doy,sib%diag%pd,sib%diag%pd7,sib%diag%phen_LAI	 
+!print*,sib%diag%tempf,time%doy,sib%diag%pd,sib%diag%pd7,sib%diag%phen_LAI	 
 
 write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
             time%doy,sib%diag%tempf,sib%diag%tempc,            &
@@ -1889,7 +1889,7 @@ if ((sib%diag%gdd>105.0 .AND. sib%diag%gdd<=310.0) .or. (sib%diag%gdd>769.0 .and
         w_main_pot=w_main_pot+dgrowth
  
         
-print*, w_main_pot,sib%diag%w_main
+!print*, w_main_pot,sib%diag%w_main
 
         if ((sib%diag%gdd >= 105 .and. sib%diag%gdd < 310.0) .or.(sib%diag%gdd >= 769.0 .and. sib%diag%gdd < 1074.0 )) then
        
@@ -1952,7 +1952,7 @@ if (sib%diag%gdd>105.0 .AND. sib%diag%gdd<=310.0) then
         w_main_pot=w_main_pot+dgrowth
  
         
-print*, w_main_pot,sib%diag%w_main
+!print*, w_main_pot,sib%diag%w_main
 
         if (sib%diag%gdd >= 105.0 .and. sib%diag%gdd < 310.0) then
        
@@ -2179,16 +2179,16 @@ sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum
 
 
 
-print*,sib%diag%pd,time%doy,sib%diag%phen_LAI,sib%diag%gdd
+!printp*,sib%diag%pd,time%doy,sib%diag%phen_LAI,sib%diag%gdd
 
-write(22,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
-            time%doy,sib%diag%tempf,sib%diag%tempc,            &
-            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
-            sib%diag%w_main,sib%diag%allocwt(1:4),             &
-            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
-            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
-            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
-            sib%diag%phen_LAI, sib%diag%tot_biomass
+!write(22,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
+!            time%doy,sib%diag%tempf,sib%diag%tempc,            &
+!            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
+!            sib%diag%w_main,sib%diag%allocwt(1:4),             &
+!            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
+!            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
+!            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
+!            sib%diag%phen_LAI, sib%diag%tot_biomass
 
 
    end subroutine wheat_phen

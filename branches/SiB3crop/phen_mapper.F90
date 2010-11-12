@@ -195,7 +195,7 @@ fPAR=(1-exp((LAIg*alog(1-fPARmax))/LAImax))*real(fvcover)
    ! Calculate greeness fraction (Green):
    ! Greeness fraction=(green leaf area index)/(total leaf area index)
    Green=LAIg/(LAIg+LAId+stems)
-print *,'LAIg=',LAIg,LAIgm,LAId,Green,stems, (LAIg+LAId+stems)
+!print *,'LAIg=',LAIg,LAIgm,LAId,Green,stems, (LAIg+LAId+stems)
    return                                                                    
 end subroutine laigrn_phen
 
