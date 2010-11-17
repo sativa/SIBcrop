@@ -1595,20 +1595,13 @@ endif
 !   if(sib%diag%gdd >= 105.0_dbl_kind) gdd_flag = 1
 
         if (sib%diag%gdd<105.0_dbl_kind) then
-
-           sib%diag%nd_emerg=0			!sib%diag%nd_emerg= no. of days since 
-                                    !  emergence
-    
-        elseif (sib%diag%gdd>=100.0_dbl_kind) then
-  
+           sib%diag%nd_emerg=0   !nd_emerg= no. of days since emergence
+        else
            sib%diag%nd_emerg=sib%diag%nd_emerg+1
 
-        endif
-
-        if (sib%diag%nd_emerg ==1) then
-
-           sib%diag%emerg_d = time%doy
-
+           if (sib%diag%nd_emerg == 1) then
+              sib%diag%emerg_d = time%doy
+           endif
         endif
   
 
