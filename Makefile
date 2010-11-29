@@ -55,7 +55,7 @@ ifeq ($(COMPILER),pgi)
   else ifeq ($(OPT),debug)
     F90FLAGS = -g -Mbounds -Ktrap=fp
   endif
-  F90FLAGS = -DPGF=1 -Minfo=loop,inline -Minform=inform $(INCLUDES)
+  F90FLAGS += -DPGF=1 -Minfo=loop,inline -Minform=inform $(INCLUDES)
   LFLAGS   = -v -Minform=inform $(LIBS)
 endif
 
