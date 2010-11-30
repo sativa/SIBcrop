@@ -429,7 +429,7 @@ subroutine corn_phen
 !print*,'rstfac_d',sib%diag%rstfac_d        
         dgrowth_opt=(max_wmain-0.37)*drate
 
-	if (sib%diag%tempc<=8.0) then
+	if (sib%diag%tempc<8.0) then
 
 	dgrowth = dgrowth_opt * sib%diag%rstfac_d * 0.01
 
@@ -460,18 +460,18 @@ subroutine corn_phen
 
 	endif          
 
-        w_main_pot=w_main_pot+dgrowth
+        sib%diag%w_main_pot=sib%diag%w_main_pot+dgrowth
 
          if (time%doy == sib%diag%emerg_d) then
            
-           w_main_pot=0.37+dgrowth
-           sib%diag%w_main=w_main_pot
+           sib%diag%w_main_pot=0.37+dgrowth
+           sib%diag%w_main=sib%diag%w_main_pot
 
         endif
 
         if (sib%diag%gdd >= 100.0 .and. sib%diag%gdd < 150.0) then
        
-           sib%diag%w_main=max(w_main_pot,sib%diag%w_main) 
+           sib%diag%w_main=max(sib%diag%w_main_pot,sib%diag%w_main) 
 !           sib%diag%w_main=min(sib%diag%w_main,max_wmain)
         
 
@@ -730,6 +730,7 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
 
 !      sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.021
 
+!print*, 'lai=',sib%diag%phen_LAI
 
       sib%diag%tb_indx = 0      !at the end of each day tb_index is set to zero
            sib%diag%cum_wt_P(1)=sib%diag%cum_wt(1)

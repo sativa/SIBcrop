@@ -34,7 +34,7 @@ integer k
     do j=1,20000
       sib%diag%tb_temp(j) = 0.0
       sib%diag%tb_assim(j) = 0.0 !added for daily accumulation of assimilation-EL
-     sib%diag%tb_rst(j) =0.0
+      sib%diag%tb_rst(j) =0.0
 
     enddo
 	
@@ -42,6 +42,7 @@ integer k
 		sib%diag%tempc=0.0
 		sib%diag%assim_d = 0.0
 		sib%diag%w_main=0.0
+		sib%diag%w_main_pot=0.0
                 sib%diag%tot_biomass=0.0
 		sib%diag%leafwt_c = 0.0
 		sib%diag%phen_LAI=0.0
