@@ -416,7 +416,6 @@ type diagnostic_vars
 	 ! placeholder for accumulating
                                      ! temperature for GDD
 
-!EL.. the following added for testing
     real(kind=dbl_kind) :: rstfac_d
     real(kind=dbl_kind) :: tb_rst(20000) 								
 
@@ -425,12 +424,13 @@ type diagnostic_vars
     real(kind=dbl_kind) :: tempf	 ! daily mean CAS air temp (F)     
     real(kind=dbl_kind) :: tempc	 ! daily mean CAS air temp (C) 
     real(kind=dbl_kind) :: w_main 	 ! dryweight+maintenance respiration for the whole plant
-!    real(kind=dbl_kind) :: w_main_pot
+    real(kind=dbl_kind) :: w_main_pot    !potential initial w_main
     real(kind=dbl_kind) :: cropht        !for calculation of crop height based on a daily growth rate   
     real(kind=dbl_kind) :: leafwt_c  ! final leaf weight
     real(kind=dbl_kind) :: phen_LAI  ! LAI from phenology model
     real(kind=dbl_kind) :: tb_assim (20000) 
 									 ! placeholder for accumulating assimilation within a day
+   					
     real(kind=dbl_kind) :: day_allocwt (4)  !place holder for accumulating allocwt 
     real(kind=dbl_kind)	:: alloc(4)			! basic allocation fractions for different
                                             !   plant parts (1-roots;2-leaves;3-stems;4-products)
@@ -445,6 +445,8 @@ type diagnostic_vars
     real(kind=dbl_kind)	:: wch(4)			! dry wt change per day
     real(kind=dbl_kind)	:: cum_drywt(4)		! final, cumulative dry wt of each plant part
     real(kind=dbl_kind)	:: tot_biomass		! total aboveground biomass of all plant parts
+!EL... the following was added temporarily
+    real(kind=dbl_kind)	:: tot_resp
 
 !    real(kind=dbl_kind)	:: tot_bM_an(13)            ! annual sum of total biomass of all plant parts
     real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt 
@@ -724,6 +726,10 @@ real(kind=dbl_kind)	:: tempc_sib
     !   (6) weighted sum over all phystypes
     real(kind=dbl_kind) :: tot_an(13) ! accumulated net assimilation
                                       ! used for calculating respfactor
+!EL..the following was added temporarily
+    real(kind=dbl_kind) :: tot_an_p
+ real(kind=dbl_kind) :: tot_an_f
+
     real(kind=dbl_kind) :: cflux     ! carbon flux between CAS and reference 
     !   level (mol C  m^-2 sec^-1)
     real(kind=dbl_kind) :: assimnp(6)! assimn scaled by aparkk (mol m^-2 sec^-1)

@@ -375,7 +375,7 @@ integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
     
     ! count number of variables listed for pbp and pbp2 data in sib_pbpopts
     do 
-        read(2,*, end=932)doqptem,ldummy,nametem,ndummy,listtem
+        read(2,*,end=932)doqptem,ldummy,nametem,ndummy,listtem
         if(ldummy.eq.1) then
             npbp2sib = npbp2sib + 1
         else if (ldummy.eq.0) then
@@ -516,6 +516,7 @@ real(kind=dbl_kind), dimension(nsib) :: dayflag
 real(kind=dbl_kind), dimension(nsib) :: tempf
 real(kind=dbl_kind), dimension(nsib) :: gdd
 real(kind=dbl_kind), dimension(nsib) :: w_main
+real(kind=dbl_kind), dimension(nsib) :: w_main_pot
 real(kind=dbl_kind), dimension(nsib,4) :: cum_wt
 real(kind=dbl_kind), dimension(nsib,4) :: cum_drywt
 !EL...crop vars..real(kind=dbl_kind) end..
@@ -660,6 +661,10 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     ierr = nf90_inq_varid( ncid, 'w_main', varid )
     ierr = nf90_get_var( ncid, varid, w_main )
 
+    ierr = nf90_inq_varid( ncid, 'w_main_pot', varid )
+    ierr = nf90_get_var( ncid, varid, w_main_pot )
+
+
     ierr = nf90_inq_varid( ncid, 'cum_wt_prev', varid )
     ierr = nf90_get_var( ncid, varid,cum_wt )
 
@@ -719,6 +724,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%diag%tempf = tempf(subset(i))
         sib(i)%diag%gdd = gdd(subset(i))
         sib(i)%diag%w_main = w_main(subset(i))
+	sib(i)%diag%w_main_pot = w_main_pot(subset(i))
         sib(i)%diag%pd = pd(subset(i))
         sib(i)%diag%pd7 = pd7(subset(i))
         sib(i)%diag%pd7_est = pd7_est(subset(i))
@@ -814,6 +820,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
           sib(i)%diag%tempf = 0.0_dbl_kind
           sib(i)%diag%gdd = 0.0_dbl_kind
           sib(i)%diag%w_main = 0.0001_dbl_kind
+	  sib(i)%diag%w_main_pot = 0.0001_dbl_kind
           sib(i)%diag%cum_wt(:) = 0.0001_dbl_kind
           sib(i)%diag%cum_drywt(:)   = 0.0001_dbl_kind
         endif

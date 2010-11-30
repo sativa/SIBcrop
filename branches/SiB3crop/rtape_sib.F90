@@ -72,6 +72,7 @@ integer(kind=int_kind) :: totssid   ! variable id - totss
 integer(kind=int_kind) :: tempfid    ! variable id - tempf 
 integer(kind=int_kind) :: gddvid    ! variable id - gdd 
 integer(kind=int_kind) :: w_mainid  ! variable id - w_main
+integer(kind=int_kind) :: w_main_potid  ! variable id - w_main_pot
 integer(kind=int_kind) :: pdvid     ! variable id - pd 
 integer(kind=int_kind) :: pd7vid    ! variable id - pd7
 integer(kind=int_kind) :: pd7_estid ! variable id - pd7_est 
@@ -118,7 +119,7 @@ integer(kind=int_kind), dimension(nsib) :: nd_emerg
 
 !EL...crop variables (real(kind=dbl_kind))
 
-real(kind=dbl_kind), dimension(nsib) :: tempf,gdd,w_main
+real(kind=dbl_kind), dimension(nsib) :: tempf,gdd,w_main,w_main_pot
 
 real(kind=dbl_kind), dimension(nsib,4) :: cum_wt,cum_drywt
 
@@ -170,6 +171,7 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     tempf(:)   = 1.e36
     gdd(:)     = 1.e36
     w_main(:)  = 1.e36
+    w_main_pot(:)  = 1.e36
     pd(:)      = 0
     pd7(:)     = 0
     pd7_est(:) = 0
@@ -202,6 +204,7 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
         tempf(subset(i)) = sib(i)%diag%tempf
         gdd(subset(i)) = sib(i)%diag%gdd
         w_main(subset(i)) = sib(i)%diag%w_main
+	w_main_pot(subset(i)) = sib(i)%diag%w_main_pot
         pd(subset(i)) = sib(i)%diag%pd
         pd7(subset(i)) = sib(i)%diag%pd7
         pd7_est(subset(i)) = sib(i)%diag%pd7_est
@@ -371,6 +374,8 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',35)
     ierr = nf90_def_var( ncid, 'w_main', nf90_double, vdims(2), w_mainid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',36)
+    ierr = nf90_def_var( ncid, 'w_main_pot', nf90_double, vdims(2), w_main_potid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',37)
     ierr = nf90_def_var( ncid, 'pd', nf90_int, vdims(2), pdvid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',37)
     ierr = nf90_def_var( ncid, 'pd7', nf90_int, vdims(2), pd7vid) 
@@ -482,24 +487,26 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',77)
     ierr = nf90_put_var( ncid, w_mainid, w_main )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',78)
-    ierr = nf90_put_var( ncid, pdvid, pd )
+    ierr = nf90_put_var( ncid, w_main_potid, w_main_pot )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',79)
+    ierr = nf90_put_var( ncid, pdvid, pd )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',80)
     ierr = nf90_put_var( ncid, pd7vid, pd7 )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',80)
-    ierr = nf90_put_var( ncid, pd7_estid, pd7_est )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',80)
-    ierr = nf90_put_var( ncid, emerg_did, emerg_d )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',81)
-    ierr = nf90_put_var( ncid, pdindx7id, pdindx7 )
+    ierr = nf90_put_var( ncid, pd7_estid, pd7_est )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',82)
-    ierr = nf90_put_var( ncid, ndf_optid, ndf_opt )
+    ierr = nf90_put_var( ncid, emerg_did, emerg_d )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',83)
-    ierr = nf90_put_var( ncid, nd_emergid, nd_emerg )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',83)
-    ierr = nf90_put_var( ncid, cum_wt_id, cum_wt )
+    ierr = nf90_put_var( ncid, pdindx7id, pdindx7 )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',84)
-    ierr = nf90_put_var( ncid, cum_drywt_id, cum_drywt )
+    ierr = nf90_put_var( ncid, ndf_optid, ndf_opt )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',85)
+    ierr = nf90_put_var( ncid, nd_emergid, nd_emerg )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',86)
+    ierr = nf90_put_var( ncid, cum_wt_id, cum_wt )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',87)
+    ierr = nf90_put_var( ncid, cum_drywt_id, cum_drywt )
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',88)
     !EL...crop vars end..
 
 
@@ -513,18 +520,18 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
 
 
     ierr = nf90_put_var( ncid, dzsvid, dz_snow, start, vcount )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',86)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',89)
     ierr = nf90_put_var( ncid, nzsvid, nz_snow, start, vcount )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',87)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',90)
     ierr = nf90_put_var( ncid, lzsvid, lz_snow, start,vcount )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',88)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',91)
 
 
     ierr = nf90_put_var( ncid, totssid, tot_ss )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',89)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',92)
 
     !itb...close the file
     ierr = nf90_close( ncid )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',90)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',93)
 
 end subroutine rtape_sib
