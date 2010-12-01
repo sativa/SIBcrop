@@ -1,4 +1,3 @@
-
 !==================SUBROUTINE CROP_ACCUM=======================================
 
 subroutine crop_accum(sib,time,timevar)
@@ -40,8 +39,6 @@ type(aero_var),dimension(50,50) :: tempaerovar
 real(kind=real_kind),dimension(2,2) :: temptran,tempref
 
 integer(kind=int_kind) :: temp_biome
-
-!integer(kind=int_kind) :: gdd_flag = 0
 
 !------------------------------------------------------------------
 type(sib_t), intent(inout) :: sib
@@ -200,19 +197,20 @@ subroutine corn_phen
 !Calculate the planting date
 !---------------------------
 
+!EL...sib%diag%ndf_opt= no. of days with avg. temperature above 57F 
+!EL..(i.e. avg warm enough'  temp for considering planting)
 !EL...sib%diag%ndf_opt= no. of days with avg. temperature above 57F
 
     if (sib%diag%tempf<57.0) then
 
-       sib%diag%ndf_opt=0			!sib%diag%ndf_opt= no. of days withe
-                                    !     avg. temperature above 57F
+       sib%diag%ndf_opt=0	    
     
     elseif (sib%diag%tempf>=57.0) then
   
        sib%diag%ndf_opt=sib%diag%ndf_opt+1
 
    endif
-!print*,sib%diag%ndf_opt
+
    if (sib%diag%ndf_opt==7)  then
 
       sib%diag%pd7_est=time%doy
@@ -244,21 +242,20 @@ subroutine corn_phen
 
    endif
   
-!EL...temporarily added the following:
-!  sib%diag%pd  = 149
+
 
 !----------------------------
 !Calculate growing degree days
 !-----------------------------
 
 
-!if(sib%diag%gdd >= 100.0_dbl_kind) gdd_flag = 1
+!EL.. emergence at GDD=100.0
+!EL.. sib%diag%nd_emerg= no. of days since emergence
 
         if (sib%diag%gdd<100.0_dbl_kind) then
 
-           sib%diag%nd_emerg=0			!sib%diag%nd_emerg= no. of days since 
-                                    !  emergence
-    
+           sib%diag%nd_emerg=0			
+   
         elseif (sib%diag%gdd>=100.0_dbl_kind) then
   
            sib%diag%nd_emerg=sib%diag%nd_emerg+1
@@ -275,9 +272,7 @@ subroutine corn_phen
 !EL...added to avoid gdd calculation before real planting date, 
 !EL...since pd is printed out as 0 before the real planting 
 !EL...date based on the above ndf_opt criterion
-
-!itb_crop...gdd flag to determine initial LAI on day that
-!itb_crop...seeds emerge from ground
+!EL...Calculation of GDDs occurs between 50 and 86 F
 
 	if (sib%diag%pd > 0                  .AND.         & 
 		time%doy  >=  sib%diag%pd        .AND.         &
@@ -314,7 +309,7 @@ subroutine corn_phen
 
    enddo
 
-!EL..!multiplied by 12 to convert mol to g
+!EL..multiplied by 12 to convert mol to g
 
    sib%diag%assim_d = assim_accum * 12.0 
 
@@ -323,6 +318,7 @@ subroutine corn_phen
 ! allocation sheme for fractions for assimilate partitioning
 !-----------------------------------------------------------   
 !EL...1-roots, 2-leaves,3-stems,4-products (flowers and grains)
+!EL...allocation to different growth stages after emergence (each stage given as a range of GDDs below) 
 
 	if(sib%diag%gdd>=100.0 .and.sib%diag%gdd <500.0)then
 
@@ -386,13 +382,18 @@ subroutine corn_phen
 !EL...Multiplication factors below were derived using the info taken 
 !EL...from past studies; mainly from de Vries et al., 1989.
 
-!EL...seedling weight at emergence was determined based on Richardson and Bacon (1993) and Pinhero and Fletcher (1994), and Horri et al., 2007.
+!EL...seedling weight at emergence  was determined based on Richardson and Bacon (1993) and Pinhero and Fletcher (1994), and Horri et al., 2007.
 !EL...also considering a planting density most commonly used (i.e. row 
 !EL...spacing- 30", and plant spacing 6")
+!EL.. Carbon amount (0.37 g C m-2) was derived by multiplying the seedling weight by 0.43
 
      if (sib%diag%gdd < 100.0_dbl_kind) then
                 sib%diag%w_main=0.0   
      
+
+!EL..Calculating the w_main by using  assim, growth resp coefficients and 
+!EL..allocation fractions from the original scheme
+
      elseif((sib%diag%gdd >= 100.0) .AND. (sib%diag%gdd < 2730.0)) then
 
        	sib%diag%w_main = sib%diag%assim_d /       &
@@ -420,13 +421,13 @@ subroutine corn_phen
 
 		max_wmain=8.0
 
-!EL...Temperatures and relevant fractions from the basic 
-!EL...drates based on temperature 
-!EL...were set based on the info in de Vries et al. 1989, 
+!EL...Temperatures and relevant fractions of the basic 
+!EL...daily growth rates based on temperature 
+!EL...were set based on the growth rate info in de Vries et al. 1989, 
 !EL...and slightly modified  by looking 
 !EL...at the observed data.
              
-!print*,'rstfac_d',sib%diag%rstfac_d        
+      
         dgrowth_opt=(max_wmain-0.37)*drate
 
 	if (sib%diag%tempc<8.0) then
@@ -472,13 +473,9 @@ subroutine corn_phen
         if (sib%diag%gdd >= 100.0 .and. sib%diag%gdd < 150.0) then
        
            sib%diag%w_main=max(sib%diag%w_main_pot,sib%diag%w_main) 
-!           sib%diag%w_main=min(sib%diag%w_main,max_wmain)
-        
 
         endif
        
-
-!   sib%diag%w_main = sib%diag%w_main+dgrowth
 
 !EL..back calculation of the new assim_d:
 
@@ -506,7 +503,7 @@ if (time%doy > sib%diag%pd + 175)then
         sib%diag%phen_switch = 0
 
 endif
-!print*,time%doy,sib%diag%gdd,sib%diag%rstfac_d,dgrowth,w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
+!print*,time%doy,sib%diag%gdd,sib%diag%rstfac_d,dgrowth,sib%diag%w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
 
 !EL...Calculate w_main allocation (i.e. allocwt) to different plant parts
 !EL.. calculates absolute allocation for roots(1),leaves(2),
@@ -528,7 +525,7 @@ endif
 !EL...0.18 is the nonstructural C fraction of root C needing 
 !EL...maintenance(calculations based on Brouquisse et al., 1998)
 !EL...maint. coeff. info from Penning de Vries,1989, Amthor, 
-!EL...1984, and Norman and Arkebauer, 1991)
+!EL...1984, and Norman and Arkebauer, 1991);the final values can be also found in Lokupitiya et al., 2009)
 
 
        temp1 = (0.03 * 2.0 * 12.0 / 44.0) *                   &
@@ -727,7 +724,6 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
 
 !EL.. since the SLA for irrigated crops is higher, the following will be used for the irrigated corn (very slight increase was used, as no published data could be found for corn).
 
-
 !      sib%diag%phen_LAI=sib%diag%leafwt_c*2*0.021
 
 !print*, 'lai=',sib%diag%phen_LAI
@@ -747,7 +743,6 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
        sib%diag%phen_switch = 1
 
     endif
-
 
     if ((time%year==time%year + 1) .AND. sib%diag%doy==1) then
             sib%diag%assim_d=0.0001
@@ -837,17 +832,9 @@ subroutine soy_phen
    endif
 
 
-!sib%diag%pd=140
-
 !----------------------------
 !Calculate growing degree days
 !-----------------------------
-
-!itb_crop...gdd flag to determine initial LAI on day that
-!itb_crop...seeds emerge from ground
-
-!   if(sib%diag%gdd > 100.0_dbl_kind) gdd_flag = 1
-
 
 !EL...added to avoid gdd calculation before real planting date, 
 !EL...since pd is printed out as 0 before the real planting 
@@ -1093,6 +1080,8 @@ subroutine soy_phen
 
     endif 
 
+!EL..Calculating the w_main by using  assim, growth resp coefficients and 
+!EL..allocation fractions from the original scheme
 
     if(sib%diag%pd >  0                       .AND.     &
        time%doy    >  (sib%diag%pd + 10)      .AND.     &
@@ -1113,21 +1102,18 @@ subroutine soy_phen
 !EL...considering total daily growth, based on the growth rate 
 !EL...information given in de Vries et al.1989...
 !EL...seedling weight at emergence was determined based on Green and Sudia (1969) and Smiciklas et al. (1992).
+!EL.. Carbon amount (0.37 g C m-2) was derived by multiplying the seedling weight by 0.43
 
 	if (sib%diag%pd > 0 .AND.time%doy == (sib%diag%pd + 10)) then
 
 		sib%diag%w_main=0.26 
-
-!EL...(initial w_main g m-2 at emergence=mean of w_main from several 
-!EL...runs from the offline model using sib assimilation, 
-!EL...and also based on the observed values from past studies, )
 
 	endif
 
 !EL...basic daily growth rate for the initial growth phase, 
 !EL...depending on the average no. of days
 !EL.. between planting and observed max LAI
-!EL...initial phase when the growth depends on the seed and cotyledon C stores was considered to extend from pd to pd+16(McWilliams et al., 1999)
+!EL...initial phase when the growth depends on the seed and cotyledon C stores was considered to extend from pd to pd+21(McWilliams et al., 1999)
 
  if (sib%diag%pd >  0 .AND. time%doy > (sib%diag%pd +10)  .AND.      &
 
@@ -1181,14 +1167,14 @@ subroutine soy_phen
  
         if (time%doy==(sib%diag%pd +10)) then
 
-           w_main_pot=0.26+dgrowth
-           sib%diag%w_main=w_main_pot
+           sib%diag%w_main_pot=0.26+dgrowth
+           sib%diag%w_main=sib%diag%w_main_pot
 
          endif
    
 
-   w_main_pot=w_main_pot+dgrowth
-   sib%diag%w_main=max(w_main_pot,sib%diag%w_main)
+   sib%diag%w_main_pot=sib%diag%w_main_pot+dgrowth
+   sib%diag%w_main=max(sib%diag%w_main_pot,sib%diag%w_main)
  
 
 !EL..back calculation of the new assim_d:
@@ -1213,8 +1199,6 @@ if (time%doy > sib%diag%pd + 160) then
         sib%diag%phen_switch = 0
 endif
 
-! print*,'humidity stress=',sib%diag%rstfac_d  
-
 !Calculate w_main allocation to different plant parts
 
 !EL...calculates absolute allocation of biomass for roots(1),
@@ -1234,7 +1218,8 @@ endif
 !EL...0.32 is the nonstructural C fraction of root C needing maintenance
 !EL...(calculations based on Allen et al., 1998 and Rogers et al., 2006)&
 !EL...maint. coeff. info from Penning de Vries,1989, Amthor, 1984, 
-!EL...and Norman and Arkebauer, 1991)
+!EL...and Norman and Arkebauer, 1991); the final values could also be found in Lokupiitya et al., 2009
+
  coeff = 2.0_dbl_kind * 12.0_dbl_kind/ 44.0_dbl_kind
    
        temp1 = (0.03 * coeff) *                   &
@@ -1324,10 +1309,10 @@ endif
       do i = 1,4
         sib%diag%wch(i) = sib%diag%allocwt(i) - sib%diag%phen_maintr(i)
       enddo
-!print*, sib%diag%tempc,temp1,sib%diag%wch(1),sib%diag%allocwt(1),sib%diag%phen_maintr(1),sib%diag%cum_wt(1),sib%diag%cum_wt_P(1)
-	 if (time%doy > sib%diag%pd + 160) then
-		sib%diag%wch(:)=0.0001
-	 endif
+
+      if (time%doy > sib%diag%pd + 160) then
+         sib%diag%wch(:)=0.0001
+      endif
 
 !--------------------------------------------------------------
 !Recalculate final cumulative dry weight (g C m-2) of each plant part
@@ -1379,8 +1364,6 @@ endif
                  (1.0-0.85) * sib%diag%cum_drywt(2) * y 
   
      
-!	       sib%diag%leafwt_c = sib%diag%cum_drywt(2)*0.85 
-
 !EL...allowing for carbon remobilization from senescing leaves  to growing products
                sib%diag%cum_drywt(4)=sib%diag%cum_drywt(4)+(sib%diag%cum_drywt(2)*0.15)*0.1
         
@@ -1417,8 +1400,6 @@ endif
 
         endif
 
-!tot_bm= sib%diag%cum_drywt(1)+sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_drywt(4)
-!agbm=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_drywt(4)
 
 !--------------
 !Calculate LAI
@@ -1460,8 +1441,6 @@ endif
 
     endif
 
-!print *, sib%diag%pd,sib%diag%tempf
-
 
 	
     if ((time%year   == time%year + 1) .AND.      &
@@ -1470,17 +1449,6 @@ endif
        sib%diag%assim_d=0.0001
 
     endif
-
-!print*,sib%diag%tempf,time%doy,sib%diag%pd,sib%diag%pd7,sib%diag%phen_LAI	 
-
-!write(21,'(i4.4,2x,i3.3,2x,43(1x,f11.2))')time%year,   &
-!            time%doy,sib%diag%tempf,sib%diag%tempc,            &
-!            sib%diag%gdd,sib%diag%assim_d,sib%diag%alloc(1:4) ,&
-!            sib%diag%w_main,sib%diag%allocwt(1:4),             &
-!            sib%diag%cum_wt(1:4),sib%diag%phen_growthr(1:4),    &
-!            sib%diag%phen_maintr(1:4),sib%diag%wch(1:4),       &
-!            sib%diag%cum_drywt(1:4),sib%diag%leafwt_c,       &
-!            sib%diag%phen_LAI, sib%diag%tot_biomass
 
 
 end subroutine soy_phen
@@ -1589,11 +1557,6 @@ endif
 !----------------------------
 !Calculate growing degree days
 !-----------------------------      
-
-!itb_crop...gdd flag to determine initial LAI on day that
-!itb_crop...seeds emerge from ground
-
-!   if(sib%diag%gdd >= 105.0_dbl_kind) gdd_flag = 1
 
         if (sib%diag%gdd<105.0_dbl_kind) then
            sib%diag%nd_emerg=0   !nd_emerg= no. of days since emergence
@@ -1783,13 +1746,15 @@ endif
 !EL...from past studies; mainly from de Vries et al., 1989.
 !EL...initial seeding density (215-222 seeds/m2 or 20-30/ft2) was taken from the info from ag extension services.
 !EL...Average seedling weight (5 mg each) was taken using several past studies (e.g.Blum et al., 1980,Hameed et al., 2003)
+!EL.. initial carbon in seedling (0.48 g C m-2) was obtained by multiplying the seedling weight by 0.43.
 
     if(sib%diag%gdd == 105.0_dbl_kind) then
                 sib%diag%w_main=0.48
     elseif (sib%diag%gdd < 105.0_dbl_kind) then
                 sib%diag%w_main=0.0    
        
-
+!EL..Calculating the w_main by using  assim, growth resp coefficients and 
+!EL..allocation fractions from the original scheme
 
     elseif((sib%diag%gdd >= 105.0) .AND. (sib%diag%gdd < 2269.0)) then
 
@@ -1806,12 +1771,6 @@ endif
 !EL...to temperature(Muchow and Carberry, 1989) &
 !EL...considering total daily growth, based on the growth rate 
 !EL...information given in de Vries et al.1989...
-
-!EL...(initial w_main g m-2 at emergence=mean of w_main from several 
-!EL...iterations of the offline model using sib assimilation, 
-!EL...and also based on the observed values from past studies, ),
-!EL...and considering a planting density most commonly used.
-
 
 !EL...basic daily growth rate for the initial growth phase, depending 
 !EL...on the average no. of days between planting until the tillers come out, and then from Jan. 01st to spring green.
@@ -1876,18 +1835,16 @@ if ((sib%diag%gdd>105.0 .AND. sib%diag%gdd<=310.0) .or. (sib%diag%gdd>769.0 .and
 	endif
 
         if(sib%diag%gdd == 105.0_dbl_kind .or. sib%diag%gdd==769.0_dbl_kind) then
-                w_main_pot=0.48
+                sib%diag%w_main_pot=0.48
                 sib%diag%w_main=0.48
         endif
 
-        w_main_pot=w_main_pot+dgrowth
+        sib%diag%w_main_pot=sib%diag%w_main_pot+dgrowth
  
         
-!print*, w_main_pot,sib%diag%w_main
-
         if ((sib%diag%gdd >= 105 .and. sib%diag%gdd < 310.0) .or.(sib%diag%gdd >= 769.0 .and. sib%diag%gdd < 1074.0 )) then
        
-           sib%diag%w_main=max(w_main_pot,sib%diag%w_main) 
+           sib%diag%w_main=max(sib%diag%w_main_pot,sib%diag%w_main) 
            sib%diag%w_main=min(sib%diag%w_main,max_wmain)
       
         endif
@@ -1939,18 +1896,16 @@ if (sib%diag%gdd>105.0 .AND. sib%diag%gdd<=310.0) then
 
 
         if(time%doy == sib%diag%emerg_d) then
-                w_main_pot=0.48 + dgrowth
-                sib%diag%w_main=w_main_pot
+                sib%diag%w_main_pot=0.48 + dgrowth
+                sib%diag%w_main=sib%diag%w_main_pot
         endif
 
-        w_main_pot=w_main_pot+dgrowth
+        sib%diag%w_main_pot=sib%diag%w_main_pot+dgrowth
  
         
-!print*, w_main_pot,sib%diag%w_main
-
         if (sib%diag%gdd >= 105.0 .and. sib%diag%gdd < 310.0) then
        
-           sib%diag%w_main=max(w_main_pot,sib%diag%w_main) 
+           sib%diag%w_main=max(sib%diag%w_main_pot,sib%diag%w_main) 
            sib%diag%w_main=min(sib%diag%w_main,max_wmain)
       
         endif
@@ -1985,7 +1940,7 @@ endif
 
 !--------------------------
 
-!EL...frctions of NSC and proteins were decided based on Collar and Aksland, 2001, and Blum, 1998.
+!EL...fractions of NSC and proteins were decided based on Collar and Aksland, 2001, and Blum, 1998.
 !EL...maint. coeff. info from Norman and Arkebauer, 1991)
 
 
@@ -2109,14 +2064,6 @@ endif
 
 
 
-
-!           if(sib%diag%gdd>=310.0 .and. time%doy>227 .and. time%doy<366 .and. sib%diag%tempc<=7.0)then
-
-!           sib%diag%cum_drywt(2)=0.0001
- !          sib%diag%w_main=0.0001
-           
-  !         endif
-
 sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum_drywt(4)
 !------------------------------------------------
 !final leaf weight (C g m-2) 
@@ -2145,6 +2092,7 @@ sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum
       elseif(sib%diag%gdd >2440.0) then
 
           sib%diag%leafwt_c=0.0001
+! not sure why this is commented out
 !          sib%diag%gdd=0.0
 
       endif
@@ -2189,16 +2137,3 @@ sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum
 
 
 end subroutine crop_accum
-
-
-
-
-
-
-
-
-
-
-
-
-
