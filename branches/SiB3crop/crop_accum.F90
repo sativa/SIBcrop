@@ -689,7 +689,7 @@ sib%diag%tot_biomass=sib%diag%cum_drywt(2)+sib%diag%cum_drywt(3)+sib%diag%cum_dr
 
           sib%diag%leafwt_c = 0.95 * sib%diag%cum_drywt(2) -   &
           (0.95-0.5) * sib%diag%cum_drywt(2) *      &
-                              ((sib%diag%gdd - 2650.0) / 120.0)
+                              ((sib%diag%gdd - 2650.0) / 80.0)
 
 !EL...allowing for carbon remobilization from senescing leaves  to growing products
   
