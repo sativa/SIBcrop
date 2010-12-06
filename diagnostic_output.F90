@@ -1056,6 +1056,76 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
            
           pbp1(indxpbp1(205),n) = pbp1(indxpbp1(205),n) +    &
                 sib(imultpbpsib(n))%diag%www_tot_soil
+
+!itb...new diagnostic output, debugging crop behavior
+          pbp1(indxpbp1(206),n) = pbp1(indxpbp1(206),n) +    &
+                sib(imultpbpsib(n))%diag%gdd_c
+
+          pbp1(indxpbp1(207),n) = pbp1(indxpbp1(207),n) +    &
+                sib(imultpbpsib(n))%diag%tempf
+
+          pbp1(indxpbp1(208),n) = pbp1(indxpbp1(208),n) +    &
+                sib(imultpbpsib(n))%diag%ndf_opt
+
+          pbp1(indxpbp1(209),n) = pbp1(indxpbp1(209),n) +    &
+                sib(imultpbpsib(n))%diag%pd7_est
+
+          pbp1(indxpbp1(210),n) = pbp1(indxpbp1(210),n) +    &
+                sib(imultpbpsib(n))%diag%pdindx7
+
+          pbp1(indxpbp1(211),n) = pbp1(indxpbp1(211),n) +    &
+                sib(imultpbpsib(n))%diag%pd
+
+          pbp1(indxpbp1(212),n) = pbp1(indxpbp1(212),n) +    &
+                sib(imultpbpsib(n))%diag%pd7
+
+          pbp1(indxpbp1(213),n) = pbp1(indxpbp1(213),n) +    &
+                sib(imultpbpsib(n))%diag%gdd
+
+          pbp1(indxpbp1(214),n) = pbp1(indxpbp1(214),n) +    &
+                sib(imultpbpsib(n))%diag%nd_emerg
+
+          pbp1(indxpbp1(215),n) = pbp1(indxpbp1(215),n) +    &
+                sib(imultpbpsib(n))%diag%emerg_d
+
+          pbp1(indxpbp1(216),n) = pbp1(indxpbp1(216),n) +    &
+                sib(imultpbpsib(n))%diag%assim_d
+
+          pbp1(indxpbp1(217),n) = pbp1(indxpbp1(217),n) +    &
+                sib(imultpbpsib(n))%diag%rstfac_d
+
+          pbp1(indxpbp1(218),n) = pbp1(indxpbp1(218),n) +    &
+                sib(imultpbpsib(n))%diag%w_main_pot
+
+          pbp1(indxpbp1(219),n) = pbp1(indxpbp1(219),n) +    &
+                sib(imultpbpsib(n))%diag%w_main
+
+          pbp1(indxpbp1(220),n) = pbp1(indxpbp1(220),n) +    &
+                sib(imultpbpsib(n))%diag%phen_switch
+
+           out_index = 221
+            do l =1,4
+                pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                    sib(imultpbpsib(n))%diag%alloc(l)
+            
+                out_index = out_index + 1
+            enddo
+
+           out_index = 225
+            do l =1,4
+                pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                    sib(imultpbpsib(n))%diag%cum_wt_p(l)
+            
+                out_index = out_index + 1
+            enddo
+
+           out_index = 229
+            do l =1,4
+                pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                    sib(imultpbpsib(n))%diag%cum_wt(l)
+            
+                out_index = out_index + 1
+            enddo
          
 
         enddo

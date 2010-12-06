@@ -400,6 +400,7 @@ integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
     iipbpsib = 0
     do i = 1,npbp2sib+npbpsib
         read(2,*)doqptem,ldummy,nametem,ndummy,listtem
+        write(*,*)doqptem,ldummy,nametem,ndummy,listtem
         if(ldummy.eq.1) then
             iipbp2sib = iipbp2sib + 1
             dopbp2sib(iipbp2sib) = doqptem
@@ -416,6 +417,8 @@ integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
     enddo 
     close(2)
     
+print*,'diagnostic vars:',npbp2sib,npbpsib
+
     allocate (indxpbp2sib(npbp2sib))
     allocate (indxpbpsib(npbpsib))
 
