@@ -9,15 +9,16 @@ COMPILER = gcc
 #COMPILER = pgi
 
 # Uncomment one of these to select optimize vs. debug compile modes.
-#OPT = opt
-OPT = debug
+OPT = opt
+#OPT = debug
 
 # Non-System Headers and Libraries
 # -------------------------------------------------------------------------
 # BLAS (Basic Linear Algebra System) and LAPACK (Linear Algebra Package)
 
 # Directory containing netcdf's include/ and lib/ directories.
-NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
+#NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
+NETCDF_ROOT = /usr/local/netcdf3
 
 
 ifeq ($(OS),Darwin)
