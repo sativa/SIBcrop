@@ -2063,6 +2063,15 @@ endif
 
 	  endif
 
+!EL..setting everything to zero after harvest        
+        sib%diag%w_main      = 0.0001
+	sib%diag%assim_d     = 0.0001
+	sib%diag%pd          = 0
+        sib%diag%pd7         = 0        
+        sib%diag%pd7_est     = 0
+        sib%diag%pdindx7     = 0 
+        sib%diag%phen_switch = 0
+        sib%diag%emerg_d     = 0
 
 
 sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum_drywt(4)
@@ -2097,7 +2106,9 @@ sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum
 !          sib%diag%gdd=0.0
 
       endif
-        
+
+
+
 
 !--------------
 !Calculate LAI
