@@ -54,8 +54,8 @@ integer(kind=int_kind) :: i,j
         print *, ''
     endif
 
-    ! Calucluate latent and sunsible fluxes between CAS and
-    ! mixed (boundry) layer
+    ! Calcluate latent and sensible fluxes between CAS and
+    ! mixed (boundary) layer
     sib%diag%fss = sib%prog%ros * cp * (sib%prog%ta - sib%prog%tm) / &
         sib%diag%ra
     sib%diag%fws = (sib%prog%ea - sib%prog%em) / sib%diag%ra * cp *  &
@@ -76,4 +76,3 @@ integer(kind=int_kind) :: i,j
 
 
 end subroutine addinc
-
