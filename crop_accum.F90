@@ -2063,7 +2063,8 @@ endif
 
 	  endif
 
-!EL..setting everything to zero after harvest        
+!EL..setting everything to zero after harvest    
+ if(sib%diag%gdd >2440.0) then   
         sib%diag%w_main      = 0.0001
 	sib%diag%assim_d     = 0.0001
 	sib%diag%pd          = 0
@@ -2072,7 +2073,7 @@ endif
         sib%diag%pdindx7     = 0 
         sib%diag%phen_switch = 0
         sib%diag%emerg_d     = 0
-
+endif
 
 sib%diag%tot_biomass= sib%diag%cum_drywt(2)+ sib%diag%cum_drywt(3)+ sib%diag%cum_drywt(4)
 !------------------------------------------------
