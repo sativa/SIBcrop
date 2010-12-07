@@ -501,6 +501,7 @@ if (time%doy > sib%diag%pd + 175)then
         sib%diag%pd7_est     = 0
         sib%diag%pdindx7     = 0 
         sib%diag%phen_switch = 0
+        sib%diag%emerg_d     = 0
 
 endif
 !print*,time%doy,sib%diag%gdd,sib%diag%rstfac_d,dgrowth,sib%diag%w_main_pot,sib%diag%w_main,sib%diag%phen_LAI
