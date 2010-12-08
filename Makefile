@@ -43,24 +43,30 @@ ifeq ($(COMPILER),gcc)
   F90 = gfortran
   ifeq ($(OPT),opt)
     F90FLAGS = -O2
+    F90FLAGS_NOOPT =
   else ifeq ($(OPT),debug)
     F90FLAGS = -g -fbounds-check -ffpe-trap=invalid,zero,overflow
+    F90FLAGS_NOOPT = $(F90FLAGS)
   endif
   ifeq ($(PROC),powerpc)
     F90FLAGS += -fconvert=little-endian
   endif
   F90FLAGS += -DPGF -fimplicit-none -Wsurprising $(INCLUDES)
+  F90FLAGS_NOOPT += -DPGF -fimplicit-none -Wsurprising $(INCLUDES)
   LFLAGS = $(LIBS)
 endif
 
 ifeq ($(COMPILER),pgi)
   F90 = pgf90
   ifeq ($(OPT),opt)
-    F90FLAGS = -fastsse -Mnoframe
+    F90FLAGS = -fast -Mnoframe
+    F90FLAGS_NOOPT =
   else ifeq ($(OPT),debug)
     F90FLAGS = -g -Mbounds -Ktrap=fp
+    F90FLAGS_NOOPT = $(F90FLAGS)
   endif
   F90FLAGS += -DPGF=1 -Minfo=loop,inline -Minform=inform $(INCLUDES)
+  F90FLAGS_NOOPT += -DPGF=1 -Minfo=loop,inline -Minform=inform $(INCLUDES)
   LFLAGS   = -v -Minform=inform $(LIBS)
 endif
 
@@ -168,6 +174,12 @@ SiBD3crop-$(SUFFIX): $(VAR_OBJS) $(PRE_OBJS) $(SCI_OBJS) $(NCDF_OBJS) $(DRV_OBJS
 
 sibmerge-$(SUFFIX): sibmerge.o
 	$(F90) sibmerge.o -o $@ $(LFLAGS)
+
+crop_accum.o: crop_accum.F90
+	$(F90) $(F90FLAGS_NOOPT) -c $< -o $@
+
+leaf_weight.o: leaf_weight.F90
+	$(F90) $(F90FLAGS_NOOPT) -c $< -o $@
 
 clean:
 	rm -f SiBD3crop-$(SUFFIX) sibmerge-$(SUFFIX) *.o *.mod *.stb *~
