@@ -5,12 +5,16 @@ PROC = $(shell uname -p)
 
 # Uncomment one of these to select your compiler. Use gcc for gfortran
 # and pgi for the portland group compilers.
-#COMPILER = gcc
-COMPILER = pgi
+ifndef COMPILER
+  COMPILER = gcc
+  #COMPILER = pgi
+endif
 
 # Uncomment one of these to select optimize vs. debug compile modes.
-OPT = opt
-#OPT = debug
+ifndef OPT
+  #OPT = opt
+  OPT = debug
+endif
 
 # Non-System Headers and Libraries
 # -------------------------------------------------------------------------
