@@ -549,93 +549,118 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     !itb...read some scalars
     ierr = nf90_inq_varid( ncid, 'nsib', varid )
     ierr = nf90_get_var( ncid, varid, nsibt )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
     print *, '\t nsib=',nsib, ' total nsib=',nsibt
     if(nsib /= nsibt) stop'INITIAL CONDITIONS: NSIB INCORRECT'
 
     ierr = nf90_inq_varid( ncid, 'nsoil', varid )
     ierr = nf90_get_var( ncid, varid, nsoilt )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
     if(nsoil /= nsoilt) stop'INITIAL CONDITIONS: NSOIL INCORRECT'
 
     ierr = nf90_inq_varid( ncid, 'nsnow', varid )
     ierr = nf90_get_var( ncid, varid, nsnowt )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
     if(nsnow /= nsnowt) stop'INITIAL CONDITIONS: NSNOW INCORRECT'
 
 !    ierr = nf90_inq_varid( ncid, 'subcount', varid )
 !    ierr = nf90_get_var( ncid, varid, subcountt )
+!    if( ierr /= nf90_noerr ) call handle_err(ierr)
 !    if(subcount /= subcountt) stop'INITIAL CONDITIONS: SUBCOUNT INCORRECT'
 
     ierr = nf90_inq_varid( ncid, 'version', varid )
     ierr = nf90_get_var( ncid, varid, versiont )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'nsecond', varid )
     ierr = nf90_get_var( ncid, varid, nsecond )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
     if(nsecond /= time%sec_year) stop 'NSECONDS DOES NOT MATCH STARTTIME'
 
     !itb...read nsib vectors
 
     ierr = nf90_inq_varid( ncid, 'ta', varid )
     ierr = nf90_get_var( ncid, varid, ta )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'tc', varid )
     ierr = nf90_get_var( ncid, varid, tc )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'nsl', varid )
     ierr = nf90_get_var( ncid, varid, nsl )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'pco2a', varid )
     ierr = nf90_get_var( ncid, varid, pco2ap )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'd13cca', varid )
     ierr = nf90_get_var( ncid, varid, d13cca )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'snow_veg', varid )
     ierr = nf90_get_var( ncid, varid, snow_veg )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'snow_age', varid )
     ierr = nf90_get_var( ncid, varid, snow_age )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'snow_depth', varid )
     ierr = nf90_get_var( ncid, varid, snow_depth )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'snow_mass', varid )
     ierr = nf90_get_var( ncid, varid, snow_mass )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'tke', varid )
     ierr = nf90_get_var( ncid, varid, tke )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'sha', varid )
     ierr = nf90_get_var( ncid, varid, sha )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     !itb...read some 2-d vars
     ierr = nf90_inq_varid( ncid, 'td', varid )
     ierr = nf90_get_var( ncid, varid, deept )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'www_liq', varid )
     ierr = nf90_get_var( ncid, varid, www_liq )
 
     ierr = nf90_inq_varid( ncid, 'www_ice', varid )
     ierr = nf90_get_var( ncid, varid, www_ice )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     !itb...now the rest...
     ierr = nf90_inq_varid( ncid, 'capac1', varid )
     ierr = nf90_get_var( ncid, varid, capac1 )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'capac2', varid )
     ierr = nf90_get_var( ncid, varid, capac2 )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'coszbar', varid )
     ierr = nf90_get_var( ncid, varid, coszbar )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'dayflag', varid )
     ierr = nf90_get_var( ncid, varid, dayflag )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'rst', varid )
     ierr = nf90_get_var( ncid, varid, rst )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     !EL...crop variables..
 
  !   ierr = nf90_inq_varid( ncid, 'pd', varid )
   !  ierr = nf90_get_var( ncid, varid, pd )
+!    if( ierr /= nf90_noerr ) call handle_err(ierr,'read_ic',21001)
 
     ierr = nf90_inq_varid( ncid, 'pd7', varid )
     ierr = nf90_get_var( ncid, varid, pd7 )

@@ -91,6 +91,7 @@ integer(kind=int_kind) :: temp_biome
     ! call output_control
     call output_control( sib, time, rank )
 
+
 !  if(mod(time%year,2) /= 0) then
 !    	open(unit=20,file='phen_corn_test.dat',form='formatted')
 !    else
@@ -105,6 +106,7 @@ integer(kind=int_kind) :: temp_biome
 
     ! timestep loop
     do t = time%start_second, time%end_second - time%dtsib, time%dtsib
+
      
 	! print out date information once a day
         if ( time%sec_day == time%dtsib ) then
@@ -122,7 +124,13 @@ integer(kind=int_kind) :: temp_biome
 
         if ( time%new_day .AND. time%doy > time%init_doy)  then
   
-          call crop_accum(sib,time,timevar)
+
+!itb_crop
+          do i = 1, subcount
+            if(sib(i)%param%biome > 12.0) then
+              call crop_accum(i,sib(i),time,timevar)
+            endif
+          enddo
 
 
         endif
@@ -153,23 +161,21 @@ integer(kind=int_kind) :: temp_biome
         ! read in bc data needed
         if ( time%read_bc ) then
 
-print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
-
 !itb_crop...bypassing the call to new_bc; don't want to 
 !itb_crop...use the NDVI-derived parameters
 !EL.........reading in monthly-varying physfracs
 
-
-            call read_physfrac( sib, time )
+          do i = 1,subcount
+!              print*,'bc:',sib(i)%diag%phen_switch,sib(i)%param%zlt
+              call read_physfrac( sib(i), time )
+          enddo
 			
 
 !itb_crop...what we want to do is use the min_ndvi_crop value
 !itb_crop...set in sibtype, unless the phenology model is
 !itb_crop...being utilized
 
-    if(sib(1)%param%biome >= 20.0) temp_biome = 12
-
-        do i = 1, subcount
+          do i = 1, subcount
              sib(i)%param%aparc1       = sib(i)%param%aparc2
              sib(i)%param%zlt1         = sib(i)%param%zlt2
              sib(i)%param%green1       = sib(i)%param%green2
@@ -182,49 +188,51 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
              do k = 1, physmax
                  sib(i)%param%physfrac1(k) = sib(i)%param%physfrac2(k)
              enddo
-         enddo
 
-    temptran(1,1) = sib(1)%param%tran(1,1)
-    temptran(1,2) = sib(1)%param%tran(1,2)
-    temptran(2,1) = sib(1)%param%tran(2,1)
-    temptran(2,2) = sib(1)%param%tran(2,2)
+             temptran(1,1) = sib(i)%param%tran(1,1)
+             temptran(1,2) = sib(i)%param%tran(1,2)
+             temptran(2,1) = sib(i)%param%tran(2,1)
+             temptran(2,2) = sib(i)%param%tran(2,2)
 
-    tempref(1,1) = sib(1)%param%ref(1,1)
-    tempref(1,2) = sib(1)%param%ref(1,2)
-    tempref(2,1) = sib(1)%param%ref(2,1)
-    tempref(2,2) = sib(1)%param%ref(2,2)
+             tempref(1,1) = sib(i)%param%ref(1,1)
+             tempref(1,2) = sib(i)%param%ref(1,2)
+             tempref(2,1) = sib(i)%param%ref(2,1)
+             tempref(2,2) = sib(i)%param%ref(2,2)
 
-    tempaerovar = aerovar(:,:,temp_biome)
+             if(sib(i)%param%biome >= 20.0) temp_biome = 12
+             tempaerovar = aerovar(:,:,temp_biome)
 	
-	If (sib(1)%diag%phen_switch==0) then
+	     If (sib(i)%diag%phen_switch==0) then
 
 
-         call mapper(                              &
-            latsib(1),                             &
-            time%mid_month(time%pmonth),           &
-            sib(1)%diag%min_ndvi_crop,             &
-            sib(1)%diag%min_ndvi_crop,             &
-            sib(1)%diag%min_fvcov_crop,            &
-            sib(1)%param%chil,                     &
-            temptran,                              &
-            tempref,                               & 
-            morphtab(temp_biome),                  &
-            tempaerovar,                           &
-            laigrid,                               &
-            fvcovergrid,                           &
-            timevar)
+               call mapper(                              &
+                 latsib(i),                             &
+                 time%mid_month(time%pmonth),           &
+                 sib(i)%diag%min_ndvi_crop,             &
+                 sib(i)%diag%min_ndvi_crop,             &
+                 sib(i)%diag%min_fvcov_crop,            &
+                 sib(i)%param%chil,                     &
+                 temptran,                              &
+                 tempref,                               & 
+                 morphtab(temp_biome),                  &
+                 tempaerovar,                           &
+                 laigrid,                               &
+                 fvcovergrid,                           &
+                 timevar)
 
-            sib(1)%param%aparc2 = timevar%fpar
-            sib(1)%param%zlt2 = timevar%lai
-            sib(1)%param%green2 = timevar%green
-            sib(1)%param%z0d2 = timevar%zo
-            sib(1)%param%zp_disp2 = timevar%zp_disp
-            sib(1)%param%rbc2 = timevar%rbc
-            sib(1)%param%rdc2 = timevar%rdc
-            sib(1)%param%gmudmu2 = timevar%gmudmu
-			
+                 sib(i)%param%aparc2 = timevar%fpar
+                 sib(i)%param%zlt2 = timevar%lai
+                 sib(i)%param%green2 = timevar%green
+                 sib(i)%param%z0d2 = timevar%zo
+                 sib(i)%param%zp_disp2 = timevar%zp_disp
+                 sib(i)%param%rbc2 = timevar%rbc
+                 sib(i)%param%rdc2 = timevar%rdc
+                 sib(i)%param%gmudmu2 = timevar%gmudmu
 
-        endif
+
+             endif    ! phen-mapper switch
+   
+          enddo     ! subcount
 
        endif
 
@@ -278,15 +286,20 @@ print*,'bc:',sib(1)%diag%phen_switch,sib(1)%param%zlt
         endif
 
     ! cas CO2 conservation
-        del_store=sib(1)%prog%cas-sib(1)%prog%cas_old
-        sum_flux=sib(1)%diag%respg*dtt
-        sum_flux=sum_flux-sib(1)%diag%assimn(6)*dtt
-        sum_flux=sum_flux-sib(1)%diag%cflux*dtt
-        residual=del_store-sum_flux-sib(1)%prog%expand
+        do i = 1, subcount
+          del_store=sib(i)%prog%cas-sib(i)%prog%cas_old
+          sum_flux=sib(i)%diag%respg*dtt
+          sum_flux=sum_flux-sib(i)%diag%assimn(6)*dtt
+          sum_flux=sum_flux-sib(i)%diag%cflux*dtt
+          residual=del_store-sum_flux-sib(i)%prog%expand
 !
 ! code output to test carbon conservation
-!        write(unit=85,11) t, residual,del_store, sum_flux, sib(1)%prog%expand,sib(1)%prog%cas, sib(1)%prog%cas_old, sib(1)%diag%respg*dtt, -sib(1)%diag%assimn(6)*dtt, -sib(1)%diag%cflux*dtt, sib(1)%diag%ra, sib(1)%prog%pco2ap
+!        write(unit=85,11) t, residual,del_store, sum_flux,      &
+!               sib(i)%prog%expand,sib(i)%prog%cas, sib(i)%prog%cas_old,      &
+!               sib(i)%diag%respg*dtt, -sib(i)%diag%assimn(6)*dtt,            &
+!               -sib(i)%diag%cflux*dtt, sib(i)%diag%ra, sib(i)%prog%pco2ap
 !11     format(i14,11(2x,e15.8))
+      enddo
 	
     enddo
 

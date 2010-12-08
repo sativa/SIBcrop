@@ -1,6 +1,6 @@
 !==================SUBROUTINE CROP_ACCUM=======================================
 
-subroutine crop_accum(sib,time,timevar)
+subroutine crop_accum(ipoint,sib,time,timevar)
 
 use kinds
 use sibtype
@@ -18,6 +18,7 @@ real(kind=dbl_kind)    :: temp_accum,assim_accum,allocwt_accum,drate,   &
 !itb_crop
 real(kind=dbl_kind)  :: coeff  ! catch-all variable for coefficients 
                                !   used multiple times
+integer(kind=int_kind) :: ipoint    ! index for data point; used in call to mapper
 
 
 
@@ -123,16 +124,16 @@ sib%diag%tempc=sib%diag%ta_bar - tice  !tice=273K
 !print*,'phen_mapper:',timevar%lai,sib%diag%leafwt_c
         	
       call phen_mapper(                              &
-         latsib(1),                             &
-         time%mid_month(time%pmonth),           &
-         sib%param%vcover,                  &
-         sib%param%chil,                     &
-         temptran,                              &
-         tempref,                               & 
-         morphtab(temp_biome),          &
-         tempaerovar,                           &
-         laigrid,                               &
-         fvcovergrid,                           &
+         latsib(ipoint),                             &
+         time%mid_month(time%pmonth),                &
+         sib%param%vcover,                           &
+         sib%param%chil,                             &
+         temptran,                                   &
+         tempref,                                    & 
+         morphtab(temp_biome),                       &
+         tempaerovar,                                &
+         laigrid,                                    &
+         fvcovergrid,                                &
          timevar)		
 			
 
