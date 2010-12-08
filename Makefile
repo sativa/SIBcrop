@@ -5,8 +5,8 @@ PROC = $(shell uname -p)
 
 # Uncomment one of these to select your compiler. Use gcc for gfortran
 # and pgi for the portland group compilers.
-COMPILER = gcc
-#COMPILER = pgi
+#COMPILER = gcc
+COMPILER = pgi
 
 # Uncomment one of these to select optimize vs. debug compile modes.
 OPT = opt
@@ -17,8 +17,8 @@ OPT = opt
 # BLAS (Basic Linear Algebra System) and LAPACK (Linear Algebra Package)
 
 # Directory containing netcdf's include/ and lib/ directories.
-#NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
-NETCDF_ROOT = /usr/local/netcdf3
+NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
+#NETCDF_ROOT = /usr/local/netcdf3
 
 
 ifeq ($(OS),Darwin)

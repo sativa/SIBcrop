@@ -670,6 +670,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
     ierr = nf90_inq_varid( ncid, 'emerg_d', varid )
     ierr = nf90_get_var( ncid, varid, emerg_d )
+print*,'init: emerg_d=',emerg_d
 
     ierr = nf90_inq_varid( ncid, 'pdindx7', varid )
     ierr = nf90_get_var( ncid, varid,pdindx7 )
