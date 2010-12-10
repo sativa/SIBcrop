@@ -25,85 +25,105 @@ type(time_struct), intent(in) :: time
 
    if(sib%param%biome == 20.0) then
 
-      if( sib%diag%gdd == 0.0 ) then
+ if( sib%diag%gdd == 0.0 ) then
 
            sib%diag%leafwt_c =  0.01 
       
-      elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2500) then
+      elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2650) then
 
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(2)
 	
-      elseif (sib%diag%gdd >= 2650.0 .and. sib%diag%gdd < 2900.0) then
+      elseif (sib%diag%gdd >= 2650.0 .and. sib%diag%gdd < 2730.0) then
 
           sib%diag%leafwt_c = 0.95 * sib%diag%cum_drywt(2) -   &
-          (0.95-0.1) * sib%diag%cum_drywt(2) *      &
-                              ((sib%diag%gdd - 2650.0) / 250.0)
-       
-      elseif( sib%diag%gdd >= 2900.0 .or. time%doy>=sib%diag%pd+175) then
+          (0.95-0.5) * sib%diag%cum_drywt(2) *      &
+                              ((sib%diag%gdd - 2650.0) / 80.0)
 
-          sib%diag%leafwt_c=sib%diag%cum_drywt(2)*0.01
+!EL...allowing for carbon remobilization from senescing leaves  to growing products
+  
+          sib%diag%cum_drywt(4)=sib%diag%cum_drywt(4)+((sib%diag%cum_drywt(2)- sib%diag%leafwt_c))*0.03
 
+       elseif (sib%diag%gdd >= 2730.0 .and. sib%diag%gdd < 2900.0) then 
+         
+          sib%diag%leafwt_c = 0.5 * sib%diag%cum_drywt(2) -   &
+          (0.5-0.01) * sib%diag%cum_drywt(2) *      &
+                              ((sib%diag%gdd - 2730.0) / 170.0)
+
+
+ !EL...introducing harvest towards  the end of field drying     
+      elseif( sib%diag%gdd >= 2900.0) then
+
+          sib%diag%leafwt_c=0.0001
+ 
       endif
+
 
 !itb_crop...SOY
    elseif(sib%param%biome == 21.0) then
 
-      if (sib%diag%pd > 0                     .AND.      &
+	 if (sib%diag%pd > 0                     .AND.      &
          time%doy    >= (sib%diag%pd+10)     .AND.      &
-         time%doy    <  (sib%diag%pd+75))    then
+         time%doy    <  (sib%diag%pd+60))    then
 
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(2)
 	
-      elseif (sib%diag%pd >  0                    .AND.      &
-             time%doy    >= (sib%diag%pd+75)     .AND.  &
-              time%doy   <  (sib%diag%pd+100))   then
+         elseif (sib%diag%pd >  0                    .AND.      &
+             time%doy    >= (sib%diag%pd+60)     .AND.  &
+              time%doy   <  (sib%diag%pd+90))   then
 
-	       sib%diag%leafwt_c = sib%diag%cum_drywt(2) * 0.85 
+
+              x=(time%doy - (sib%diag%pd+60)) / 30.0
+
+	           sib%diag%leafwt_c = sib%diag%cum_drywt(2)*1.0 -   &
+                 (1.0-0.85) * sib%diag%cum_drywt(2) * x 
   
-            elseif (sib%diag%pd >  0                    .AND.      &
-             time%doy    >= (sib%diag%pd+100)    .AND.      &
-             time%doy    <  (sib%diag%pd+140))   then
+     
+	 elseif (sib%diag%pd >  0                    .AND.      &
+             time%doy    >= (sib%diag%pd+90)    .AND.      &
+             time%doy    <  (sib%diag%pd+121))   then
 
-               x=(time%doy - (sib%diag%pd+100)) / 40.0
+ 
+
+               x=(time%doy - (sib%diag%pd+90)) / 31.0
 
 	           sib%diag%leafwt_c = sib%diag%cum_drywt(2)*0.85 -   &
-                 (0.85-0.1) * sib%diag%cum_drywt(2) * x 
+                 (0.85-0.01) * sib%diag%cum_drywt(2) * x 
 
 
-              elseif (sib%diag%pd >  0                .AND.      &
+          elseif (sib%diag%pd >  0                .AND.      &
              time%doy    >= sib%diag%pd+121) then
-                 sib%diag%leafwt_c = sib%diag%cum_drywt(2)*0.01
+                 sib%diag%leafwt_c = 0.0001
 
 
 	 else
+                 sib%diag%leafwt_c = sib%diag%cum_drywt(2) * 0.01
 
-	       sib%diag%leafwt_c = sib%diag%cum_drywt(2) * 0.01
+        endif
 
-       
 
-       endif
+   elseif(sib%param%biome == 22.0 .OR.sib%param%biome == 23.0 ) then
 
-  
 
-   elseif(sib%param%biome == 22.0) then
-
-      if( sib%diag%gdd == 0.0 ) then
+     if( sib%diag%gdd == 0.0 ) then
 
            sib%diag%leafwt_c =  0.01 
+
       
-      elseif (sib%diag%gdd > 0.0001 .and. sib%diag%gdd < 2230) then
-
+      elseif (sib%diag%gdd > 0.0 .and. sib%diag%gdd <= 2269.0) then
 	       sib%diag%leafwt_c = sib%diag%cum_drywt(2)
-	
-      elseif (sib%diag%gdd >= 2230.0 .and. sib%diag%gdd < 2450.0) then
 
-          sib%diag%leafwt_c = 0.95 * sib%diag%cum_drywt(2) -   &
-          (0.95-0.1) * sib%diag%cum_drywt(2) *      &
-                              ((sib%diag%gdd - 2230.0) / 220.0)
+
+      elseif (sib%diag%gdd >= 2269.0 .and. sib%diag%gdd < 2440.0) then
+
+          sib%diag%leafwt_c = sib%diag%cum_drywt(2) -   &
+          (1.0-0.01) * sib%diag%cum_drywt(2) *      &
+                              ((sib%diag%gdd - 2269.0) / 171.0)    
        
-      elseif( sib%diag%gdd >= 2450.0) then
+ !EL...introducing harvest towards  the end of field drying     
 
-          sib%diag%leafwt_c=sib%diag%cum_drywt(2)*0.01
+      elseif(sib%diag%gdd >2440.0) then
+
+          sib%diag%leafwt_c=0.0001
 
       endif
  else
