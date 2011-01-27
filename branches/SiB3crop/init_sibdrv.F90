@@ -657,49 +657,55 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     !EL...crop variables..
-
- !   ierr = nf90_inq_varid( ncid, 'pd', varid )
-  !  ierr = nf90_get_var( ncid, varid, pd )
-!    if( ierr /= nf90_noerr ) call handle_err(ierr,'read_ic',21001)
-
+    !kdcorbin, 01/11 - added error checks
     ierr = nf90_inq_varid( ncid, 'pd7', varid )
     ierr = nf90_get_var( ncid, varid, pd7 )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'pd7_est', varid )
     ierr = nf90_get_var( ncid, varid, pd7_est )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'emerg_d', varid )
     ierr = nf90_get_var( ncid, varid, emerg_d )
-print*,'init: emerg_d=',emerg_d
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'pdindx7', varid )
     ierr = nf90_get_var( ncid, varid,pdindx7 )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'ndf_opt', varid )
     ierr = nf90_get_var( ncid, varid, ndf_opt )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'nd_emerg', varid )
     ierr = nf90_get_var( ncid, varid, nd_emerg )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'tempf', varid )
     ierr = nf90_get_var( ncid, varid, tempf )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'gdd', varid )
     ierr = nf90_get_var( ncid, varid, gdd )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'w_main', varid )
     ierr = nf90_get_var( ncid, varid, w_main )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'w_main_pot', varid )
     ierr = nf90_get_var( ncid, varid, w_main_pot )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
-
-    ierr = nf90_inq_varid( ncid, 'cum_wt_prev', varid )
+    !kdcorbin, 01/11 - changed name from cum_wt_prev
+    ierr = nf90_inq_varid( ncid, 'cum_wt', varid )
     ierr = nf90_get_var( ncid, varid,cum_wt )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
-    ierr = nf90_inq_varid( ncid, 'cum_drywt_prev', varid )
+    ierr = nf90_inq_varid( ncid, 'cum_drywt', varid )
     ierr = nf90_get_var( ncid, varid, cum_drywt )
-
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     !El.. end crop vars
 
