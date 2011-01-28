@@ -519,7 +519,7 @@ real(kind=dbl_kind), dimension(nsib) :: dayflag
 real(kind=dbl_kind), dimension(nsib) :: tempf
 real(kind=dbl_kind), dimension(nsib) :: gdd
 real(kind=dbl_kind), dimension(nsib) :: w_main
-real(kind=dbl_kind), dimension(nsib) :: w_main_pot
+    !kdcorbin, 01/11 - removed w_main_pot
 real(kind=dbl_kind), dimension(nsib,4) :: cum_wt
 real(kind=dbl_kind), dimension(nsib,4) :: cum_drywt
 !EL...crop vars..real(kind=dbl_kind) end..
@@ -580,10 +580,12 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     !itb...read nsib vectors
 
     ierr = nf90_inq_varid( ncid, 'ta', varid )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
     ierr = nf90_get_var( ncid, varid, ta )
     if( ierr /= nf90_noerr ) call handle_err(ierr)
 
     ierr = nf90_inq_varid( ncid, 'tc', varid )
+    if( ierr /= nf90_noerr ) call handle_err(ierr)
     ierr = nf90_get_var( ncid, varid, tc )
     if( ierr /= nf90_noerr ) call handle_err(ierr)
 
@@ -658,55 +660,46 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
     !EL...crop variables..
     !kdcorbin, 01/11 - added error checks
-    ierr = nf90_inq_varid( ncid, 'pd7', varid )
-    ierr = nf90_get_var( ncid, varid, pd7 )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
 
-    ierr = nf90_inq_varid( ncid, 'pd7_est', varid )
-    ierr = nf90_get_var( ncid, varid, pd7_est )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    !kdcorbin, 01/11 - added pd
+    call check( nf90_inq_varid( ncid, 'pd', varid ) )
+    call check( nf90_get_var( ncid, varid, pd ) )
 
-    ierr = nf90_inq_varid( ncid, 'emerg_d', varid )
-    ierr = nf90_get_var( ncid, varid, emerg_d )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check( nf90_inq_varid( ncid, 'pd7', varid ) )
+    call check( nf90_get_var( ncid, varid, pd7 ) )
 
-    ierr = nf90_inq_varid( ncid, 'pdindx7', varid )
-    ierr = nf90_get_var( ncid, varid,pdindx7 )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'pd7_est', varid ) )
+    call check ( nf90_get_var( ncid, varid, pd7_est ) )
 
-    ierr = nf90_inq_varid( ncid, 'ndf_opt', varid )
-    ierr = nf90_get_var( ncid, varid, ndf_opt )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'emerg_d', varid ) )
+    call check ( nf90_get_var( ncid, varid, emerg_d ) )
 
-    ierr = nf90_inq_varid( ncid, 'nd_emerg', varid )
-    ierr = nf90_get_var( ncid, varid, nd_emerg )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'pdindx7', varid ) )
+    call check ( nf90_get_var( ncid, varid,pdindx7 ) )
 
-    ierr = nf90_inq_varid( ncid, 'tempf', varid )
-    ierr = nf90_get_var( ncid, varid, tempf )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'ndf_opt', varid ) )
+    call check ( nf90_get_var( ncid, varid, ndf_opt ) )
 
-    ierr = nf90_inq_varid( ncid, 'gdd', varid )
-    ierr = nf90_get_var( ncid, varid, gdd )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'nd_emerg', varid ) )
+    call check ( nf90_get_var( ncid, varid, nd_emerg ) )
 
-    ierr = nf90_inq_varid( ncid, 'w_main', varid )
-    ierr = nf90_get_var( ncid, varid, w_main )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'tempf', varid ) )
+    call check ( nf90_get_var( ncid, varid, tempf ) )
 
-    ierr = nf90_inq_varid( ncid, 'w_main_pot', varid )
-    ierr = nf90_get_var( ncid, varid, w_main_pot )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'gdd', varid ) )
+    call check ( nf90_get_var( ncid, varid, gdd ) )
+
+    call check ( nf90_inq_varid( ncid, 'w_main', varid ) )
+    call check ( nf90_get_var( ncid, varid, w_main ) )
 
     !kdcorbin, 01/11 - changed name from cum_wt_prev
-    ierr = nf90_inq_varid( ncid, 'cum_wt', varid )
-    ierr = nf90_get_var( ncid, varid,cum_wt )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'cum_wt', varid ) )
+    call check ( nf90_get_var( ncid, varid,cum_wt ) )
 
-    ierr = nf90_inq_varid( ncid, 'cum_drywt', varid )
-    ierr = nf90_get_var( ncid, varid, cum_drywt )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    call check ( nf90_inq_varid( ncid, 'cum_drywt', varid ) )
+    call check ( nf90_get_var( ncid, varid, cum_drywt ) )
 
+     
     !El.. end crop vars
 
     print*,'\t\t read in slabs...'
@@ -759,7 +752,6 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%diag%tempf = tempf(subset(i))
         sib(i)%diag%gdd = gdd(subset(i))
         sib(i)%diag%w_main = w_main(subset(i))
-	sib(i)%diag%w_main_pot = w_main_pot(subset(i))
         sib(i)%diag%pd = pd(subset(i))
         sib(i)%diag%pd7 = pd7(subset(i))
         sib(i)%diag%pd7_est = pd7_est(subset(i))
@@ -861,8 +853,16 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         endif
 
       enddo
-   
-        
+
+contains 
+  subroutine check(status)
+     integer, intent ( in ) :: status
+ 
+     if (status /= nf90_noerr) then
+        print *, trim(nf90_strerror(status))
+        stop "Error with netcdf.  Stopped."
+      end if
+  end subroutine check   
 
 end subroutine read_ic
 
@@ -1093,5 +1093,5 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
       
       endif 
 
-
 end subroutine soil_properties
+
