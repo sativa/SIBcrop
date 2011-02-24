@@ -1,11 +1,12 @@
-!-------------------------------------------------------------------------------
+!------------------------------------------------------------------
 subroutine rtape_sib ( sib, time, rank )
-!-------------------------------------------------------------------------------
+!------------------------------------------------------------------
 ! This subroutine creates a netcdf restart file for all prognostic variables.
 !
 ! Modifications:
 !  Kevin Schaefer added calls to netcdf error handling routine (10/26/04)
-!-------------------------------------------------------------------------------
+!  kdcorbin, 02/11 - removed pd7,pd7_est and pdindx7
+!------------------------------------------------------------------
 
 use kinds
 #ifdef PGF
@@ -69,15 +70,13 @@ integer(kind=int_kind) :: nsectemp  ! temporary var to hold time%sec_year
 integer(kind=int_kind) :: shavid    ! variable id - sha
 integer(kind=int_kind) :: totssid   ! variable id - totss
 !EL..crop vars added
+integer(kind=int_kind) :: assimdid  !variable id - assim_d; kdcorbin, 02/11
+integer(kind=int_kind) :: rstfacdid       !variable id - rstfac_d; kdcorbin, 02/11
 integer(kind=int_kind) :: tempfid    ! variable id - tempf 
 integer(kind=int_kind) :: gddvid    ! variable id - gdd 
 integer(kind=int_kind) :: w_mainid  ! variable id - w_main
-integer(kind=int_kind) :: w_main_potid  ! variable id - w_main_pot
 integer(kind=int_kind) :: pdvid     ! variable id - pd 
-integer(kind=int_kind) :: pd7vid    ! variable id - pd7
-integer(kind=int_kind) :: pd7_estid ! variable id - pd7_est 
 integer(kind=int_kind) :: emerg_did ! variable id - emerg_d
-integer(kind=int_kind) :: pdindx7id ! variable id - pdindx7
 integer(kind=int_kind) :: ndf_optid ! variable id - ndf_opt
 integer(kind=int_kind) :: nd_emergid ! variable id - nd_emerg
 integer(kind=int_kind) :: cum_wt_id    ! variable id - cum_wt
@@ -110,17 +109,14 @@ real(kind=dbl_kind), dimension(nsib) ::  &
 !EL..crop variables integer(kind=int_kind)
 
 integer(kind=int_kind), dimension(nsib) :: pd
-integer(kind=int_kind), dimension(nsib) :: pd7
-integer(kind=int_kind), dimension(nsib) :: pd7_est
 integer(kind=int_kind), dimension(nsib) :: emerg_d
-integer(kind=int_kind), dimension(nsib) :: pdindx7
 integer(kind=int_kind), dimension(nsib) :: ndf_opt
 integer(kind=int_kind), dimension(nsib) :: nd_emerg
 
 !EL...crop variables (real(kind=dbl_kind))
 
-real(kind=dbl_kind), dimension(nsib) :: tempf,gdd,w_main,w_main_pot
-
+real(kind=dbl_kind), dimension(nsib) :: tempf,gdd,w_main
+real(kind=dbl_kind), dimension(nsib) :: assim_d, rstfac_d  !kdcorbin, 02/11
 real(kind=dbl_kind), dimension(nsib,4) :: cum_wt,cum_drywt
 
 !EL...end crop vars (real(kind=dbl_kind))     
@@ -169,14 +165,12 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     tot_ss(:,:,:) = 1.e36
 !EL...crop vars added..
     tempf(:)   = 1.e36
+    assim_d(:) = 1.e36
+    rstfac_d(:) = 1.e36
     gdd(:)     = 1.e36
     w_main(:)  = 1.e36
-    w_main_pot(:)  = 1.e36
     pd(:)      = 0
-    pd7(:)     = 0
-    pd7_est(:) = 0
     emerg_d(:) = 0
-    pdindx7(:) = 0
     ndf_opt(:) = 0
     nd_emerg(:) = 0
     cum_wt(:,:) = 1.e36
@@ -201,15 +195,21 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
         dayflag(subset(i)) = sib(i)%stat%dayflag
         tot_an(:,subset(i)) = sib(i)%diag%tot_an(1:12)
 !EL..crop vars added.
-        tempf(subset(i)) = sib(i)%diag%tempf
+        !kdcorbin, 02/11 - changed from tempf, which had previous day info
+        !     to save last day's values
+        if (sib(i)%diag%tb_indx .gt. 0) then
+            tempf(subset(i)) = (((sib(i)%diag%tb_temp/sib(i)%diag%tb_indx) &
+                                            -273.15)*1.8)+32.
+            rstfac_d(subset(i)) = sib(i)%diag%tb_rst/sib(i)%diag%tb_indx
+            assim_d(subset(i)) = sib(i)%diag%tb_assim*time%dtsib*12.0
+        else
+            print*,'Error with tempf, assim_d and rstfac_d.  Stopping'
+        endif
+        
         gdd(subset(i)) = sib(i)%diag%gdd
         w_main(subset(i)) = sib(i)%diag%w_main
-	w_main_pot(subset(i)) = sib(i)%diag%w_main_pot
         pd(subset(i)) = sib(i)%diag%pd
-        pd7(subset(i)) = sib(i)%diag%pd7
-        pd7_est(subset(i)) = sib(i)%diag%pd7_est
         emerg_d(subset(i)) = sib(i)%diag%emerg_d
-        pdindx7(subset(i)) = sib(i)%diag%pdindx7
         ndf_opt(subset(i)) = sib(i)%diag%ndf_opt
         nd_emerg(subset(i)) = sib(i)%diag%nd_emerg
        
@@ -370,22 +370,18 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     
     ierr = nf90_def_var( ncid, 'tempf', nf90_double, vdims(2), tempfid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',34)
+    ierr = nf90_def_var( ncid, 'assim_d', nf90_double, vdims(2), assimdid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',34)
+    ierr = nf90_def_var( ncid, 'rstfac_d', nf90_double, vdims(2), rstfacdid) 
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',34)
     ierr = nf90_def_var( ncid, 'gdd', nf90_double, vdims(2), gddvid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',35)
     ierr = nf90_def_var( ncid, 'w_main', nf90_double, vdims(2), w_mainid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',36)
-    ierr = nf90_def_var( ncid, 'w_main_pot', nf90_double, vdims(2), w_main_potid) 
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',37)
     ierr = nf90_def_var( ncid, 'pd', nf90_int, vdims(2), pdvid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',37)
-    ierr = nf90_def_var( ncid, 'pd7', nf90_int, vdims(2), pd7vid) 
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',38)
-    ierr = nf90_def_var( ncid, 'pd7_est', nf90_int, vdims(2), pd7_estid)
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',38)
     ierr = nf90_def_var( ncid, 'emerg_d', nf90_int, vdims(2), emerg_did)
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',39)
-    ierr = nf90_def_var( ncid, 'pdindx7', nf90_int, vdims(2), pdindx7id) 
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',40)
     ierr = nf90_def_var( ncid, 'ndf_opt', nf90_int, vdims(2), ndf_optid) 
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',41)
     ierr = nf90_def_var( ncid, 'nd_emerg', nf90_int, vdims(2), nd_emergid) 
@@ -483,30 +479,26 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
    
     ierr = nf90_put_var( ncid, tempfid, tempf )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',76)
-    ierr = nf90_put_var( ncid, gddvid, gdd )
+    ierr = nf90_put_var( ncid, assimdid, assim_d )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',77)
-    ierr = nf90_put_var( ncid, w_mainid, w_main )
+    ierr = nf90_put_var( ncid, rstfacdid, rstfac_d )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',78)
-    ierr = nf90_put_var( ncid, w_main_potid, w_main_pot )
+    ierr = nf90_put_var( ncid, gddvid, gdd )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',79)
-    ierr = nf90_put_var( ncid, pdvid, pd )
+    ierr = nf90_put_var( ncid, w_mainid, w_main )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',80)
-    ierr = nf90_put_var( ncid, pd7vid, pd7 )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',81)
-    ierr = nf90_put_var( ncid, pd7_estid, pd7_est )
+    ierr = nf90_put_var( ncid, pdvid, pd )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',82)
     ierr = nf90_put_var( ncid, emerg_did, emerg_d )
     if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',83)
-    ierr = nf90_put_var( ncid, pdindx7id, pdindx7 )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',84)
     ierr = nf90_put_var( ncid, ndf_optid, ndf_opt )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',85)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',84)
     ierr = nf90_put_var( ncid, nd_emergid, nd_emerg )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',86)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',85)
     ierr = nf90_put_var( ncid, cum_wt_id, cum_wt )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',87)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',86)
     ierr = nf90_put_var( ncid, cum_drywt_id, cum_drywt )
-    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',88)
+    if(ierr/=nf90_noerr) call handle_err(ierr,'rtape',87)
     !EL...crop vars end..
 
 

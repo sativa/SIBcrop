@@ -1,4 +1,4 @@
-!=======================================================================
+!=================================================
 subroutine mapper( lat,                 &
                    DOY,                 &
                    prevNDVI,            &
@@ -12,7 +12,7 @@ subroutine mapper( lat,                 &
                    LAIgrid,             &
                    fVCovergrid,         &
                    TimeVar )
-!=======================================================================
+!=================================================
 ! calculates time dependant boundary condition variables for SiB.
 
 use kinds
@@ -58,6 +58,7 @@ real (kind=real_kind) :: fVCovergrid(50)   ! grid of fVCover values for
                                          !  interpolation table
 
 ! begin time dependant, output variables
+! kdcorbin, 02/11 - added scatp, scatg, park
 type time_dep_var
    real (kind=real_kind) :: fPAR    ! Canopy absorbed fraction of PAR
    real (kind=real_kind) :: LAI     ! Leaf-area index
@@ -66,6 +67,9 @@ type time_dep_var
    real (kind=real_kind) :: zp_disp ! Zero plane displacement
    real (kind=real_kind) :: RbC     ! RB Coefficient (c1)
    real (kind=real_kind) :: RdC     ! RC Coefficient (c2)
+   real (kind=real_kind) :: scatp   ! Canopy transmittance + reflectance of PAR
+   real (kind=real_kind) :: scatg   ! Ground transmittance + reflectance of PAR
+   real (kind=real_kind) :: park     ! Mean canopy absorption optical depth wrt PAR
    real (kind=real_kind) :: gmudmu  ! Time-mean leaf projection
 end type time_dep_var
 
@@ -81,14 +85,14 @@ real(kind=real_kind), parameter :: fPARmin=0.01
 !     For more information on fPARmin and fPARmax, see
 !     Sellers et al. (1994a, pg. 3532); Los (1998, pg. 29, 37-39)
 
-   !-----------------------------------------------------------------------
+   !--------------------------------------------------------------
    ! Calculate time dependant variables
-   !-----------------------------------------------------------------------
+   !--------------------------------------------------------------
    ! Calculate first guess fPAR 
    ! use average of Simple Ratio (SR) and NDVI methods.
 
-
-
+   !kdcorbin, 02/11 - initialize prevfPAR
+   prevfPAR = 0.
    call AverageAPAR (prevNDVI, MorphTab%NDVImin, MorphTab%NDVImax,   &
                      MorphTab%SRmin, MorphTab%SRmax, fPARmax,        &
 		             fParmin, prevfPAR)
@@ -116,10 +120,11 @@ real(kind=real_kind), parameter :: fPARmin=0.01
    ! Calculate mean leaf orientation to par flux (gmudmu)
    call gmuder (lat, DOY, ChiL, TimeVar%gmudmu)
 
-
    ! recalculate fPAR adjusting for Sun angle, vegetation cover fraction,
    ! and greeness fraction, and LAI
+   ! kdcorbin, 02/11 - added scatp,scatg, and park to call
    call aparnew (TimeVar%LAI, TimeVar%Green, LTran, LRef,   &
+                 TimeVar%scatp, TimeVar%scatg, TimeVar%park,   &
                  TimeVar%gmudmu, fVCover, TimeVar%fPAR,     &
                  fPARmax, fPARmin)
 
@@ -179,7 +184,6 @@ subroutine averageapar ( ndvi, ndvimin, ndvimax, srmin, srmax, &
     ! Calculate simple ratio (SR)
     sr=(1.+LocNDVI)/(1.-LocNDVI)
 
-	
     ! Calculate fPAR using SR method (Los et al. (1999), eqn. 5)
     srfpar = (sr - srmin) * (fparmax - fparmin) / (srmax - srmin) + fparmin
 
@@ -196,9 +200,9 @@ subroutine averageapar ( ndvi, ndvimin, ndvimax, srmin, srmax, &
 end subroutine averageapar
 
 
-!=======================================================================
+!==================================================
 subroutine laigrn (fPAR,fPARm,fPARmax,fVCover,stems, LAImax,Green,LAI)
-!=======================================================================
+!==================================================
 ! calculate leaf area index (LAI) and greenness fraction (Green) from fPAR. 
 ! LAI is linear with vegetation fraction and exponential with fPAR.
 ! See Sellers et al (1994), Equations 7 through 13.
@@ -327,19 +331,16 @@ subroutine aerointerpolate ( lai, fvcover, laigrid, fvcovergrid, &
     temp = 0.01
     locfvcover = max(fvcover, temp)
 
-
     ! Determine the nearest array location for the desired LAI and fVCover
     i = int(loclai / dlai) + 1
     j = int(locfvcover / dfvcover) + 1
     j = min(j, 49)
 
-!print *,i,j
     ! Interpolate RbC variable
     call interpolate( laigrid(i), loclai, dlai, &
         fvcovergrid(j), locfvcover, dfvcover,   &
         aerovar(i,j)%rbc, aerovar(i+1,j)%rbc,   &
         aerovar(i,j+1)%rbc, aerovar(i+1,j+1)%rbc, rbc )
-
 
     ! Interpolate RdC variable
     call interpolate( laigrid(i), loclai, dlai, &
@@ -359,18 +360,14 @@ subroutine aerointerpolate ( lai, fvcover, laigrid, fvcovergrid, &
         aerovar(i,j)%zp_disp, aerovar(i+1,j)%zp_disp, &
         aerovar(i,j+1)%zp_disp, aerovar(i+1,j+1)%zp_disp, zp_disp )
 
-
-
-
-
     return
 
 end subroutine aerointerpolate
 
 
-!=======================================================================      
+!=================================================      
 subroutine gmuder (Lat, DOY, ChiL, gmudmu)
-!=======================================================================      
+!=================================================      
 ! calculates time mean leaf projection relative to the Sun.
 
 use kinds
@@ -483,15 +480,16 @@ end subroutine gmuder
 
 !-SUBROIUTINE: aparnew-----------------------------------------------
 
-subroutine aparnew ( lai, green, ltran, lref, gmudmu, fvcover, fpar, & 
-        fparmax, fparmin )
+subroutine aparnew ( lai, green, ltran, lref, &
+       scatp, scatg, park, gmudmu,               &
+       fvcover, fpar, fparmax, fparmin )
 
     !----------------------------------------------------------------
     !
     ! Recomputes the Canopy absorbed fraction of Photosynthetically
     ! Active Radiation (fPAR), adjusting for solar zenith angle and
     ! the vegetation cover fraction (fVCover) using a modified form
-    ! of Beer's lae.
+    ! of Beer's law.
     ! See Selleres et al. Part II (1996), eqns. 9-13.
     !
     !----------------------------------------------------------------
@@ -501,8 +499,9 @@ subroutine aparnew ( lai, green, ltran, lref, gmudmu, fvcover, fpar, &
     implicit none
 
     !-Parameters-----------------------------------------------------
-    real(kind=real_kind) :: lai         ! Leaf Area Index
+    real(kind=real_kind) :: lai            ! Leaf Area Index
     real(kind=real_kind) :: green       ! Greeness fraction of LAI
+    real(kind=real_kind) :: fpar   ! Area average canopy absorbed fraction of PAR
 
     ! For LTran and LRef:
     !   (1,1) : shortwave, green plants
@@ -513,6 +512,11 @@ subroutine aparnew ( lai, green, ltran, lref, gmudmu, fvcover, fpar, &
                                         !       green/brown plants
     real(kind=real_kind) :: lref(2,2)   ! Leaf reflectance for
                                         !       green/brown plants
+
+    ! kdcorbin, 02/11 - added scatp, scatg, and park to input/output variables
+    real(kind=real_kind) :: scatp  ! Canopy transmittance + reflectance  wrt PAR
+    real(kind=real_kind) :: scatg  ! Ground transmittance + reflectance wrt PAR
+    real(kind=real_kind) :: park   ! Mean canopy absorption optical depth wrt PAR
     real(kind=real_kind) :: gmudmu      ! Daily time-mean canopy optical depth
     real(kind=dbl_kind)  :: fvcover     ! Canopy cover fraction
     real(kind=real_kind) :: fparmax     ! Maximum possible FPAR corresponding
@@ -520,30 +524,20 @@ subroutine aparnew ( lai, green, ltran, lref, gmudmu, fvcover, fpar, &
     real(kind=real_kind) :: fparmin     ! Minimum possible FPAR corresponding
                                         !       to 2nd percentile
 
-    !-Local Variables------------------------------------------------
-    real(kind=real_kind) :: fpar        ! Area average canopy absorbed fraction
-                                        !       of PAR
-    real(kind=real_kind) :: scatp       ! Canopy transmittance + reflectance
-                                        !       wrt PAR
-    real(kind=real_kind) :: park        ! Mean canopy absorption optical depth
-                                        !       wrt PAR
-
     ! Calculate canopy transmittance + reflectance coefficient wrt PAR
     ! transmittance + reflectance coefficients = green plants + brown plants
     scatp = green * (ltran(1,1) + lref(1,1)) + (1. - green) * &
         (ltran(1,2) + lref(1,2))
+    scatg = ltran(1,1) + lref(1,1)
 
     ! Caclulate PAR absorption optical depth in canopy adjusting for
     ! variance in projected leaf area wrt solar zenith angle
     ! (Sellers et al. Part II (1996), eqn. 13b)
     ! PAR absorption coefficient = (1 - scatp)
-
     park = sqrt(1. - scatp) * gmudmu
 
-
-    ! Calculate the new fPAR (Sellers er al. Part II (1996), eqn 9)
+    ! Calculate the new fPAR (Sellers et al. Part II (1996), eqn 9)
     fpar = fvcover * (1. - exp(-park * lai / fvcover))
-
 
     ! Ensure calculated fPAR falls within physical limits
     fpar = amax1(fparmin, fpar)
@@ -555,9 +549,9 @@ end subroutine aparnew
 
 
 
-!=======================================================================
+!====================================================
 subroutine interpolate(x1, x, Dx, y1, y, Dy, z11, z21, z12, z22, z)
-!=======================================================================
+!====================================================
 ! calculates the value of z=f(x,y) by linearly interpolating
 ! between the 4 closest data points on a uniform grid.  The subroutine
 ! requires a grid point (x1, y1), the grid spacing (Dx and Dy), and the 

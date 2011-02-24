@@ -24,10 +24,7 @@ module cfrax
         pref,      &
         dtt
 
-
-
     implicit none
-
 
     !...LOCAL VARIABLES...
     real(kind=dbl_kind) :: co2a_conc   ! CAS CO2 concentration (mol m^-3)
@@ -56,11 +53,11 @@ module cfrax
 
         implicit none
 
-        !----------------------------------------------------------------------
+        !--------------------------------------------------------
 
         type(sib_t), intent(inout) :: sib
 
-        !----------------------------------------------------------------------  
+        !--------------------------------------------------------  
 
         !...INPUT VARIABLES
         integer(kind=int_kind),intent(in) :: i        ! phystype loop index
@@ -163,24 +160,23 @@ module cfrax
         use sibtype
 
         implicit none
-        !----------------------------------------------------------------------
+        !------------------------------------------------------------
 
         type(sib_t), intent(inout) :: sib
 
-        !----------------------------------------------------------------------  
+        !------------------------------------------------------------  
 
 
         !...LOCAL VARIABLES...
         integer(kind=int_kind) :: i
 
         !...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX
-
         sib%diag%c13assimn(6) = 0.0
         sib%diag%c12assimn(6) = 0.0
 
         phys_loop: do i=1,5
 
-!            print*,'physfrac:',i,sib%param%physfrac(i)
+            !print*,'physfrac:',i,sib%param%physfrac(i)
             if(sib%param%physfrac(i) == 0.0) cycle phys_loop
              
             sib%diag%c13assimn(6) = sib%diag%c13assimn(6) + &
@@ -190,7 +186,6 @@ module cfrax
                 sib%diag%c12assimn(i) * sib%param%physfrac(i)
 
         enddo phys_loop
-!print*, sib%diag%c13assimn(6),sib%diag%c12assimn(6)
 
         sib%diag%rcassimn(6) = sib%diag%c13assimn(6)/   &
                                                 sib%diag%c12assimn(6)
@@ -202,9 +197,6 @@ module cfrax
 
         !  Canopy concentrations at time n+1 is calculated using an implicit 
         !  scheme.
-
-
-
         c13ca = (c13ca + (dtt / sib%param%z2) * (c13resp - &
             sib%diag%c13assimn(6) + (c13cm / sib%diag%ra ))) &
             / (1. + (dtt / sib%diag%ra ) / sib%param%z2)
@@ -243,7 +235,6 @@ module cfrax
         sib%diag%flux_turb = sib%diag%flux13c + sib%diag%flux12c
 
     end subroutine cfrax_final
-
 
 
 end module cfrax

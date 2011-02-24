@@ -17,15 +17,11 @@ integer(kind=int_kind) :: ntest1    ! compare nsib value of file to simulation
 integer(kind=int_kind) :: i, k
 real :: dummy
 real(kind=real_kind), dimension(subcount) :: curndvi  ! NDVI variable
-real(kind=dbl_kind), dimension(subcount) :: d13cresp
-real(kind=dbl_kind), dimension(subcount,physmax) :: physfrac
 character*100 filename  ! filename used to read in ndvi data
 
-
     if( drvr_type == 'single' ) then
-        write (filename, "(a,a1,i4)") trim(param_path), '_', time%pyear
-
-print*,'file=',trim(filename)
+         write (filename, "(a,a1,i4)") trim(param_path), '_', time%pyear
+         print*,'      reading file: ',trim(filename)
 
         open(unit=32, file=trim(filename), form='formatted')   
         read(32,*)ntest1
@@ -141,6 +137,7 @@ print*,'file=',trim(filename)
         read(32,*) sib%param%zm
         read(32,*) sib%param%sandfrac
         read(32,*) sib%param%clayfrac
+
         ! read in previous month's time-variant boundary condition variables
         do k = 1,time%pmonth
             read(32,*)
@@ -162,103 +159,41 @@ print*,'file=',trim(filename)
 
         close( 32 )
 
-print*,'init:',sib%param%physfrac2(1),sib%param%physfrac2(2)
-        
     else    ! global run
     
         ! make sure prevndvi is allocated
         allocate(prevndvi(subcount))
 
         ! 2 months previous
-        write (filename, "(a,a1,i4,a3)") trim(param_path), '_', &
-            time%ppyear, '.nc'
+        !write (filename, "(a,a1,i4,a3)") trim(param_path), '_', &
+        !    time%ppyear, '.nc'
 
-        call read_ndvi(filename, time%ppmonth, prevndvi,  &
-            physfrac, d13cresp)
-print*,'filename',filename
+        !print*,'      reading file: ',trim(filename)
+        !!kdcorbin, 02/11 - modified variables passed to read_ndvi
+        !call read_ndvi(filename, sib, time )
+
         ! 1 month previous
         write (filename, "(a,a1,i4,a3)") trim(param_path), '_', &
             time%pyear, '.nc'
-        call read_ndvi(filename, time%pmonth, curndvi,  &
-            physfrac, d13cresp)
+        print*,'      reading file: ',trim(filename)
+        call read_ndvi(filename, sib, time )
             
         ! calculate time-variant boundary conditions
+        print*,'   calculating time-variant boundary conditions'
         call calculate_td (sib, time%mid_month(time%pmonth), curndvi)
 
-        ! copy current ndvi to previous ndvi and fill in initial d13cresp and
+        ! copy current fpar/lai to previous values and fill in initial d13cresp and
         !   physfrac values
         do i=1,subcount
             prevndvi(i) = curndvi(i)
-            sib(i)%param%d13cresp2 = d13cresp(i)
+            sib(i)%param%d13cresp2 = sib(i)%param%d13cresp
             do k = 1, physmax
-                sib(i)%param%physfrac2(k) = physfrac(i,k)
+                !kdcorbin, 02/11 - added physfrac1
+                sib(i)%param%physfrac1(k) = sib(i)%param%physfrac(k)
+                sib(i)%param%physfrac2(k) = sib(i)%param%physfrac(k)
             enddo
         enddo
     endif
-!print*,sib(1)%param%phystype(1),sib(1)%param%phystype(2),sib(1)%param%physfrac2(1),sib(1)%param%physfrac2(2)
+
 end subroutine previous_bc
 
-
-!-------------------------------------------------------------------------------
-subroutine read_physfrac( sib, time )
-!-------------------------------------------------------------------------------
-use sibtype
-use timetype
-use sib_io_module
-use sib_const_module
-use sib_bc_module
-implicit none
-
-! parameters
-type(sib_t), dimension(subcount), intent(inout) :: sib
-type(time_struct), intent(in) :: time
-
-! local variables
-!integer(kind=int_kind) :: ntest1    ! compare nsib value of file to simulation
-integer(kind=int_kind) :: i, k
-!real(kind=real_kind), dimension(subcount) :: curndvi  ! NDVI variable
-!real(kind=dbl_kind), dimension(subcount) :: d13cresp
-real(kind=dbl_kind), dimension(subcount,physmax) :: physfrac
-real	:: dummy !used to read in variables that are real in file, but need to be cast as ints
-character*100 filename  ! filename used to read in ndvi data
-
-    ! reading from the param file/s
-    if( drvr_type == 'single' ) then
-        write (filename, "(a,a1,i4)") trim(param_path), '_', time%nyear
-        open(unit=32, file=trim(filename), form='formatted')   
-        
-!	read(32,*)ntest1
-!        if(ntest1.ne.nsib)  stop &
- !           ' file sib_bc no match with model for nsib'
-    do i=1,104
- 
-        read(32,*) dummy
-
-        if(i == 4) then
-         print*,'biome =',dummy
-         sib%param%biome = dummy
-        endif
-
-    enddo
-       
-        ! read in the phys fracs from the current month
-        do k = 1,time%nmonth
-            read (32,*)
-          do i=1,9
- 
-            read(32,*) dummy
-
-          enddo
-            read(32,*) sib%param%physfrac2(1)
-            read(32,*) sib%param%physfrac2(2)
-            read(32,*) sib%param%physfrac2(3)
-            read(32,*) sib%param%physfrac2(4)
-            read(32,*) sib%param%physfrac2(5)
-        enddo
-        close( 32 )
-       
-    endif
-!print*,time%pmonth,time%nmonth,sib%param%physfrac2(1),sib%param%physfrac2(2)
-!print*,trim(filename)
-!pause
-end subroutine read_physfrac

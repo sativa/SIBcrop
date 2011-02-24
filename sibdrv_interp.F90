@@ -5,10 +5,10 @@ subroutine sibdrv_interp(sib, time)
 ! variables between their read times
 !
 ! Modifications:
-!  Kevin Schaefer changed dayflag to cosz_min when checking if sw_rad in scaled (8/12/04)
-!  Kevin Schaefer removed checks on sw_dwn between 1-5 (created light at night) (8/12/04)
+!  Kevin Schaefer changed dayflag to cosz_min when checking if sw_rad in scaled (8/04)
+!  Kevin Schaefer removed checks on sw_dwn between 1-5 (created light at night) (8/04)
 !  Kevin Schaefer moved pressure conversion to read_drvr routines (8/16/04)
-!  Kevin Schaefer move conversion from dew point to humidity to read_drvr routines (8/17/04)
+!  Kevin Schaefer move conversion from dew point/humidity to read_drvr routines (8/04)
 !  Kevin Schaefer synched facsibdrv with 1 step earlier driver data read (8/18/04)
 !  Kevin Schaefer deleted unused variables & commented code (11/15/04)
 !--------------------------------------------------------------
@@ -52,8 +52,8 @@ integer(kind=int_kind) :: i      ! index
         else
             sib(i)%prog%sw_dwn=0.
         endif
-!print*,sib(i)%prog%sw_dwn,sib(i)%prog%sw_dwn2,sib(i)%stat%cosz
-!
+
+
 ! make sure downwelling SW radiation is positive
         if(sib(i)%prog%sw_dwn<0.) sib(i)%prog%sw_dwn = 0.
     enddo
@@ -104,16 +104,6 @@ integer(kind=int_kind) :: i      ! index
         sib(i)%prog%ros = rgfac * sib(i)%prog%ps / sib(i)%prog%tm
 
     enddo  ! land point loop
-!
-! initialize Canopy Air Space humidity
-   !ogl...changed to an explicit do loop
-    if( time%sec_tot == time%init_second ) then
-        print*, 'sibdrv_interp: init CAS humidity'
-        do i=1,subcount
-	print*, sib(i)%prog%sh,sib(i)%prog%ps,sib(i)%prog%spdm,sib(i)%prog%tm
-            sib(i)%prog%sha = sib(i)%prog%sh
-        enddo
-    endif
 !
 end subroutine sibdrv_interp
 !

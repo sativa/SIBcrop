@@ -1,9 +1,9 @@
 
-!=====================SUBROUTINE UPDATE=================================
+!=================SUBROUTINE UPDATE=====================
 
 subroutine update(sib,sib_loc)
 
-!itb====================================================================
+!itb===============================================
 !itb
 !itb  MOVING STORAGE TERM UPDATES (SNOW, CAPAC) HERE FROM ENDTEM, WHICH
 !itb     NO LONGER EXISTS. FLUXES PREVIOUSLY CALCULATED IN ENDTEM ARE
@@ -12,16 +12,15 @@ subroutine update(sib,sib_loc)
 !itb
 !itb      November 2000
 !
-!=======================================================================
+!=================================================
 !
 !     UPDATING OF ALL HYDROLOGICAL PROGNOSTIC VARIABLES.  SNOW AND
 !        RUNOFF CALCULATIONS (SEE ALSO INTER2).  SUBROUTINES SNOW2 AND
 !        RUN2 OF 1D MODEL ARE INLINED IN THIS CODE.
-!
-!=======================================================================
+!=================================================
 
 
-!++++++++++++++++++++++++++++++OUTPUT+++++++++++++++++++++++++++++++++++
+!+++++++++++++++++++++++OUTPUT++++++++++++++++++++++++
 !
 !       DTC            CANOPY TEMPERATURE INCREMENT (K)
 !       DTG            GROUND SURFACE TEMPERATURE INCREMENT (K)
@@ -30,12 +29,12 @@ subroutine update(sib,sib_loc)
 !       SNOWW(2)       CANOPY/GROUND SNOW INTERCEPTION STORE (M)
 !       ROFF           RUNOFF (MM/HR)
 !
-!++++++++++++++++++++++++++DIAGNOSTICS++++++++++++++++++++++++++++++++++
+!++++++++++++++++++++++++++DIAGNOSTICS+++++++++++++++++
 !
 !       ECMASS         CANOPY EVAPOTRANSPIRATION (MM)
 !       EGMASS         GROUND EVAPOTRANSPIRATION (MM)
 !
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 use kinds
@@ -66,13 +65,13 @@ use eau_params, only : &
 
 implicit none
 
-!----------------------------------------------------------------------
+!-----------------------------------------------------------------
 
 type(sib_t), intent(inout) :: sib
 type(sib_local_vars)     ,intent(inout) :: sib_loc
   ! variables local to SiB
 
-!----------------------------------------------------------------------  
+!------------------------------------------------------------------  
 
 
 
@@ -124,9 +123,9 @@ real(kind=dbl_kind) :: bw   ! partial density of water (ice+liquid)
 
 integer(kind=int_kind) :: i,j
 
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 !
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 
 
     timcon = pi / 86400.0
@@ -338,8 +337,6 @@ integer(kind=int_kind) :: i,j
             if(sib%prog%www_liq(1) <= sib%param%vwcmin) sib%param%rootr(1) = 0.0_dbl_kind
             
         else
-!            print*,'rootr1:',sib%param%vwcmin,sib%prog%vol_liq(1),   &
-!              sib%prog%vol_ice(1),sib%prog%www_liq(1),sib%prog%www_ice(1)
             sib%param%rootr(1) = (1.0 - sib%param%vwcmin/sib%prog%vol_liq(1)) /  &
                 (1.0 - sib%param%vwcmin/sib%param%fieldcap)
             sib%param%rootr(1) = MIN(sib%param%rootr(1), 1.0_dbl_kind)
@@ -427,14 +424,14 @@ integer(kind=int_kind) :: i,j
     !...need to reduce ground surface store (ponding) by sib%diag%egi...
 
     sib%prog%capac(2) = sib%prog%capac(2) - sib%diag%egi * (1.0-rsnow) * hltmi
-!---------------------------------------------------------------------
+!------------------------------------------------------------------
 !     CALCULATION OF SENSIBLE HEAT FLUXES FOR THE END OF THE TIMESTEP.
 !        SEE FIGURE (2) OF SE-86.  NOTE THAT INTERCEPTION LOSS EXCESS
 !        ENERGIES (ECIDIF, EGIDIF) ARE ADDED.
 !
 !      HC          (HC)    : EQUATION (63) , SE-86
 !      HG          (HGS)   : EQUATION (65) , SE-86
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 
     !itb...i've left the leaf one-sided, for now...
 
@@ -463,10 +460,9 @@ integer(kind=int_kind) :: i,j
         sib%diag%hs = 0.0
     endif
 
-!----------------------------------------------------------------------
+!-------------------------------------------------------------------
 !     CALCULATION OF STORAGE HEAT FLUXES
-!
-!---------------------------------------------------------------------- 
+!------------------------------------------------------------------ 
 
 
     !itb...this ugly beast represents G, soil heat flux. G is calculated
@@ -515,7 +511,7 @@ integer(kind=int_kind) :: i,j
 
 
 
-!----------------------------------------------------------------------
+!-----------------------------------------------------------------
 !    INTERCEPTION LOSSES APPLIED TO SURFACE WATER STORES.                      
 !    EVAPORATION LOSSES ARE EXPRESSED IN J M-2 : WHEN DIVIDED BY
 !    ( HLTM*1000.) LOSS IS IN M M-2. MASS TERMS ARE IN KG M-2 DT-1
@@ -523,7 +519,7 @@ integer(kind=int_kind) :: i,j
 !
 !      CAPAC/SNOWW(1) (M-C)   : EQUATION (3)  , SE-86
 !      CAPAC/SNOWW(2) (M-G)   : EQUATION (4)  , SE-86
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 
     !PL HERE WE DO A CHECK FOR CONDENSATION AND MAKE SURE THAT IT ONLY
     !PL HAPPENS TRHOUGH ECI AND EGI
@@ -546,13 +542,13 @@ integer(kind=int_kind) :: i,j
     sib%diag%ecmass   = sib%diag%eci*facks * hltmi
     sib%diag%egmass   = sib%diag%egi*facks * hltmi
 
-!!----------------------------------------------------------------------
+!!-----------------------------------------------------------------
 !
 !   Calculation of phase change within snow and soil layers.
 !   This code based on routine CLM_MELTFREEZE from the Common
 !   Land Model (CLM)  (Dai et al, submitted)
 !   CLM web info:  http://clm.gsfc.nasa.gov
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 
     !...initialize some values
     sib%diag%snowmelt = 0.0
@@ -723,11 +719,11 @@ integer(kind=int_kind) :: i,j
     !...convert to (joules) - what is this needed for?
     !        energy_of_snowmelt = sib%diag%snowmelt * lfus
 
-!----------------------------------------------------------------------
+!-----------------------------------------------------------------
 !
 !      END OF CLM_MELTFREEZE CODE
 !
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 
 !itb...calculate change in energy of CAS
 

@@ -1,20 +1,20 @@
 module timetype
 
-!-------------------------------------------------------------------------------
+!----------------------------------------------------------------
 ! Author:  Owen Leonard
 ! Date:    April 17, 2004
 ! Purpose:
 !   This modules contains a user defined type containing all of the time 
 ! variables assigned values in time_check, and updated by time_manager.
-!-------------------------------------------------------------------------------
+!----------------------------------------------------------------
 
 use kinds
+use sib_const_module, only: npermax !kdcorbin, 02/11
 implicit none
 
 public time_struct
 
 type time_struct
-    
     
     ! time constants
     integer(kind=long_kind) :: init_year     ! initial year of simulation
@@ -81,6 +81,13 @@ type time_struct
     real(kind=dbl_kind) :: start_period     ! start of averaged period
     real(kind=dbl_kind) :: end_period       ! end of averaged period
     real(kind=dbl_kind) :: period_length    ! length of averaged period
+
+    !kdcorbin, 02/11
+    integer(kind=int_kind) :: bc_recnum  ! record # of data for time-dependent params
+    real(kind=real_kind), dimension(npermax) :: modis_start 
+             ! (doy) start times for modis composite periods
+    real(kind=real_kind), dimension(npermax) :: modis_stop
+             ! (doy) stop times for modis composite periods
     
     ! I/O time variables
     integer(kind=long_kind) :: driver_step   ! # seconds in driver data timestep
@@ -93,7 +100,6 @@ type time_struct
     real(kind=dbl_kind)   :: pbp_incnt     ! # to multiply pbp's by to get average
     integer(kind=long_kind) :: pbp_count     ! # to divide pbp's by to get average
     integer(kind=long_kind) :: pbp_offset    ! # seconds to offset pbp writing
-    
     
     ! Flags
     logical(kind=log_kind) :: write_qp      ! write data to qp files ?

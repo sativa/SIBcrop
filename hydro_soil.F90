@@ -1,11 +1,11 @@
 
 subroutine hydro_soil(sib)
 
-!----------------------------------------------------------------------
+!-----------------------------------------------------------------
 !
 !     soil water - based on CLM_HYDRO_SOIL.F90 code...
 !
-!----------------------------------------------------------------------
+!-----------------------------------------------------------------
 !
 !     following taken (almost) verbatim from CLM_HYDRO_SOIL comments...
 !
@@ -295,15 +295,13 @@ real(kind=dbl_kind)    :: roffo_t   ! placeholder for overland
     sib%prog%www_liq(j) = sib%prog%www_liq(j) + xs
     sib%diag%qqq = sib%diag%qqq - xs
 
-
-
     !...determine water in excess of saturation
 
     !itb...I don't like how CLM included SATCAP here...
     !      xs = max(0.0_dbl_kind,sib%prog%www_liq(1)-                           &
     !                (sib%param%satcap(2)+sib%diag%eff_poros(1) * sib%prog%dz(1)*denh2o))
-    !      if(xs > 0.0) sib%prog%www_liq(1) = sib%param%satcap(2)+sib%diag%eff_poros(1)  &
-    !                                                 *sib%prog%dz(1)*denh2o
+    !      if(xs > 0.0) sib%prog%www_liq(1) = &
+    !               sib%param%satcap(2)+sib%diag%eff_poros(1) *sib%prog%dz(1)*denh2o
 
     xs = max(0.0_dbl_kind,sib%prog%www_liq(1)-sib%diag%eff_poros(1) &
         * sib%prog%dz(1)*denh2o)

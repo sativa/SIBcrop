@@ -13,13 +13,13 @@ subroutine vntlat(sib,sib_loc)
 
     implicit none
 
-    !----------------------------------------------------------------------
+    !-------------------------------------------------------------
 
     type(sib_t), intent(inout) :: sib
     type(sib_local_vars)     ,intent(inout) :: sib_loc
                                        ! variables local to SiB
 
-    !----------------------------------------------------------------------  
+    !--------------------------------------------------------------  
 
     !...LOCAL VARIABLES
 
@@ -51,11 +51,11 @@ subroutine vntlat(sib,sib_loc)
 
     sib%diag%ra    = sib%prog%ros / sib%diag%ventmf 
     temv = (sib%param%z2 - sib%param%zpd_adj) / sib%param%z0
-!    print*,'vntlat,temv:',sib%param%z2,sib%param%zpd_adj,sib%param%z0
+
     !itb...PATCH...make sure that temv is not negative
     temv = max(temv,1.00_dbl_kind)
     temv = log(temv) 
-!print*,sib%prog%spdm, cuni,vkrmn,temv, log(temv) 
+
     u2     = sib%prog%spdm / (cuni * vkrmn)
     u2 = u2 * temv
 
@@ -81,7 +81,6 @@ subroutine vntlat(sib,sib_loc)
     !   compute resistance terms
     !
     sib%diag%rc = sib%prog%rst(6) + sib%diag%rb + sib%diag%rb
-
     sib%diag%rds = sib%diag%rsoil * sib_loc%fg + sib%diag%rd
 
     sib_loc%gect =  (1. - sib%diag%wc) / sib%diag%rc
@@ -101,6 +100,7 @@ subroutine vntlat(sib,sib_loc)
     !   calculate soil respiration
     !
     call respsib(sib)
+
     !
     !   calculation of canopy conductance and photosynthesis
     !

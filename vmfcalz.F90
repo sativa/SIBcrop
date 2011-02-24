@@ -11,11 +11,11 @@ subroutine vmfcalz(sib,zzwind,zztemp,cuni)
 
     implicit none
 
-    !----------------------------------------------------------------------
+    !----------------------------------------------------------------
 
     type(sib_t), intent(inout) :: sib
 
-    !----------------------------------------------------------------------  
+    !----------------------------------------------------------------  
 
 !*****************************************************************************                                                                       
 !     VENTILATION MASS FLUX,Ustar, and transfer coefficients for momentum 
@@ -97,10 +97,6 @@ subroutine vmfcalz(sib,zzwind,zztemp,cuni)
         dm,      & !
         dh         !
 
-
-
-
-
     zrib = zzwind **2 / zztemp                                                    
     wgm  = sib%prog%sha - sib%prog%sh   
                                    
@@ -110,7 +106,6 @@ subroutine vmfcalz(sib,zzwind,zztemp,cuni)
     !                                                                       
     thgm  = sib%prog%tha  - sib%prog%thm                                   
     sib%diag%thvgm = thgm + sib%prog%tha * delta * wgm       
-
 
     !   Ratio of reference height (zwind/ztemp) and roughness length:
     z1z0u = zzwind/sib%param%z0
@@ -178,11 +173,10 @@ subroutine vmfcalz(sib,zzwind,zztemp,cuni)
     sib%diag%ustar  = sib%prog%spdm * sib%prog%spdm * sib%diag%cu 
     sib%diag%ustar  = sqrt( sib%diag%ustar ) 
     sib%diag%ventmf = sib%prog%ros * sib%diag%ct * sib%prog%spdm  
-!print *, 'vmfcalz', sib%prog%ros, sib%diag%ct, sib%prog%spdm, sib%diag%ventmf
-    !                                                                       
-    ! Note there is no CHECK FOR VENTMF EXCEEDS TOWNSENDS(1962) FREE CONVECTION  
-    ! VALUE, like DEARDORFF EQ(40B), because the above CU and CT included
-    ! free convection conditions.                                            
 
+    !                                                                       
+    ! Note there is no CHECK FOR VENTMF EXCEEDS TOWNSENDS(1962) 
+    ! FREE CONVECTION VALUE, like DEARDORFF EQ(40B), because the 
+    ! above CU and CT included free convection conditions.                                            
 
 end subroutine vmfcalz

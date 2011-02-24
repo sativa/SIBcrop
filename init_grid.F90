@@ -25,9 +25,9 @@ integer(kind=int_kind) :: dimid     ! netcdf dimension id#
 integer(kind=int_kind) :: dimlen    ! netcdf dimension length
 character(len=12)      :: dim_name  ! netcdf dimension name
 ! local grid variables
-integer(kind=int_kind), allocatable, dimension(:,:) :: newmap ! map containing only
-                                                          ! subdomain landpoints
-                                                          ! indexed to nsib vector
+! kdcorbin, 02/11 - commenting newmap
+integer(kind=int_kind), allocatable, dimension(:,:) :: newmap 
+         ! map containing subdomain landpoints indexed to nsib vector
 integer(kind=int_kind) :: i,j,k                 ! index variables
 integer(kind=int_kind) :: ntest1, ntest2, ntest3
 integer(kind=int_kind) :: lowerlon, upperlon    ! longitude subdomain limits
@@ -70,7 +70,7 @@ namelist /inlist_sibdrv/ & ! USER DEFINED PARAMETERS
     nsib,ztemp,zwind
 namelist /IOLIST_SIBDRV/ & !jk USER SELETED I/O OPTIONS
     param_path, ic_path, dr_format, out_path, qp_path,  &
-    pbp_path, co2_path, grid_path, drvr_type
+    pbp_path, co2_path, grid_path, drvr_type, param_type
 namelist /SUBGRID_SIBDRV/ &
     minlon, maxlon, minlat, maxlat
 namelist /PBPLIST_SIBDRV/ & ! USER DEFINED PBP DIAGNOSTIC LOCATIONS
@@ -81,44 +81,45 @@ namelist /SIBDRV_CONTROL_LIST/ &
 
     print *, 'INIT_GRID:'
 
-    !-----------------------------------------------------------------------
+    !------------------------------------------------------------
     ! read in namel_sibdrv
-    !-----------------------------------------------------------------------
+    !------------------------------------------------------------
     open(unit=2,file='namel_sibdrv',form='formatted')  !jk
-    print *,'\t reading sib inlist'
+    print *,'   reading sib inlist'
     read (2,INLIST_SIBDRV)
-    print *,'\t reading sib i/olst'      !jk
+    print *,'   reading sib i/olst'      !jk
     read (2,IOLIST_SIBDRV)                         !jk
-    print *,'\t reading subgrid values'
+    print *,'   reading subgrid values'
     read (2,SUBGRID_SIBDRV)
-    print *,'\t reading sib pbplst'
+    print *,'   reading sib pbplst'
     read (2,PBPLIST_SIBDRV)
     allocate (lonlatpbp(2,ijtlensib))
     lonlatpbp = 0.0
     read(2,*,err=919)lonlatpbp
     919  continue
-    print *,'\t reading sib_control_lst'
+    print *,'   reading sib_control_lst'
     read (2,SIBDRV_CONTROL_LIST)
     close(2)
-    print *, '\t SiB time step (s) = ',dtsib
+    print *, '   SiB time step (s) = ',dtsib
     if(dtsibout > 0) then
-        print *, '\t SiB out written (s) = ',dtsibout
+        print *, '   SiB out written (s) = ',dtsibout
     else
-        print *, '\t SiB out written (months) = ',-dtsibout
+        print *, '   SiB out written (months) = ',-dtsibout
     endif
     if(dtsibres > 0) then
-        print *, '\t SiB restart written (s) = ',dtsibres
+        print *, '   SiB restart written (s) = ',dtsibres
     else
-        print *, '\t SiB restart written (months) = ',-dtsibres
+        print *, '   SiB restart written (months) = ',-dtsibres
     endif
 
     histpp = ndtsibpbp /= 0
-    !-----------------------------------------------------------------------
+    !----------------------------------------------------------------
     ! read in grid information
-    !-----------------------------------------------------------------------
+    !----------------------------------------------------------------
     allocate( latsib(nsib) )
     allocate( lonsib(nsib) )
- print*, 'drvr_type=',drvr_type
+    print*,'   nsib= ',nsib
+    print*, '   drvr_type= ',drvr_type
     if(drvr_type=='single')then
         allocate( areasib(1) )
         allocate(link_hr_sib(1) )
@@ -141,7 +142,7 @@ namelist /SIBDRV_CONTROL_LIST/ &
         subcount = 1
         allocate(subset(1))
         allocate(imultpbpsib(1))
-        allocate(newmap(1,1))
+        !allocate(newmap(1,1))
         allocate(lat_hr(1))
         allocate(lon_hr(1))
         allocate(latpbp(1))
@@ -155,7 +156,7 @@ namelist /SIBDRV_CONTROL_LIST/ &
         subset(1) = 1
         imultpbpsib(1) = 1
         ijtlensib = 1
-        newmap(1,1) = 1
+        !newmap(1,1) = 1
         lat_hr(1) = lonlatpbp(2,1)
         lon_hr(1) = lonlatpbp(1,1)
         ihr = 1
@@ -174,7 +175,7 @@ namelist /SIBDRV_CONTROL_LIST/ &
 
     allocate( latindex(nsib) )
     allocate( lonindex(nsib) )
-    print*, trim(param_path)//'_TI.nc'
+    print*,'   reading parameter file: ',trim(param_path)//'_TI.nc'
     status = nf90_open( trim(param_path)//'_TI.nc', nf90_nowrite, ncid )
     if ( status /= nf90_noerr ) call handle_err( status )
     status = nf90_inq_dimid( ncid, 'nsib', dimid )
@@ -208,96 +209,116 @@ namelist /SIBDRV_CONTROL_LIST/ &
 
     nhr = ihr * jhr
 
-    allocate( latitude(jhr) )
-    allocate( longitude(ihr) )
-    longitude(1) = lllon
-    do i = 2, ihr
-        longitude(i) = longitude(i-1) + dlon
-    enddo
-    latitude(1) = lllat
-    do i = 2, jhr
-        latitude(i) = latitude(i-1) + dlat
+    !kdcorbin, 02/11 - redefined latitude and longitude arrays
+    !allocate( latitude(jhr) )
+    !allocate( longitude(ihr) )
+    !longitude(1) = lllon
+    !do i = 2, ihr
+    !    longitude(i) = longitude(i-1) + dlon
+    !enddo
+    !latitude(1) = lllat
+    !do i = 2, jhr
+    !    latitude(i) = latitude(i-1) + dlat
+    !enddo
+
+    allocate( latitude(nsib) )
+    allocate( longitude(nsib) )
+    do i=1,nsib
+         longitude(i) = lonsib(i)
+         latitude(i) = latsib(i)
     enddo
 
-    !-----------------------------------------------------------------------
+    !---------------------------------------------------------------
     ! calculate subset
-    !-----------------------------------------------------------------------
-    allocate( newmap(ihr,jhr) )
-    newmap(:,:) = 0
-    do i = 1, nsib
-        newmap( lonindex(i), latindex(i) ) = i
-    enddo
+    ! kdcorbin, 02/11 - commenting subset for now
+    !---------------------------------------------------------------
+    !allocate( newmap(ihr,jhr) )
+    !newmap(:,:) = 0
+    !do i = 1, nsib
+    !    newmap( lonindex(i), latindex(i) ) = i
+    !enddo
     
     ! convert domain limits to indices
-    lowerlon = int( (minlon-lllon)/dlon + 1 )
-    upperlon = int( (maxlon-lllon)/dlon + 1 )
-    lowerlat = int( (minlat-lllat)/dlat + 1 )
-    upperlat = int( (maxlat-lllat)/dlat + 1 )
+    !lowerlon = int( (minlon-lllon)/dlon + 1 )
+    !upperlon = int( (maxlon-lllon)/dlon + 1 )
+    !lowerlat = int( (minlat-lllat)/dlat + 1 )
+    !upperlat = int( (maxlat-lllat)/dlat + 1 )
     
     ! make sure we stay within the domain
-    if ( lowerlon < 1 ) lowerlon = 1
-    if ( upperlon > ihr ) upperlon = ihr
-    if ( lowerlat < 1 ) lowerlat = 1
-    if ( upperlat > jhr ) upperlat = jhr
+    !if ( lowerlon < 1 ) lowerlon = 1
+    !if ( upperlon > ihr ) upperlon = ihr
+    !if ( lowerlat < 1 ) lowerlat = 1
+    !if ( upperlat > jhr ) upperlat = jhr
     
     ! count number of landpoints in subdomain
-    init_subcount = 0
-    do j = lowerlon, upperlon
-        do i = lowerlat, upperlat
-            if ( newmap(j,i) > 0 ) init_subcount = init_subcount + 1
-        enddo
-    enddo
+    !init_subcount = 0
+    !do j = lowerlon, upperlon
+    !   do i = lowerlat, upperlat
+    !        if ( newmap(j,i) > 0 ) init_subcount = init_subcount + 1
+    !    enddo
+    !enddo
     
 
     ! create vector indexing landpoints in subdomain
-    allocate( init_subset(init_subcount) )
-    init_subcount = 0
-    do i = lowerlat, upperlat
-        do j = lowerlon, upperlon
-            if ( newmap(j,i) > 0 ) then
-                init_subcount = init_subcount + 1
-                init_subset(init_subcount) = newmap(j,i)
-            endif
-        enddo
-    enddo
+    !allocate( init_subset(init_subcount) )
+    !init_subcount = 0
+    !do i = lowerlat, upperlat
+    !    do j = lowerlon, upperlon
+    !        if ( newmap(j,i) > 0 ) then
+    !            init_subcount = init_subcount + 1
+    !            init_subset(init_subcount) = newmap(j,i)
+    !        endif
+    !    enddo
+    !enddo
     
     ! calculate subcount for parallelization
-    olength = init_subcount / nchunks
-    subcount = olength
-    if ( nchunks == 1 ) then
-        subcount = init_subcount
-    elseif ( rank == nchunks ) then
-        if ( (rank-1)*olength + olength <= init_subcount ) then
-            subcount = init_subcount - (rank-1)*olength
-        else
-            subcount = mod( init_subcount, olength*(nchunks-1) )
-        endif
-    endif
-    print*, '\t nsib=',subcount, 'nsibmax=',nsib
+    !olength = init_subcount / nchunks
+    !subcount = olength
+    !if ( nchunks == 1 ) then
+    !    subcount = init_subcount
+    !elseif ( rank == nchunks ) then
+    !    if ( (rank-1)*olength + olength <= init_subcount ) then
+    !        subcount = init_subcount - (rank-1)*olength
+    !    else
+    !        subcount = mod( init_subcount, olength*(nchunks-1) )
+    !    endif
+    !endif
+    !print*, '   nsib=',subcount, 'nsibmax=',nsib
     
     ! calculate starting and ending vertices
-    start_index = (rank-1) * olength + 1
-    end_index = start_index + subcount - 1
+    !start_index = (rank-1) * olength + 1
+    !end_index = start_index + subcount - 1
    
     ! allocate subset and assign values
-    allocate( subset(subcount) )
-    subset(:) = init_subset( start_index : end_index )
-    deallocate( init_subset )
+    !allocate( subset(subcount) )
+    !subset(:) = init_subset( start_index : end_index )
+    !deallocate( init_subset )
 
     ! fill 2d map with new landmask
-    allocate( sublat(subcount) )
-    allocate( sublon(subcount) )
-    newmap(:,:) = 0
-    do i = 1, subcount
-        newmap(lonindex(subset(i)),latindex(subset(i))) = i
-        sublat(i) = latindex(subset(i))
-        sublon(i) = lonindex(subset(i))
-    enddo
+    !allocate( sublat(subcount) )
+    !allocate( sublon(subcount) )
+    !newmap(:,:) = 0
+    !do i = 1, subcount
+    !    newmap(lonindex(subset(i)),latindex(subset(i))) = i
+    !    sublat(i) = latindex(subset(i))
+    !    sublon(i) = lonindex(subset(i))
+    !enddo
     
-   
-    !-----------------------------------------------------------------------
+    !kdcorbin, 02/11 - added following code to maintain original grid
+    subcount = nsib
+    allocate ( subset(subcount) )
+    allocate ( sublat(subcount) )
+    allocate ( sublon(subcount) )
+    subset = latindex
+    !fill 2D map with new landmask
+    do i = 1, subcount
+         sublat(i) = latindex(subset(i))
+         sublon(i) = lonindex(subset(i))
+     enddo
+
+    !---------------------------------------------------------------
     ! Find pbp indices and remove duplicates
-    !-----------------------------------------------------------------------
+    !---------------------------------------------------------------
     allocate(temp_pbp(2,ijtlensib))
     temp_pbp(:,:) = 0
     do i = 1, ijtlensib
@@ -313,10 +334,9 @@ namelist /SIBDRV_CONTROL_LIST/ &
             print *, 'Point ', lonlatpbp(1,i), lonlatpbp(2,i),  &
                 'is not inside the grid, please fix this.'
             stop
-        endif
-        if ( newmap(lon_index,lat_index) /= 0 ) then
-            temp_pbp(1,i) = lon_index
-            temp_pbp(2,i) = lat_index
+        else  !kdcorbin, 02/11 - removed newmap check
+             temp_pbp(1,i) = lon_index
+             temp_pbp(2,i) = lat_index
         endif
     enddo
 
@@ -352,7 +372,8 @@ namelist /SIBDRV_CONTROL_LIST/ &
         do i = 1, ijtlensib
             if ( temp_pbp(1,i) /= 0 .and. temp_pbp(2,i) /= 0 )  then
                 j = j + 1
-                imultpbpsib(j) = newmap(temp_pbp(1,i),temp_pbp(2,i))
+                !kdcorbin, 02/11 - changed from newmap(temp_pbp(1,i),temp_pbp(2,i))
+                imultpbpsib(j) = j
                 latpbp(j) = lonlatpbp(2,i)
                 lonpbp(j) = lonlatpbp(1,i)
             endif
@@ -364,6 +385,6 @@ namelist /SIBDRV_CONTROL_LIST/ &
 
     deallocate( temp_pbp )
     deallocate( lonlatpbp )
-    deallocate( newmap )
+    !deallocate( newmap )
 
 end subroutine init_grid
