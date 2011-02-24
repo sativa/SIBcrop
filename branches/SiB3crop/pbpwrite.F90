@@ -121,7 +121,7 @@ character(len =256) ::filename
 end subroutine create_pbp
 
 
-!-----------------------------------------------------------------------
+!-----------------------------------------------------------------
 
 subroutine write_pbp( npoints, year, month, day, seconds,  &
                       numvars, pbp, pbptid, pbpcid,  &
@@ -184,13 +184,12 @@ integer :: pbpid
             (/1,step/), (/npoints,1/) )
     enddo
     
-
    status = nf90_close( pbpid )
 
 end subroutine write_pbp
 
 
-!-----------------------------------------------------------------------
+!-----------------------------------------------------------------
 
 subroutine create_pbp2( npoints, levels, year, month, numvars,  &
                         totnumvars, latitude, longitude, dopbp2sib,  &

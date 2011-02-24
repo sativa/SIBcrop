@@ -21,7 +21,8 @@ endif
 # BLAS (Basic Linear Algebra System) and LAPACK (Linear Algebra Package)
 
 # Directory containing netcdf's include/ and lib/ directories.
-NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
+NETCDF_ROOT = /usr/local/
+#NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
 #NETCDF_ROOT = /usr/local/netcdf3
 
 
@@ -132,20 +133,24 @@ DRV_OBJS  = init_grid.o \
 	    phen_mapper.o \
 	    crop_accum.o \
 	    leaf_weight.o \
+	    check.o \
 	    init_sibdrv.o \
+	    init_crop.o \
         time_init.o \
         time_manager.o \
         sibdrv_read_single.o \
 	    sibdrv_read_ecmwf.o \
         sibdrv_read_ncep2.o \
         sibdrv_read_geos4.o \
+	sibdrv_read_narr.o \
 	    read_ti.o \
-	    read_ti_crop_single.o \
+	    set_ti.o \
 	    mapper.o \
 	    phen_mapper.o \
 	    calculate_td.o \
 	    read_ndvi.o \
 	    previous_bc.o \
+	    update_bc.o \
         rtape_sib.o \
         diagnostic_output.o \
         pbpwrite.o \

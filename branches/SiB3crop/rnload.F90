@@ -1,4 +1,4 @@
-!==================SUBROUTINE RNLOAD====================================
+!==============SUBROUTINE RNLOAD========================
 subroutine rnload(sib)
 
     use kinds
@@ -6,14 +6,14 @@ subroutine rnload(sib)
 
     implicit none
 
-    !----------------------------------------------------------------------
+    !---------------------------------------------------------------
 
     type(sib_t), intent(inout) :: sib
 
-    !----------------------------------------------------------------------  
+    !---------------------------------------------------------------  
 
     !
-    !=======================================================================
+    !====================================================
     !
     !    calculation of absorption of radiation by surface.  Note that
     !       output from this calculation (radc3) only accounts for the 
@@ -21,29 +21,29 @@ subroutine rnload(sib)
     !       total net radiation calculation is performed in subroutine
     !       netrad.
     !
-    !=======================================================================
+    !====================================================
     !
 
-    !++++++++++++++++++++++++++++++OUTPUT+++++++++++++++++++++++++++++++++++
+    !+++++++++++++++++++++++++OUTPUT+++++++++++++++++++++
     !
     !       RADN(2,3)      INCIDENT RADIATION FLUXES (W M-2)
     !       RADC3(2)       SUM OF ABSORBED RADIATIVE FLUXES (W M-2) 
     !
-    !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    !+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
     integer(kind=int_kind) :: i, iveg, iwave, irad
     real(kind=dbl_kind)    :: radn(2,2)
 
-    !-----------------------------------------------------------------------
+    !-------------------------------------------------------------
     !     CALCULATION OF SOIL MOISTURE STRESS FACTOR.
     !     AVERAGE SOIL MOISTURE POTENTIAL IN ROOT ZONE (LAYER-2) USED AS
     !     SOURCE FOR TRANSPIRATION.
     !
     !      RADN        (F(IW,IMU,O)) : EQUATION (19-22) , SE-86
     !      RADC3       (FC,FGS)      : EQUATION (21,22) , SE-86
-    !-----------------------------------------------------------------------
+    !--------------------------------------------------------------
 
 
     sib%diag%radc3(1) = 0.

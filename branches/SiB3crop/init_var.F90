@@ -19,63 +19,46 @@ integer k
 
 !set all diagnostic variables to 0.0;
 
-!itb_crop
+!Crop Variables (modified by kdcorbin, 02/11)
+    sib%diag%gdd = 0.
+    sib%diag%tempf = 0.
+    sib%diag%tempc = 0.
+    sib%diag%ta_bar = 0.
+    sib%diag%tb_temp = 0.
     sib%diag%tb_indx = 0
-    sib%diag%pd      = 0
-    sib%diag%ndf_opt = 0
-    sib%diag%nd_emerg= 0
-    sib%diag%pd7     = 0
-    sib%diag%pd7_est = 0
-    sib%diag%pdindx7 = 0
-    sib%diag%emerg_d = 0
-  
 
+    sib%diag%rstfac_d = 0.
+    sib%diag%tb_rst = 0.
 
-    do j=1,20000
-      sib%diag%tb_temp(j) = 0.0
-      sib%diag%tb_assim(j) = 0.0 !added for daily accumulation of assimilation-EL
-      sib%diag%tb_rst(j) =0.0
+    sib%diag%assim_d = 0.
+    sib%diag%tb_assim = 0.
 
-    enddo
-	
-		sib%diag%tempf = 0.0
-		sib%diag%tempc=0.0
-		sib%diag%assim_d = 0.0
-		sib%diag%w_main=0.0
-		sib%diag%w_main_pot=0.0
-                sib%diag%tot_biomass=0.0
-		sib%diag%leafwt_c = 0.0
-		sib%diag%phen_LAI=0.0
-                sib%diag%tempc_sib=0.0
-                sib%diag%phen_maintr_sib=0.0
+    sib%diag%w_main = 0.
+    sib%diag%w_main_pot = 0.
+    sib%diag%leafwt_c = 0.
+    sib%diag%phen_lai = 0.
 
-     do j=1,4		
-
-
-			sib%diag%cum_wt(j) = 0.0
-                        sib%diag%cum_wt_P(j)=0.0
-			sib%diag%cum_drywt(j) = 0.0
-
-			sib%diag%alloc(j) = 0.0
-			sib%diag%phen_maintr(j) = 0.0
-			sib%diag%phen_growthr(j) = 0.0
-			sib%diag%wch(j) = 0.0
-			sib%diag%allocwt(j) = 0.0
+     do j=1,4
+          sib%diag%day_allocwt(j) = 0.
+          sib%diag%alloc(j) = 0.
+          sib%diag%allocwt(j) = 0.
+  	  sib%diag%cum_wt(j) = 0.
+	  sib%diag%cum_drywt(j) = 0.
+          sib%diag%wch(j) = 0.
+          sib%diag%phen_maintr(j) = 0.0
+	  sib%diag%phen_growthr(j) = 0.0
     enddo
 
+    sib%diag%tot_biomass= 0.
 
-    sib%diag%ta_bar = 0.0
-!EL..added for testing..
-    sib%diag%rstfac_d = 0.0
-    sib%diag%gdd    = 0.0
-    sib%diag%gdd_c  = 0.0 !added temporarily
-
-    sib%diag%use_phen = 0
-	sib%diag%phen_switch=0
-
-
-!itb_crop_end
-
+   sib%diag%year = 0
+   sib%diag%doy = 0
+   sib%diag%pd = 0
+   sib%diag%emerg_d = 0
+   sib%diag%ndf_opt = 0
+   sib%diag%nd_emerg = 0
+   sib%diag%phen_switch=0
+!End Crop Variables
 
 	sib%diag%eastar = 0.0
 	sib%diag%rha = 0.0

@@ -1,6 +1,6 @@
-!-------------------------------------------------------------------------------
+!-----------------------------------------------------------------
 subroutine bc_interp( sib, time )
-!-------------------------------------------------------------------------------
+!-----------------------------------------------------------------
 ! interpolates between bc data points
 !
 ! Modifications:
@@ -11,7 +11,7 @@ subroutine bc_interp( sib, time )
 !  Kevin Schaefer added ndvi interpolation (7/9/03)
 !  Kevin Schaefer changed ndvi variable names to match bc convention (3/15/05)
 !         prevndvi to ndvi1  curndvi to ndvi2 
-!-----------------------------------------------------------------------
+!-----------------------------------------------------------------
 
 use sibtype
 use timetype
@@ -53,19 +53,21 @@ integer k2    ! 2nd month index for interpolation scaling factors
         sib(i)%param%zlt      = tpgf1*sib(i)%param%zlt1      + tpgf2*sib(i)%param%zlt2
         sib(i)%param%green    = tpgf1*sib(i)%param%green1    + tpgf2*sib(i)%param%green2
         sib(i)%param%z0d      = tpgf1*sib(i)%param%z0d1      + tpgf2*sib(i)%param%z0d2
-        sib(i)%param%zp_disp  = tpgf1*sib(i)%param%zp_disp1  + tpgf2*sib(i)%param%zp_disp2
-
-
+        sib(i)%param%zp_disp  = tpgf1*sib(i)%param%zp_disp1  + &
+                      tpgf2*sib(i)%param%zp_disp2
 
         sib(i)%param%cc1      = tpgf1*sib(i)%param%rbc1      + tpgf2*sib(i)%param%rbc2
         sib(i)%param%cc2      = tpgf1*sib(i)%param%rdc1      + tpgf2*sib(i)%param%rdc2
-        sib(i)%param%gmudmu   = tpgf1*sib(i)%param%gmudmu1   + tpgf2*sib(i)%param%gmudmu2
-        sib(i)%param%d13cresp = tpgf1*sib(i)%param%d13cresp1 + tpgf2*sib(i)%param%d13cresp2
+        sib(i)%param%gmudmu   = tpgf1*sib(i)%param%gmudmu1   + &
+                      tpgf2*sib(i)%param%gmudmu2
+        sib(i)%param%d13cresp = tpgf1*sib(i)%param%d13cresp1 + &
+                      tpgf2*sib(i)%param%d13cresp2
 
         do k=1,physmax
            sib(i)%param%physfrac(k) = tpgf1*sib(i)%param%physfrac1(k) +    &
                                    tpgf2*sib(i)%param%physfrac2(k)
         enddo
+
     enddo
 
 end subroutine bc_interp

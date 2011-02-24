@@ -69,10 +69,9 @@ integer(kind=int_kind) :: i,j
 
 !itb_crop...accumulate the CAS temperature for calculating Ta_bar
     sib%diag%tb_indx = sib%diag%tb_indx + 1
-    sib%diag%tb_temp(sib%diag%tb_indx) = sib%prog%ta 
-    sib%diag%tb_assim(sib%diag%tb_indx)=sib%diag%assim(6) !for daily accumulation of assim- EL
-    sib%diag%tb_rst(sib%diag%tb_indx) = sib%diag%rstfac(2)
-!    print*,sib%diag%tb_indx,sib%diag%tb_temp(sib%diag%tb_indx)
-
+    sib%diag%tb_temp = sib%diag%tb_temp + sib%prog%ta 
+    sib%diag%tb_assim = sib%diag%tb_assim + sib%diag%assim(6) 
+               !daily accumulation of assim
+    sib%diag%tb_rst = sib%diag%tb_rst + sib%diag%rstfac(2)
 
 end subroutine addinc

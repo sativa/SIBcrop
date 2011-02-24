@@ -1,4 +1,4 @@
-!==================SUBROUTINE PHOSIB===================================
+!===============SUBROUTINE PHOSIB======================
 subroutine phosib(sib,sib_loc)
 
     use kinds
@@ -17,18 +17,18 @@ subroutine phosib(sib,sib_loc)
     implicit none
 
 
-    !----------------------------------------------------------------------
+    !--------------------------------------------------------------
 
     type(sib_t), intent(inout) :: sib
 
     type(sib_local_vars)     ,intent(inout) :: sib_loc
     ! variables local to SiB
 
-    !----------------------------------------------------------------------  
+    !---------------------------------------------------------------  
 
 
 
-    !=======================================================================
+    !===================================================
     !
     !     CALCULATION OF CANOPY CONDUCTANCE USING THE INTEGRATED   
     !     MODEL RELATING ASSIMILATION AND STOMATAL CONDUCTANCE.
@@ -71,32 +71,30 @@ subroutine phosib(sib,sib_loc)
     !      RESPC               = CANOPY RESPIRATION
     !      RESPG               = GROUND RESPIRATION
     !
-    !----------------------------------------------------------------------
+    !---------------------------------------------------------------
     !
     !         RSTFAC(1) ( F(H-S) )               : EQUATION (17,18), SE-92A
     !         RSTFAC(2) ( F(SOIL) )              : EQUATION (12 mod), SE-89
     !         RSTFAC(3) ( F(TEMP) )              : EQUATION (5b)   , CO-92
     !         RSTFAC(4) ( F(H-S)*F(SOIL)*F(TEMP))
     !
-    !-----------------------------------------------------------------------
+    !----------------------------------------------------------------
 
 
-    !++++++++++++++++++++++++++++++OUTPUT+++++++++++++++++++++++++++++++++++
+    !++++++++++++++++++++++++++++++OUTPUT+++++++++++++++++
     !
     !       ASSIMN         CARBON ASSIMILATION FLUX (MOL M-2 S-1) 
     !       RST            CANOPY RESISTANCE (S M-1)
     !       RSTFAC(4)      CANOPY RESISTANCE STRESS FACTORS 
     !
-    !++++++++++++++++++++++++++DIAGNOSTICS++++++++++++++++++++++++++++++++++
-    !
+    !++++++++++++++++++++++++++DIAGNOSTICS+++++++++++++++++
     !       RESPC          CANOPY RESPIRATION (MOL M-2 S-1)
     !       RESPG          GROUND RESPIRATION (MOL M-2 S-1)
     !       PCO2I          CANOPY INTERNAL CO2 CONCENTRATION (MOL MOL-1)
     !       GSH2O          CANOPY CONDUCTANCE (MOL M-2 S-1)
     !       H2OS           CANOPY SURFACE H2O CONCENTRATION (MOL MOL-1)
     !
-    !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+    !+++++++++++++++++++++++++++++++++++++++++++++++++++++
     !     Modifications:
     !       - gs (stomatal conductance reduced for freezing soils per Jim Collatz
     !         dd 950221      
@@ -120,9 +118,6 @@ subroutine phosib(sib,sib_loc)
     real(kind=dbl_kind) :: co2cap    ! conversion factor from ppm to mole/m2 in the CAS
     real(kind=dbl_kind) :: c3        ! C3 flag
     real(kind=dbl_kind) :: c4        ! C4 flag
-    real(kind=dbl_kind) :: scatp     ! 
-    real(kind=dbl_kind) :: scatg     !
-    real(kind=dbl_kind) :: park      !
     real(kind=dbl_kind) :: qt        !
     real(kind=dbl_kind) :: respn     !
     real(kind=dbl_kind) :: vm        !
@@ -232,26 +227,16 @@ subroutine phosib(sib,sib_loc)
     co2cap = sib%diag%cas_cap_co2 * sib%prog%ps*100.0 /rstar/sib%prog%ta
 
 
-    !-----------------------------------------------------------------------
+    !--------------------------------------------------------------
     !
     !     CALCULATION OF CANOPY PAR USE PARAMETER.
     !
     !      APARKK      (PI)     : EQUATION (31) , SE-92A
-    !-----------------------------------------------------------------------
+    !---------------------------------------------------------------
 
-    scatp =     sib%param%green  *   (  sib%param%tran(1,1) +  sib%param%ref(1,1) )   &
-   +  ( 1.- sib%param%green ) *  (  sib%param%tran(1,2) +  sib%param%ref(1,2) )
+    !kdcorbin, 02/11 - moved calculation of scatp, scatg, and park to mapper
 
-    scatg =  sib%param%tran(1,1) +  sib%param%ref(1,1)
-
-    park = sqrt(1.-scatp) *  sib%param%gmudmu
-
-    !itb...Niall integrates physfrac into aparkk. I'm not sure I like
-    !itb...doing it that way--SO I WON'T, FOR NOW...
-
-    sib%diag%aparkk   = sib%param%aparc / park * sib%param%green
-
-
+    sib%diag%aparkk   = sib%param%aparc / sib%param%park * sib%param%green
 
     !itb...start PHYSIOLOGY LOOP here...
     !itb...potentially 5 different physiologies can share the same
@@ -286,12 +271,9 @@ subroutine phosib(sib,sib_loc)
         sib%diag%respc(6)   = 0.0
         
         rstfac3(6)          = 0.0
-    
 
     phys_loop : do i=1,5
-
         if ( sib%param%physfrac(i) == 0.0 ) cycle phys_loop
-
 
         if( sib%param%phystype(i) == 3) then
             c3 = 1.
@@ -300,24 +282,22 @@ subroutine phosib(sib,sib_loc)
             c3 = 0.
             c4 = 1.
         else
-            print*,'loop index=',i,' phystype=',sib%param%phystype(i)
+            print*,'loop index=',i,' phystype=',sib%param%phystype(i), &
+                      'physfrac=',sib%param%physfrac(i)
             stop'ERROR:UNKNOWN PHYSIOLOGY TYPE IN PHOSIB'
 
         endif
 
-
-       
-        !-----------------------------------------------------------------------
+        !---------------------------------------------------------------
         !
         !     Q-10 AND STRESS TEMPERATURE EFFECTS
         !
         !      QT          (QT)    : TABLE (2)     , SE-92A
-        !-----------------------------------------------------------------------
+        !---------------------------------------------------------------
 
         qt = 0.1 * ( sib%prog%tc - sib%param%trop(i) )
 
         respn = sib%param%respcp(i) * sib%param%vmax0(i) * sib%diag%rstfac(2)
-
 
         !itb...patch to prevent underflow if temp is too cool...
         if(sib%prog%tc >= sib%param%trdm(i) )then
@@ -332,15 +312,14 @@ subroutine phosib(sib,sib_loc)
         templ = 1. + EXP(sib%param%slti(i) * (sib%param%hltii(i) - sib%prog%tc))
 
         temph = 1. + EXP(sib%param%shti(i) * (sib%prog%tc - sib%param%hhti(i) ))
-!print*,templ,temph,sib%prog%tc
+
 
         rstfac3(i) = 1./( templ*temph)
-!print*,templ,temph,rstfac3(i),i
+
         vm    = vm/temph * sib%diag%rstfac(2)*c3 &
             + vm * sib%diag%rstfac(2)*rstfac3(i) * c4
 
-!print *,sib%param%phystype(i),sib%param%physfrac(i),vm,sib%param%vmax0(i)
-        !-----------------------------------------------------------------------
+        !----------------------------------------------------------------
         !
         !     MICHAELIS-MENTEN CONSTANTS FOR CO2 AND O2, CO2/O2 SPECIFICITY,
         !     COMPENSATION POINT       
@@ -351,7 +330,7 @@ subroutine phosib(sib,sib_loc)
         !      GAMMAS       (GAMMA-*): TABLE (2)     , SE-92A
         !      OMSS         (OMEGA-S): EQUATION (13) , SE-92A
         !      BINTC        (B*ZLT)  : EQUATION (35) , SE-92A
-        !-----------------------------------------------------------------------
+        !----------------------------------------------------------------
 
         zkc     = 30. * 2.1**qt
         zko     = 30000. * 1.2**qt
@@ -367,7 +346,6 @@ subroutine phosib(sib,sib_loc)
                 ( sib%prog%radvbc + sib%prog%radvdc )
         endif
 
-
         !...convert resistance to conductance  to  mol/ (m2 sec)
         !...(44.6 mol m^-3 conversion factor)
         if ( sib%prog%rst(i) == 0. ) sib%prog%rst(i) = sib%prog%rst(1)
@@ -380,7 +358,7 @@ subroutine phosib(sib,sib_loc)
         rrkk   = zkc*( 1. + po2m/zko ) * c3 &
             + sib%param%vmax0(i)/5.* ( 1.8**qt) * c4
 
-        par    = sib%diag%pfd * sib%param%effcon(i) * ( 1.-scatg )
+        par    = sib%diag%pfd * sib%param%effcon(i) * ( 1.- sib%param%scatg )
 
         soilfrztg = 1.+exp(-1.5 * &
             (max(270.0_dbl_kind,sib%prog%td(1))-273.16))
@@ -396,12 +374,12 @@ subroutine phosib(sib,sib_loc)
             /templ * sib%diag%rstfac(2) * c3 &
             + rrkk * sib%diag%rstfac(2) * c4
 
-        !-----------------------------------------------------------------------
+        !-------------------------------------------------------------
         !
         !     FIRST GUESS IS MIDWAY BETWEEN COMPENSATION POINT AND MAXIMUM
         !     ASSIMILATION RATE.
         !
-        !-----------------------------------------------------------------------
+        !-------------------------------------------------------------
 
 
         range1  = sib%prog%pco2m * ( 1. - 1.6/sib%param%gradm(i) ) - gammas
@@ -430,8 +408,6 @@ subroutine phosib(sib,sib_loc)
                 sib%param%btheta(i),par,gammas, sib%diag%respc(i),    &
                 rrkk, omss, c3, c4,pco2y(ic), assimny(ic),      &
                 assimy(ic))
-
-
 
             !pl now prognose the new CAS CO2 according to flux divergence
             !pl we are going to do this in mol C / mol air (same as PaC/PaAir)
@@ -471,10 +447,6 @@ subroutine phosib(sib,sib_loc)
 
         enddo !iteration loop
 
-
-!print'(3g16.8)',sib%param%atheta(i),sib%diag%pfd,sib%diag%assimn(i)
-
-
         !itb...have iterated for physiology-specific values, now save them
 
         sib%diag%pco2c(i)  = pco2y(icconv)
@@ -484,8 +456,6 @@ subroutine phosib(sib,sib_loc)
             c3 * sib%diag%assimn(i)/xgco2m*sib%prog%ps*100.0
         sib%diag%pco2s(i)  = sib%diag%pco2i(i) +  &
             sib%diag%assimn(i)/gsh2o *sib%prog%ps*100.0
-
-
 
         !
         !  update stomatal resistance...
@@ -530,9 +500,9 @@ subroutine phosib(sib,sib_loc)
         !...leaf conductance...
         sib%diag%ggl(i) = 1.0 / (sib%prog%rst(i)* sib%diag%rc)
 
-        !-----------------------------------------------------------------------
+        !---------------------------------------------------------------
         ! CALCULATION OF POTENTIAL ASSIMILATION
-        !-----------------------------------------------------------------------
+        !---------------------------------------------------------------
 
         ! Make assimn a top leaf, not the canopy.
         sib%diag%assimnp(i) = sib%diag%assimn(i) / sib%diag%aparkk
@@ -573,9 +543,9 @@ subroutine phosib(sib,sib_loc)
 
         sib%diag%assimpot(i) = ((omspot + omppot)-SQRT(sqrtin))/           &
             (2. * sib%param%btheta(i))
-        !-----------------------------------------------------------------------
+        !--------------------------------------------------------------
         ! CALCULATION OF STRESS FACTOR LIMITED ASSIMILATION
-        !-----------------------------------------------------------------------
+        !--------------------------------------------------------------
 
         ! Stressed rubisco limitation.
         omcci = vm*((pco2ipot-gammas)/(pco2ipot+rrkk)*c3+ c4)
@@ -598,9 +568,9 @@ subroutine phosib(sib,sib_loc)
         ! Quad 2. Final stress limited top leaf photosynthesis.
         sib%diag%assimci(i) = ((omsci+ompci)-SQRT(sqrtin))/(2.*sib%param%btheta(i))
 
-        !-----------------------------------------------------------------------
+        !--------------------------------------------------------------
         ! CALCULATION OF CONTROL COEFFICIENTS
-        !-----------------------------------------------------------------------
+        !--------------------------------------------------------------
 
         ! Intermediate.
         dompdomc = (ompci-sib%diag%omepot(i) )/                            &
@@ -619,9 +589,9 @@ subroutine phosib(sib,sib_loc)
             (2.*sib%param%btheta(i)*sib%diag%assimci(i)-ompci-omsci))*  &
             omsci/ascitemp
 
-        !-----------------------------------------------------------------------
+        !--------------------------------------------------------------
         !  OUTPUT:  POTENTIAL ASSIMILATION RATES TO BE SUMMED
-        !-----------------------------------------------------------------------
+        !--------------------------------------------------------------
         ! Canopy values (overwrites top leaf).
 
         sib%diag%omepot(i)   = sib%diag%omepot(i)   * sib%diag%aparkk
@@ -632,9 +602,10 @@ subroutine phosib(sib,sib_loc)
         sib%diag%ansqr(i)    = sib%diag%antemp(i)   * sib%diag%antemp(i)
         sib%diag%assimnp(i)  = sib%diag%assimnp(i)  * sib%diag%aparkk
 
-        !-----------------------------------------------------------------------
-        ! OUTPUT:  WEIGHTED STRESS FACTORS AND OTHER DIAGNOSTIC OUTPUTS TO BE SUMMED
-        !-----------------------------------------------------------------------
+        !-------------------------------------------------------------
+        ! OUTPUT:  WEIGHTED STRESS FACTORS AND OTHER DIAGNOSTIC OUTPUTS 
+        ! TO BE SUMMED
+        !--------------------------------------------------------------
 
         ! Water stress.
         sib%diag%wsfws(i) = sib%diag%assimpot(i)*(1.-sib%diag%rstfac(2))*  &
@@ -738,40 +709,37 @@ subroutine phosib(sib,sib_loc)
     !itb...carbon flux between CAS and reference level (mol C m^-2 sec^-1)
     sib%diag%cflux = gah2o*(co2a-co2m)
 
-    sib%prog%expand=sib%prog%pco2ap*sib%diag%cas_cap_co2/rstar/sib%prog%ta- sib%prog%cas_old
+    sib%prog%expand=sib%prog%pco2ap*sib%diag%cas_cap_co2/ &
+              rstar/sib%prog%ta- sib%prog%cas_old
   
-! original semi-implicit time differencing
+    ! original semi-implicit time differencing
     co2a = (co2a + (dtt/co2cap) * (sib%diag%respg - sib%diag%assimn(6)    & 
         +co2m*gah2o ) ) / (1+dtt*gah2o/co2cap)
     sib%prog%pco2ap = co2a * sib%prog%ps * 100.
-!
-! basic forward time differencing
-!    sib%prog%pco2ap=sib%prog%pco2ap+(sib%diag%respg - sib%diag%assimn(6)  &
-!    -sib%diag%cflux)*dtt*rstar*sib%prog%ta/sib%diag%cas_cap_co2
 
-! semi-implicit time differencing with cflux damping
-!    if (sib%diag%cflux*dtt > 0.01*sib%prog%cas_old) then 
+    ! basic forward time differencing
+     !sib%prog%pco2ap=sib%prog%pco2ap+(sib%diag%respg - sib%diag%assimn(6)  &
+     !      -sib%diag%cflux)*dtt*rstar*sib%prog%ta/sib%diag%cas_cap_co2
 
-!      co2a_star = (co2a + (dtt/co2cap) * (sib%diag%respg - sib%diag%assimn(6)    & 
-!        +co2m*gah2o ) ) / (1+dtt*gah2o/co2cap)
+     ! semi-implicit time differencing with cflux damping
+     !if (sib%diag%cflux*dtt > 0.01*sib%prog%cas_old) then 
+     !    co2a_star = (co2a + (dtt/co2cap) * (sib%diag%respg - sib%diag%assimn(6)    & 
+     !             +co2m*gah2o ) ) / (1+dtt*gah2o/co2cap)
+     !    co2a = 0.4*co2a_star + 0.6* co2a
+     !    sib%prog%pco2ap = co2a * sib%prog%ps * 100.
+     !else
+     !   co2a = (co2a + (dtt/co2cap) * (sib%diag%respg - sib%diag%assimn(6)    & 
+     !            +co2m*gah2o ) ) / (1+dtt*gah2o/co2cap)
+     !   sib%prog%pco2ap = co2a * sib%prog%ps * 100.
+     !endif
+     !sib%diag%cflux = gah2o*(co2a-co2m)
 
-!      co2a = 0.4*co2a_star + 0.6* co2a
-!      sib%prog%pco2ap = co2a * sib%prog%ps * 100.
-!      print*, sib%prog%pco2ap,sib%prog%pco2m
-!    else
-!      co2a = (co2a + (dtt/co2cap) * (sib%diag%respg - sib%diag%assimn(6)    & 
-!        +co2m*gah2o ) ) / (1+dtt*gah2o/co2cap)
-!      sib%prog%pco2ap = co2a * sib%prog%ps * 100.
-!    endif
-    sib%diag%cflux = gah2o*(co2a-co2m)
+     ! moles per m2 CO2 in canopy air space
+     sib%prog%cas=sib%prog%pco2ap*sib%diag%cas_cap_co2/rstar/sib%prog%ta
 
-!
-! moles per m2 CO2 in canopy air space
-    sib%prog%cas=sib%prog%pco2ap*sib%diag%cas_cap_co2/rstar/sib%prog%ta
-
-    sib%diag%rstfac(3) = rstfac3(6)
-    sib%diag%rstfac(4) = sib%diag%rstfac(1) * sib%diag%rstfac(2) *  &
-        sib%diag%rstfac(3)
+     sib%diag%rstfac(3) = rstfac3(6)
+     sib%diag%rstfac(4) = sib%diag%rstfac(1) * sib%diag%rstfac(2) *  &
+                   sib%diag%rstfac(3)
 
     !...CFRAX...
     !...one last call to calculate canopy-mean discrimination values
@@ -779,6 +747,5 @@ subroutine phosib(sib,sib_loc)
     call cfrax_final(sib)
 
     !...CFRAX...
-
 
 end subroutine phosib

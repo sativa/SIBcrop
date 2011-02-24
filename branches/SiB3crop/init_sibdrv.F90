@@ -45,30 +45,9 @@ type(time_struct), intent(inout) :: time
 
 integer(kind=int_kind) :: i
 
-! begin time dependant, output variables
-type time_dep_var
-   real (kind=real_kind) :: fPAR    ! Canopy absorbed fraction of PAR
-   real (kind=real_kind) :: LAI     ! Leaf-area index
-   real (kind=real_kind) :: Green   ! Canopy greeness fraction of LAI
-   real (kind=real_kind) :: zo      ! Canopy roughness coeff 
-   real (kind=real_kind) :: zp_disp ! Zero plane displacement
-   real (kind=real_kind) :: RbC     ! RB Coefficient (c1)
-   real (kind=real_kind) :: RdC     ! RC Coefficient (c2)
-   real (kind=real_kind) :: gmudmu  ! Time-mean leaf projection
-end type time_dep_var
-
-type(time_dep_var) TimeVar
-
-!itb_crop
-
-type(aero_var),dimension(50,50) :: tempaerovar
-real(kind=real_kind),dimension(2,2) :: temptran,tempref
-integer(kind=int_kind) :: temp_biome
-
-
     print *, 'INIT_SIBDRV:'
 
-    !itb---------------------------------------------------------------------
+    !itb--------------------------------------------------------
     !itb...initialize some seasonal diagnostic values...
 
     do i = 1, subcount
@@ -80,167 +59,31 @@ integer(kind=int_kind) :: temp_biome
         sib(i)%stat%pt_num=i
     enddo    
 
-
-
     ! parse sib_qpopts and sib_pbpopts to see which variables are output
     call read_qp_pbp_opts
     
     ! initialize time variables
-    print *, '\t initialize time variables'
+    print *, '   initialize time variables'
     call time_init( time )
     sib(:)%stat%julday = time%doy
 
     ! read in time-invariant boundary conditions for global runs
-    if ( drvr_type /= 'single' ) call read_ti(sib)
-    
+    print *,'   reading time-invariant boundary conditions'
+    call read_ti(sib)
+
     ! calculate previous month's time-variant boundary conditions
     !  and read in time-invariant boundary conditions
-    print *, '\t obtaining previous month time-variant boundary conditions'
-
-
-!itb_crop...bypass the parameter file time-varying values. will
-!itb_crop...call mapper from here, using minimum NDVI value
-!itb_crop...specified in sibtype.F90
-
-
-!itb_crop...still need to read in the time-invariant values.
-!itb_crop...CHECK HOW THIS IS TREATED IN TRUNK CODE
+    print *, '   obtaining previous month time-variant boundary conditions'
     call previous_bc( sib, time )
 
-!itb_crop...now replace the time-varying params
-    print*,'previous_bc'
-
-
-!itb_crop...WHAT ABOUT MULTI-POINT RUNS?
-    call read_ti_crop_single(sib)
-
-    if( sib(1)%param%biome >= 20.0 ) then
-       temp_biome = 12
-    else
-       temp_biome =int(sib(1)%param%biome)
-    endif
-
-    tempaerovar = aerovar(:,:,temp_biome)
-
-!itb_crop...assign values to tempaerovar
-
-    temptran(1,1) = sib(1)%param%tran(1,1)
-    temptran(1,2) = sib(1)%param%tran(1,2)
-    temptran(2,1) = sib(1)%param%tran(2,1)
-    temptran(2,2) = sib(1)%param%tran(2,2)
-
-    tempref(1,1) = sib(1)%param%ref(1,1)
-    tempref(1,2) = sib(1)%param%ref(1,2)
-    tempref(2,1) = sib(1)%param%ref(2,1)
-    tempref(2,2) = sib(1)%param%ref(2,2)
-
-
-    print*,'read_ti_crop'
-
-!itb_crop...NEED TO READ INITIAL CONDITIONS PRIOR TO 
-!itb_crop...FIRST CALL TO MAPPER
-
-    print *, '\t reading in initial conditions '
+    print *, '   reading in initial conditions '
     call read_ic(sib,time)
 
-
-
-!itb_crop...mapper call depends on crop in field or fallow
-!itb_crop...conditions
-
-
-
-    if( sib(1)%diag%phen_switch == 0) then   ! FALLOW
-
-      call mapper(          &
-            latsib(1),        &
-            time%mid_month(time%pmonth),           &
-            sib(1)%diag%min_ndvi_crop,      &
-            sib(1)%diag%min_ndvi_crop,      &
-            sib(1)%diag%min_fvcov_crop, &
-            sib(1)%param%chil,   &
-            temptran,         &
-            tempref,          &
-            morphtab(temp_biome),      &
-            tempaerovar,      &
-            laigrid,          &
-            fvcovergrid,      &
-            timevar)
-
-    elseif(sib(1)%diag%phen_switch == 1) then   ! CROP
-
-      call leaf_weight(sib,time)
-
-
-!itb_crop...LAI
-      sib(1)%diag%phen_lai = sib(1)%diag%leafwt_c * 2 * 0.02
-
-      timevar%lai = sib(1)%diag%phen_lai
-
-
-      call phen_mapper(                              &
-         latsib(1),                             &
-         time%mid_month(time%pmonth),           &
-         sib(1)%param%vcover,                  &
-         sib(1)%param%chil,                     &
-         temptran,                              &
-         tempref,                               & 
-         morphtab(temp_biome),          &
-         tempaerovar,                           &
-         laigrid,                               &
-         fvcovergrid,                           &
-         timevar)
-
-	     sib(1)%param%aparc1 = timevar%fpar
-         sib(1)%param%zlt1 = timevar%lai
-         sib(1)%param%green1 = timevar%green
-         sib(1)%param%z0d1 = timevar%zo
-         sib(1)%param%zp_disp1 = timevar%zp_disp
-         sib(1)%param%rbc1 = timevar%rbc
-         sib(1)%param%rdc1 = timevar%rdc
-         sib(1)%param%gmudmu1 = timevar%gmudmu
-
-	     sib(1)%param%aparc2 = timevar%fpar
-         sib(1)%param%zlt2 = timevar%lai
-         sib(1)%param%green2 = timevar%green
-         sib(1)%param%z0d2 = timevar%zo
-         sib(1)%param%zp_disp2 = timevar%zp_disp
-         sib(1)%param%rbc2 = timevar%rbc
-         sib(1)%param%rdc2 = timevar%rdc
-         sib(1)%param%gmudmu2 = timevar%gmudmu
-
-
-         call bc_interp(sib, time)  
-
-    else
-
-      print*,'phen_switch=',sib(1)%diag%phen_switch
-
-      stop'INCORRECT VALUE FOR PHENOLOGY SWITCH'
-
-    endif
-
-
-
-        sib(1)%param%aparc2 = timevar%fpar
-        sib(1)%param%zlt2 = timevar%lai
-        sib(1)%param%green2 = timevar%green
-        sib(1)%param%z0d2 = timevar%zo
-        sib(1)%param%zp_disp2 = timevar%zp_disp
-        sib(1)%param%rbc2 = timevar%rbc
-        sib(1)%param%rdc2 = timevar%rdc
-        sib(1)%param%gmudmu2 = timevar%gmudmu
-!EL...making initial crop ht to the minimum crop ht defined..
- !       sib(1)%param%z2=sib(1)%diag%min_z2_crop
-!itb_crop_end...
-
-!print*,sib(1)%param%z2,sib(1)%diag%cropht
-
+   print *,'   setting soil properties '
     call soil_properties( sib )
     
-
     ! read in initial driver data
-    print *, '\t reading in initial time-step driver data'
+    print *, '   reading in initial time-step driver data'
     if ( drvr_type == 'ecmwf' ) then
         call sibdrv_read_ecmwf( sib, time )
     elseif ( drvr_type == 'ncep1' ) then
@@ -251,23 +94,31 @@ integer(kind=int_kind) :: temp_biome
         call sibdrv_read_geos4( sib, time )
     elseif ( drvr_type == 'single' ) then
         call sibdrv_read_single( sib, time )
+    !kdcorbin, 02/11
+    elseif ( drvr_type == 'narr' ) then
+        call sibdrv_read_narr( sib, time )
     else
         stop 'Invalid drvr_type specified'
     endif
 
-
 ! read in respfactor file
-    print *, '\t read in respFactor'
+    print *, '   reading in respFactor'
     call read_respfactor(sib)
 
+! initialize crops (modified by kdcorbin, 02/11)
+   print*,'   initializing crops'
+   call init_crop( sib,time )
+   call bc_interp( sib,time )
+
 ! calculate initial solar declination
+    print*,'   initializing solar declination'
     call init_solar_dec( time )
 
 end subroutine init_sibdrv
 !
-!===============================================================================
+!=================================================
 subroutine read_qp_pbp_opts
-!===============================================================================
+!=================================================
 
 use sib_io_module
 use sib_const_module
@@ -281,9 +132,9 @@ character (len=80) :: listtem
 integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
 
 
-    !---------------------------------------------------------------------------
+    !-------------------------------------------------------------
     ! read sib_qpopts and count number of variables to be output
-    !---------------------------------------------------------------------------
+    !-------------------------------------------------------------
     open(unit=2,file=qp_path,form='formatted') !jk
     nqpsib = 0
     nqp3sib = 0
@@ -362,13 +213,13 @@ integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
     allocate (qp3sib(subcount,nsoil,iiqp3sib+1))   
     qp3sib(:,:,:) = 0.0
     qpsib(:,:) = 0.0
-    print*,'\t diagnostics initialized'
+    print*,'   diagnostics initialized'
 
 
 
-    !---------------------------------------------------------------------------
+    !---------------------------------------------------------------
     ! read sib_pbpopts and count number of variables to be output
-    !---------------------------------------------------------------------------
+    !---------------------------------------------------------------
     open(unit=2,file=pbp_path,form='formatted')   !jk
     npbpsib = 0
     npbp2sib = 0
@@ -400,7 +251,7 @@ integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
     iipbpsib = 0
     do i = 1,npbp2sib+npbpsib
         read(2,*)doqptem,ldummy,nametem,ndummy,listtem
-        write(*,*)doqptem,ldummy,nametem,ndummy,listtem
+        !write(*,*)doqptem,ldummy,nametem,ndummy,listtem
         if(ldummy.eq.1) then
             iipbp2sib = iipbp2sib + 1
             dopbp2sib(iipbp2sib) = doqptem
@@ -417,8 +268,6 @@ integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
     enddo 
     close(2)
     
-print*,'diagnostic vars:',npbp2sib,npbpsib
-
     allocate (indxpbp2sib(npbp2sib))
     allocate (indxpbpsib(npbpsib))
 
@@ -456,9 +305,9 @@ print*,'diagnostic vars:',npbp2sib,npbpsib
 
 end subroutine read_qp_pbp_opts
 !
-!===============================================================================
+!=================================================
 subroutine read_ic(sib,time)
-!===============================================================================
+!=================================================
 !  Author:  Ian Baker
 !  Modified by:  Owen Leonard
 !  Date :  March 30, 2004
@@ -468,7 +317,7 @@ subroutine read_ic(sib,time)
 !
 ! Modifications:
 !  Kevin Schaefer moved soil layer calculations to soil_properties (10/27/04)
-!===============================================================================
+!=================================================
 
 #ifdef PGF
 use netcdf 
@@ -499,9 +348,20 @@ integer(kind=int_kind), dimension(2) :: start
 integer(kind=int_kind), dimension(2) :: finish
 real(kind=dbl_kind), dimension(nsib) :: ta
 real(kind=dbl_kind), dimension(nsib) :: tc
-!EL...crop vars (kind=int_kind)
-integer(kind=int_kind), dimension(nsib) :: ndf_opt,nd_emerg,pd,pd7,pd7_est,pdindx7,emerg_d
-!EL...crop vars (kind=int_kind) end..
+
+!Crop Variables (modified by kdcorbin, 02/11)
+integer(kind=int_kind), dimension(nsib) :: pd
+integer(kind=int_kind), dimension(nsib) :: emerg_d,ndf_opt,nd_emerg
+
+real(kind=dbl_kind), dimension(nsib) :: tempf
+real(kind=dbl_kind), dimension(nsib) :: assim_d
+real(kind=dbl_kind), dimension(nsib) :: rstfac_d
+real(kind=dbl_kind),dimension(nsib) :: gdd
+real(kind=dbl_kind),dimension(nsib) :: w_main
+real(kind=dbl_kind), dimension(nsib,4) :: cum_wt
+real(kind=dbl_kind), dimension(nsib,4) :: cum_drywt
+!End Crop Variables
+
 integer(kind=int_kind), dimension(nsib) :: nsl
 real(kind=dbl_kind), dimension(nsib) :: pco2ap
 real(kind=dbl_kind), dimension(nsib) :: d13cca
@@ -515,14 +375,6 @@ real(kind=dbl_kind), dimension(nsib) :: capac1
 real(kind=dbl_kind), dimension(nsib) :: capac2
 real(kind=dbl_kind), dimension(nsib) :: coszbar
 real(kind=dbl_kind), dimension(nsib) :: dayflag
-!EL...crop vars..real(kind=dbl_kind)
-real(kind=dbl_kind), dimension(nsib) :: tempf
-real(kind=dbl_kind), dimension(nsib) :: gdd
-real(kind=dbl_kind), dimension(nsib) :: w_main
-    !kdcorbin, 01/11 - removed w_main_pot
-real(kind=dbl_kind), dimension(nsib,4) :: cum_wt
-real(kind=dbl_kind), dimension(nsib,4) :: cum_drywt
-!EL...crop vars..real(kind=dbl_kind) end..
 real(kind=dbl_kind), dimension(12,nsib) :: tot_an
 real(kind=dbl_kind), dimension(nsib,6) :: rst
 real(kind=dbl_kind), dimension(nsib,-nsnow+1:nsoil) :: deept
@@ -538,19 +390,17 @@ integer(kind=int_kind)               :: jday
 
 DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
-    print*,'ic_path=',trim(ic_path)
-
     ! read in initial conditions (restart file)
     ierr = nf90_open( trim(ic_path), nf90_nowrite, ncid )
     if( ierr /= nf90_noerr ) call handle_err(ierr)
 
-    print *,'\t opened ic file', trim(ic_path)
+    print *,'      opening ic file', trim(ic_path)
 
     !itb...read some scalars
     ierr = nf90_inq_varid( ncid, 'nsib', varid )
     ierr = nf90_get_var( ncid, varid, nsibt )
     if( ierr /= nf90_noerr ) call handle_err(ierr)
-    print *, '\t nsib=',nsib, ' total nsib=',nsibt
+    !print *, '   nsib=',nsib, ' total nsib=',nsibt
     if(nsib /= nsibt) stop'INITIAL CONDITIONS: NSIB INCORRECT'
 
     ierr = nf90_inq_varid( ncid, 'nsoil', varid )
@@ -588,7 +438,6 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     if( ierr /= nf90_noerr ) call handle_err(ierr)
     ierr = nf90_get_var( ncid, varid, tc )
     if( ierr /= nf90_noerr ) call handle_err(ierr)
-
     ierr = nf90_inq_varid( ncid, 'nsl', varid )
     ierr = nf90_get_var( ncid, varid, nsl )
     if( ierr /= nf90_noerr ) call handle_err(ierr)
@@ -658,24 +507,13 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     ierr = nf90_get_var( ncid, varid, rst )
     if( ierr /= nf90_noerr ) call handle_err(ierr)
 
-    !EL...crop variables..
-    !kdcorbin, 01/11 - added error checks
+    !Crop Variables (modified by kdcorbin, 01/11)
 
-    !kdcorbin, 01/11 - added pd
     call check( nf90_inq_varid( ncid, 'pd', varid ) )
     call check( nf90_get_var( ncid, varid, pd ) )
 
-    call check( nf90_inq_varid( ncid, 'pd7', varid ) )
-    call check( nf90_get_var( ncid, varid, pd7 ) )
-
-    call check ( nf90_inq_varid( ncid, 'pd7_est', varid ) )
-    call check ( nf90_get_var( ncid, varid, pd7_est ) )
-
     call check ( nf90_inq_varid( ncid, 'emerg_d', varid ) )
     call check ( nf90_get_var( ncid, varid, emerg_d ) )
-
-    call check ( nf90_inq_varid( ncid, 'pdindx7', varid ) )
-    call check ( nf90_get_var( ncid, varid,pdindx7 ) )
 
     call check ( nf90_inq_varid( ncid, 'ndf_opt', varid ) )
     call check ( nf90_get_var( ncid, varid, ndf_opt ) )
@@ -686,23 +524,26 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     call check ( nf90_inq_varid( ncid, 'tempf', varid ) )
     call check ( nf90_get_var( ncid, varid, tempf ) )
 
+    call check ( nf90_inq_varid( ncid, 'assim_d', varid ) )
+    call check ( nf90_get_var( ncid, varid, assim_d ) )
+
+    call check ( nf90_inq_varid( ncid, 'rstfac_d', varid ) )
+    call check ( nf90_get_var(ncid, varid, rstfac_d ) )
+
     call check ( nf90_inq_varid( ncid, 'gdd', varid ) )
     call check ( nf90_get_var( ncid, varid, gdd ) )
 
     call check ( nf90_inq_varid( ncid, 'w_main', varid ) )
     call check ( nf90_get_var( ncid, varid, w_main ) )
 
-    !kdcorbin, 01/11 - changed name from cum_wt_prev
     call check ( nf90_inq_varid( ncid, 'cum_wt', varid ) )
     call check ( nf90_get_var( ncid, varid,cum_wt ) )
 
     call check ( nf90_inq_varid( ncid, 'cum_drywt', varid ) )
     call check ( nf90_get_var( ncid, varid, cum_drywt ) )
+    !End Crop Vars
 
-     
-    !El.. end crop vars
-
-    print*,'\t\t read in slabs...'
+    print*,'      reading in slabs...'
 
     !itb...don't know how to read slabs directly into the structure yet...
     start(1) = 1
@@ -727,7 +568,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     !itb...close the file
     ierr = nf90_close( ncid )
 
-    print *,'\t\t load data into the structure'
+    print *,'      load data into the structure'
 
     !itb...need to load these data into sibtype arrays
     do i = 1,subcount
@@ -748,34 +589,28 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%prog%capac(1) = capac1(subset(i))
         sib(i)%prog%capac(2) = capac2(subset(i))
         
-     !EL..crop vars added
-        sib(i)%diag%tempf = tempf(subset(i))
-        sib(i)%diag%gdd = gdd(subset(i))
-        sib(i)%diag%w_main = w_main(subset(i))
+     !Crop Variables (modified by kdcorbin, 02/11)
         sib(i)%diag%pd = pd(subset(i))
-        sib(i)%diag%pd7 = pd7(subset(i))
-        sib(i)%diag%pd7_est = pd7_est(subset(i))
-        sib(i)%diag%emerg_d = emerg_d(subset(i)) 
-        sib(i)%diag%pdindx7 = pdindx7(subset(i))
+        sib(i)%diag%emerg_d = emerg_d(subset(i))
         sib(i)%diag%ndf_opt = ndf_opt(subset(i))
         sib(i)%diag%nd_emerg = nd_emerg(subset(i))
 
-     
+        sib(i)%diag%tempf = tempf(subset(i))
+        sib(i)%diag%ta_bar = ((sib(i)%diag%tempf-32.)/1.8)+273.15
+        sib(i)%diag%assim_d = assim_d(subset(i))
+        sib(i)%diag%rstfac_d = rstfac_d(subset(i))
+        sib(i)%diag%gdd = gdd(subset(i))
+        sib(i)%diag%w_main = w_main(subset(i))
 
-!itb...crop phenology: on or off?
-        if(sib(i)%diag%gdd > 100.0 ) sib(i)%diag%phen_switch = 1
-
-   
-        do j = 1, 4
+        do j=1,4
             sib(i)%diag%cum_wt(j) = cum_wt(subset(i),j)
-        enddo
-       
-        do j = 1, 4
-            sib(i)%diag%cum_drywt(j) = cum_drywt(subset(i),j)
+            sib(i)%diag%cum_drywt(j) = cum_drywt(subset(i),j)    
         enddo
 
-
-      !EL...end crop vars..
+        if(sib(i)%diag%ndf_opt > 0) sib(i)%diag%ndf_opt=sib(i)%diag%ndf_opt-1
+        if(sib(i)%diag%pd > 0) sib(i)%diag%pd_annual=1
+        if(sib(i)%diag%gdd > 100.0 ) sib(i)%diag%phen_switch = 1
+      !End crop vars
 
         do k = 1, 12
             sib(i)%diag%tot_an(k) = tot_an(k,subset(i))
@@ -804,7 +639,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
     enddo   !subcount loop
 
-    print *, '\t\t read in sib initial conditions'
+    !print *, '     read in sib initial conditions'
 
 !itb...need to manipulate tot_an and tot_ss for restart/initial conditions...
     if(time%sec_year /= 0) then
@@ -828,47 +663,11 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
     endif
 
-!EL..manipulating crop vars for restart/initial conditions...
-   
-
-
-
-
-      do i=1,subcount
-!itb...sanity check
-       if(sib(i)%diag%pd > 365) then
-          sib(i)%diag%pd = 0.0_int_kind
-          sib(i)%diag%pd7 = 0.0_int_kind
-          sib(i)%diag%pd7_est = 0.0_int_kind
-          sib(i)%diag%emerg_d = 0.0_int_kind
-          sib(i)%diag%pdindx7 = 0.0_int_kind
-          sib(i)%diag%ndf_opt = 0.0_int_kind
-          sib(i)%diag%nd_emerg = 0.0_int_kind
-          sib(i)%diag%tempf = 0.0_dbl_kind
-          sib(i)%diag%gdd = 0.0_dbl_kind
-          sib(i)%diag%w_main = 0.0001_dbl_kind
-	  sib(i)%diag%w_main_pot = 0.0001_dbl_kind
-          sib(i)%diag%cum_wt(:) = 0.0001_dbl_kind
-          sib(i)%diag%cum_drywt(:)   = 0.0001_dbl_kind
-        endif
-
-      enddo
-
-contains 
-  subroutine check(status)
-     integer, intent ( in ) :: status
- 
-     if (status /= nf90_noerr) then
-        print *, trim(nf90_strerror(status))
-        stop "Error with netcdf.  Stopped."
-      end if
-  end subroutine check   
-
 end subroutine read_ic
 
-!===============================================================================
+!===============================================
 subroutine read_respfactor(sib)
-!===============================================================================
+!===============================================
 ! reads in a respfactor from an external file
 !
 ! Modifications:
@@ -904,8 +703,8 @@ real(kind=dbl_kind), dimension(nsib,nsoil) :: respfactor
     close(unit=3)
 
     if ( status /= 0 ) then
-        print *, ' INIT_SIB: error reading in respFactor'
-        print *, '    respFactor set globally to 3.0e-6'
+        print *, '      error reading in respFactor'
+        print *, '      respFactor set globally to 3.0e-6'
         do i=1,nsib
             do j=1,nsoil
                 respfactor(i,j) = 3.0e-6_dbl_kind
@@ -922,9 +721,9 @@ real(kind=dbl_kind), dimension(nsib,nsoil) :: respfactor
 
 end subroutine read_respfactor
 !
-!===============================================================================
+!================================================
 subroutine soil_properties(sib)
-!===============================================================================
+!================================================
 ! calculates various soil parameters that do not change with time
 !
 ! Modifications:
@@ -970,9 +769,9 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
 
 
 
-        !Bio------------------------------------------------------------------
+        !Bio-----------------------------------------------------------
         !Bio   miscellaneous soil properties
-        !Bio-------------------------------------------------------------------
+        !Bio------------------------------------------------------------
 
 
 !itb...fixing field capacity and wilting point, based on %sand/%clay basis
@@ -1010,9 +809,9 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
                 (sib(i)%param%sandfrac + sib(i)%param%clayfrac)*1.0E6
         enddo
 
-        !Bio-------------------------------------------------------------------
+        !Bio-------------------------------------------------------------
         !Bio  compute soil layer values
-        !Bio-------------------------------------------------------------------
+        !Bio-------------------------------------------------------------
 
         !itb...CLM uses a 'scalez' (0.025) factor to determine soil layer depths. 
         !itb...for now i'm going to use it as well...
@@ -1062,8 +861,6 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
                 - exp(-kroot(temp_biome)*zbot))/ &
                 (kroot(temp_biome) * totalroot)
 
-!          print*, j,sib(i)%param%rootf(j)
-
             ztop = zbot
 
         enddo
@@ -1075,23 +872,19 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
         endif
     enddo  ! subcount loop
 
-    !EL...make each layer in biome 12 have 95% saturation for initialization relevant to NaCP  site interim syn
-   
-      if(temp_biome==12) then 
+      !kdcorbin, 02/11 - commenting www_liq reset
+      !EL...make each layer in biome 12 has 95% saturation for initialization 
+      !relevant to NACP  site interim syn
+      !if (temp_biome==12) then 
+      !    do j = 1,nsoil 
+      !       sib%prog%www_liq(j) = (sib%param%poros * &  
+      !               sib%prog%dz(j) * denh2o) * 0.95 
 
-          do j = 1,nsoil 
-
-
-             sib%prog%www_liq(j) = (sib%param%poros * &  
-                  
-                  sib%prog%dz(j) * denh2o) * 0.95 
-
-! EL...The above formulation was based on wfrac calculation in respsib.F90; i.e.
-!wfrac(j) = 0.95= sib%prog%www_liq(j) / (sib%prog%dz(j) * sib%param%poros * denh2o) 
-
-          enddo
-      
-      endif 
+             ! EL...The above formulation was based on wfrac calculation in respsib.F90
+             !EL...wfrac(j) = 0.95= sib%prog%www_liq(j) / (sib%prog%dz(j) * 
+             !EL...       sib%param%poros * denh2o) 
+      !    enddo
+      !endif 
 
 end subroutine soil_properties
 

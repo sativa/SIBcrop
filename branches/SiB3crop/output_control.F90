@@ -21,8 +21,6 @@ integer(kind=int_kind), intent(in) :: rank
         	indxqpsib, indxpbpsib, indxpbp2sib,time )
     endif
 
-  
-
     ! switch qp file
     if ( time%switch_qp ) then
         call create_qp2( out_path, nqpsib, subcount, ihr, jhr, time%year,    &
@@ -60,7 +58,6 @@ integer(kind=int_kind), intent(in) :: rank
 
     ! output to pbp
     if ( time%write_pbp .and. histpp ) then
-  
         pbpsib = pbpsib * time%pbp_incnt
         pbp2sib = pbp2sib * time%pbp_incnt
         call write_pbp( ijtlensib, time%year, time%month, time%day, time%sec_year,  &

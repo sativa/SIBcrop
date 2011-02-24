@@ -1,6 +1,6 @@
-!=============================================================
+!====================================================
 subroutine read_ti (sib)
-!=============================================================
+!====================================================
 ! Opens sib_bc_TI.nc and reads in the boundary condition data.
 !     REFERENCES:
 !     CREATED:
@@ -22,12 +22,17 @@ use sib_const_module, only:  &
     ztemp, &
     nsib,  &
     subcount, &
-    subset
+    subset, &
+    !kdcorbin, 02/11
+    phys,  &
+    phystype,biovart3,biovart4, &
+    soilvart,morphvart
 use sib_io_module, only:  &
     param_path,  &
     biome_source,  &
     soil_source,  &
-    soref_source
+    soref_source, &
+    drvr_type  !kdcorbin, 01/11
 use sib_bc_module
 #ifdef PGF
 use netcdf
@@ -48,13 +53,11 @@ integer(kind=int_kind) ::  tiid           !  file id#
 integer(kind=int_kind) ::  status         !  error status check
 integer(kind=int_kind) ::  ndims          !  number of dimensions (soiltype)
 integer(kind=int_kind) ::  dimid, nvar    !  dimension id#, number of variables
-integer(kind=int_kind) ::  phys           !  phys dimension value
+
 !  used for AeroVar structure
 integer(kind=int_kind) ::  varid          ! varible ID
 integer(kind=int_kind) ::  numsoil, &       ! soil type #s
-    biovar, &
-    svar,   &
-    morphvar
+    biovar, svar, morphvar
 integer(kind=int_kind) :: soilnum(nsib)
 real(kind=real_kind), dimension(nsib) :: biome
 real(kind=real_kind), dimension(nsib) :: clayfrac
@@ -65,20 +68,14 @@ real(kind=real_kind), dimension(nsib) :: soref2
 real(kind=real_kind) :: fclay
 real(kind=real_kind) :: fsand
 
-real(kind=real_kind), dimension(:,:), allocatable :: biovart3   ! 2D arrays for the tables
-real(kind=real_kind), dimension(:,:), allocatable :: biovart4   !   "   "
-real(kind=real_kind), dimension(:,:), allocatable :: soilvart   !   "   "
-real(kind=real_kind), dimension(:,:), allocatable :: morphvart !    "   "
-integer(kind=int_kind), dimension(:,:), allocatable :: phystype
-
 real(kind=dbl_kind) testzwind   !  used to test if zwind and ztemp in TI file
 real(kind=dbl_kind) testztemp   !  match the values defined in namel file
 character(len=10) name
 
     ! open sib_bc_TI.nc file 
+    print *, '      reading ',trim(param_path)//'_TI.nc'
     status = nf90_open ( trim(param_path)//'_TI.nc', nf90_nowrite, tiid )
     if (status /= nf90_noerr) call handle_err (status)
-    print *, '\t reading sib_bc_TI.nc'
 
     ! check zwind and ztemp values
     status = nf90_inq_varid (tiid, 'zwind', varid)
@@ -90,13 +87,13 @@ character(len=10) name
     status = nf90_get_var ( tiid, varid, testztemp )
     if ( status /= nf90_noerr ) call handle_err (status)
     if ( zwind /= testzwind ) then
-        print *, '\t\t zwind value in ti file does not match namel file'
-        print *, '\t\t ti:  ', testzwind, 'namel:  ', zwind
+        print *, '     zwind value in ti file does not match namel file'
+        print *, '     ti:  ', testzwind, 'namel:  ', zwind
         !      stop
     endif
     if ( ztemp /= testztemp ) then
-        print *, '\t\t ztemp value in ti file does not match namel file'
-        print *, '\t\t ti:  ', testztemp, 'namel:  ', ztemp
+        print *, '     ztemp value in ti file does not match namel file'
+        print *, '     ti:  ', testztemp, 'namel:  ', ztemp
         !      stop
     endif
 
@@ -106,17 +103,22 @@ character(len=10) name
     status = nf90_inquire_dimension ( tiid, dimid, name,nvar )
     if (status /= nf90_noerr) call handle_err (status)
 
-    ! biome
-    status = nf90_inq_varid ( tiid, 'biome', varid )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_get_var ( tiid, varid, biome )
-    if (status /= nf90_noerr) call handle_err (status)
+    ! biome - not read in for single point runs
+    ! kdcorbin, 01/11
+   if (drvr_type .ne. 'single') then
+       status = nf90_inq_varid ( tiid, 'biome', varid )
+       if (status /= nf90_noerr) call handle_err (status)
+       status = nf90_get_var ( tiid, varid, biome )
+       if (status /= nf90_noerr) call handle_err (status)
+   endif
 
     ! soilnum
     status = nf90_inq_varid ( tiid, 'soilnum', varid )
     if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inquire_variable ( tiid, varid, name,ndims )
+    !kdcorbin, 02/11 - added name,ndims specifiers
+    status = nf90_inquire_variable ( tiid, varid, name=name,ndims=ndims )
     if (status /= nf90_noerr) call handle_err (status)
+
     start (1) = 1
     start (2) = 1
     done (1)  = nsib
@@ -249,8 +251,10 @@ character(len=10) name
     
     !------------Assign values from tables into data structures--------
 
-    do i = 1, subcount
+    !Do not assign values for single point runs - kdcorbin, 01/11
+    if (drvr_type .ne. 'single') then
 
+      do i = 1, subcount
 
         sib(i)%param%biome = biome(subset(i))
         sib(i)%param%soref(1) = soref1(subset(i))
@@ -262,73 +266,10 @@ character(len=10) name
         endif
         do j=1,phys  ! phystype loop
             sib(i)%param%phystype(j) = phystype(subset(i),j)
-            if ( sib(i)%param%phystype(j) == 3 ) then
-                ! C3 table
-                sib(i)%param%z2 = biovart3(int(sib(i)%param%biome),1)
-                sib(i)%param%z1 = biovart3(int(sib(i)%param%biome),2)
-                sib(i)%param%chil = biovart3(int(sib(i)%param%biome),4)
-                sib(i)%param%phc = biovart3(int(sib(i)%param%biome),7)
-                sib(i)%param%tran(1,1) = biovart3(int(sib(i)%param%biome),8)
-                sib(i)%param%tran(2,1) = biovart3(int(sib(i)%param%biome),9)
-                sib(i)%param%tran(1,2) = biovart3(int(sib(i)%param%biome),10)
-                sib(i)%param%tran(2,2) = biovart3(int(sib(i)%param%biome),11)
-                sib(i)%param%ref(1,1) = biovart3(int(sib(i)%param%biome),12)
-                sib(i)%param%ref(2,1) = biovart3(int(sib(i)%param%biome),13)
-                sib(i)%param%ref(1,2) = biovart3(int(sib(i)%param%biome),14)
-                sib(i)%param%ref(2,2) = biovart3(int(sib(i)%param%biome),15)
-                sib(i)%param%vmax0(1) = biovart3(int(sib(i)%param%biome),16)
-                sib(i)%param%effcon(1) = biovart3(int(sib(i)%param%biome),17)
-                sib(i)%param%gradm(1) = biovart3(int(sib(i)%param%biome),18)
-                sib(i)%param%binter(1) = biovart3(int(sib(i)%param%biome),19)
-                sib(i)%param%atheta(1) = biovart3(int(sib(i)%param%biome),20)
-                sib(i)%param%btheta(1) = biovart3(int(sib(i)%param%biome),21)
-                sib(i)%param%trda(1) = biovart3(int(sib(i)%param%biome),22)
-                sib(i)%param%trdm(1) = biovart3(int(sib(i)%param%biome),23)
-                sib(i)%param%trop(1) = biovart3(int(sib(i)%param%biome),24)
-                sib(i)%param%respcp(1) = biovart3(int(sib(i)%param%biome),25)
-                sib(i)%param%slti(1) = biovart3(int(sib(i)%param%biome),26)
-                sib(i)%param%hltii(1) = biovart3(int(sib(i)%param%biome),27)
-                sib(i)%param%shti(1) = biovart3(int(sib(i)%param%biome),28)
-                sib(i)%param%hhti(1) = biovart3(int(sib(i)%param%biome),29)
+        enddo
 
-            elseif ( sib(i)%param%phystype(j) == 4 ) then
+        call set_ti(sib(i))
 
-                ! C4 table
-                sib(i)%param%z2 = biovart4(int(sib(i)%param%biome),1)
-                sib(i)%param%z1 = biovart4(int(sib(i)%param%biome),2)
-                sib(i)%param%chil = biovart4(int(sib(i)%param%biome),4)
-                sib(i)%param%phc = biovart4(int(sib(i)%param%biome),7)
-                sib(i)%param%tran(1,1) = biovart4(int(sib(i)%param%biome),8)
-                sib(i)%param%tran(2,1) = biovart4(int(sib(i)%param%biome),9)
-                sib(i)%param%tran(1,2) = biovart4(int(sib(i)%param%biome),10)
-                sib(i)%param%tran(2,2) = biovart4(int(sib(i)%param%biome),11)
-                sib(i)%param%ref(1,1) = biovart4(int(sib(i)%param%biome),12)
-                sib(i)%param%ref(2,1) = biovart4(int(sib(i)%param%biome),13)
-                sib(i)%param%ref(1,2) = biovart4(int(sib(i)%param%biome),14)
-                sib(i)%param%ref(2,2) = biovart4(int(sib(i)%param%biome),15)
-                sib(i)%param%vmax0(2) = biovart4(int(sib(i)%param%biome),16)
-                sib(i)%param%effcon(2) = biovart4(int(sib(i)%param%biome),17)
-                sib(i)%param%gradm(2) = biovart4(int(sib(i)%param%biome),18)
-                sib(i)%param%binter(2) = biovart4(int(sib(i)%param%biome),19)
-                sib(i)%param%atheta(2) = biovart4(int(sib(i)%param%biome),20)
-                sib(i)%param%btheta(2) = biovart4(int(sib(i)%param%biome),21)
-                sib(i)%param%trda(2) = biovart4(int(sib(i)%param%biome),22)
-                sib(i)%param%trdm(2) = biovart4(int(sib(i)%param%biome),23)
-                sib(i)%param%trop(2) = biovart4(int(sib(i)%param%biome),24)
-                sib(i)%param%respcp(2) = biovart4(int(sib(i)%param%biome),25)
-                sib(i)%param%slti(2) = biovart4(int(sib(i)%param%biome),26)
-                sib(i)%param%hltii(2) = biovart4(int(sib(i)%param%biome),27)
-                sib(i)%param%shti(2) = biovart4(int(sib(i)%param%biome),28)
-                sib(i)%param%hhti(2) = biovart4(int(sib(i)%param%biome),29)
-
-            elseif ( sib(i)%param%phystype(j) == 0 ) then
-                sib(i)%param%phystype(j) = 0
-            else   ! not C3 or C4 case (CAM?)
-                stop'WE DO NOT HAVE PHYSIOLOGY OTHER THAN C3/C4 IN THE MODEL YET'
-            endif
-        enddo  ! physiology loop
-
-    
         ! Soil Variables Table
         if (ndims == 1) then
             sib(i)%param%bee   = soilvart(int(soilnum(subset(i))),1)
@@ -339,7 +280,7 @@ character(len=10) name
             sib(i)%param%wopt  = soilvart(int(soilnum(subset(i))),6)
             sib(i)%param%zm    = soilvart(int(soilnum(subset(i))),7)
             sib(i)%param%wsat  = soilvart(int(soilnum(subset(i))),8)
-    
+
             ! calculate %sand and $clay from table based on the approximate
             !   centroid of soil texture category within the UDSA texture triangle
             !   centroid % clay/sand estimated by Kevin Schaefer  (3/30/01)
@@ -413,6 +354,7 @@ character(len=10) name
         endif  ! ndims
 
     enddo  ! subcount loop
+   endif !non-single statements only
 
     ! Morph Table used in mapper
     do q = 1, nvar
@@ -429,11 +371,11 @@ character(len=10) name
 
     !---------deallocate 2D arrays---------------------------
 
-    deallocate(biovart3)
-    deallocate(biovart4)
-    deallocate(soilvart)
-    deallocate(morphvart)
-    deallocate(phystype)
+    !deallocate(biovart3)
+    !deallocate(biovart4)
+    !deallocate(soilvart)
+    !deallocate(morphvart)
+    !deallocate(phystype)
 
 end subroutine read_ti
 

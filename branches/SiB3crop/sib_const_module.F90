@@ -19,8 +19,9 @@ module sib_const_module
         snowl,          & !  number of (actual) snow layers
         ihr,            & !  global points in x-direction
         jhr,            & !  global points in y-direction
-        nhr               !  ihr*jhr (total global points)
-        
+        nhr,           &   !  ihr*jhr (total global points)
+        nper                ! number of ndvi composite periods - kdcorbin, 02/11
+
     integer(kind=long_kind) :: &
 	endtime,        & !  end time of integration -- units can vary
         starttime,      & !  start time of integration -- units can vary
@@ -54,6 +55,10 @@ module sib_const_module
                                      !    (only C3 and C4 for now, but 
                                      !     the capability for more)
 
+    !kdcorbin, 02/11
+    integer (kind=int_kind), parameter :: npermax = 365
+             ! maximum number of ndvi composite periods per year
+
     !itb...some extra variables
     real(kind=real_kind) ::  &
         sin_dec,        & !  function of earth's orbit
@@ -80,7 +85,7 @@ module sib_const_module
         ztemp,        & !  height of temperature measurement (m)
         zwind           !  height of wind measurement (m)
 
-    !------------------------------------------------------------------------
+    !-------------------------------------------------------------
     real (kind=dbl_kind), parameter  ::     &
         version = 3.0,                &!  code version identifier
         snomel  = 3.705185e8,         &!  latent heat of fusion of ice (J m^-3) 
@@ -89,9 +94,6 @@ module sib_const_module
         cpice  = 2117.27,             &!  specific heat of ice (J kg^-1 deg^-1)
         cpliq  = 4188.0,              &!  spec heat of water (J kg^-1 deg^-1)
 
-!itb...playing with vegetation heat capacity
-
-!itb...original.....
         clai   = 4.186*1000.0*0.2,    &!  leaf heat capacity  (J m^-2 deg^-1)
         cww    = 4.186*1000.0*1000.0, &!  water heat capacity (J m^-3 deg^-1)
         asnow  = 16.7,                &!  UNKNOWN
@@ -127,10 +129,6 @@ module sib_const_module
         cosz_min = -0.1045            !  minimum cosine of zenith angle value
                                        !  -0.1045 is 96 deg. which includes
                                        !  civil twilight
-
-
-
-
 
     !...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX
     real(kind=dbl_kind),parameter ::        &
@@ -172,5 +170,63 @@ module sib_const_module
         pref = 101325.0     
     ! standard pressure (Pa)
 
+    ! kdcorbin, 1/11
+    !...CROP...CROP...CROP
+   integer(kind=int_kind), parameter :: ncrops = 4   
+               !corn, soy, winter wheat, spring wheat
+   integer(kind=int_kind), parameter :: corn_num=1,soy_num=2, &
+                 wwheat_num=3,swheat_num=4
+
+   integer(kind=int_kind), parameter :: temp_biome_bare = 11
+   integer(kind=int_kind), parameter :: temp_biome_crop = 12
+
+    real(kind=dbl_kind),parameter :: min_lai_crop = 0.001
+    real(kind=dbl_kind),parameter :: min_ndvi_crop = 0.07
+          !minimum NDVI value when phenology model is NOT used
+    real(kind=dbl_kind),parameter :: min_fvcov_crop = 0.1
+          !minimum fvcov when phenology model is NOT used
+    real(kind=dbl_kind),parameter :: min_z2_crop = 0.25
+          !minimum crop height when phenology model is NOT used
+    real(kind=dbl_kind),parameter :: zlt_crop_init = 0.32
+          !initial LAI for the day when crop emerges from seeds
+
+    integer(kind=int_kind),dimension(ncrops) :: crop_cint = (/2,1,1,1/)
+          !crop type: 1=C3, 2=C4
+
+    integer(kind=int_kind),dimension(ncrops) :: vmax_start = (/40,15,0,0/)
+    integer(kind=int_kind),dimension(ncrops) :: vmax_stop = (/61,61,0,0/)
+
+    real(kind=dbl_kind),dimension(ncrops) :: &
+          crop_soref1 = (/0.11,0.11,0.11,0.11/),           &
+          crop_soref2 = (/0.314,0.314,0.314,0.314/),   &
+          crop_vcover = (/1.0,1.0,1.0,1.0/),                   &
+          crop_physfrac1 = (/0.,1.,1.,1./),                      &
+          crop_physfrac2 = (/1.,0.,0.,0./),                      &
+          crop_z2 = (/2.5,1.,1.,1./),                                &
+          crop_vmax0a = (/8.E-5,1.0E-4,9.3E-5,9.3E-5/),  &
+             !initial vmax0 for crops
+          crop_vmax0b = (/3.5E-5,6.8E-5,9.3E-5,9.3E-5/),  &
+             !ending vmax0 for crops
+          crop_effcon = (/0.05,0.08,0.08,0.08/),            &
+          crop_slope = (/4.,9.,9.,9./),                              &
+          crop_atheta = (/0.8,0.98,0.98,0.98/),               &
+          crop_respcp = (/0.025,0.015,0.015,0.015/),    &
+          crop_slti = (/0.3,0.2,0.2,0.2/),                          &
+          crop_hltii = (/288.16,281.16,281.16,281.16/), &
+          crop_shti = (/0.5,0.3,0.3,0.3/),                         &
+          crop_hhti = (/318.16,313.16,308.16,308.16/)             
+   
+    real(kind=dbl_kind) :: &
+           bare_soref1=0.3,     &
+           bare_soref2=0.35,   &
+           bare_vcover=0.055
+
+    !kdcorbin, 02/11 - TI Tables
+    integer(kind=int_kind) :: phys
+    real(kind=real_kind),dimension(:,:), allocatable :: biovart3
+    real(kind=real_kind),dimension(:,:), allocatable :: biovart4
+    real(kind=real_kind),dimension(:,:), allocatable :: soilvart
+    real(kind=real_kind),dimension(:,:), allocatable :: morphvart
+    real(kind=real_kind),dimension(:,:), allocatable :: phystype
 
 end module sib_const_module

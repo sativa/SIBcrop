@@ -31,10 +31,11 @@ real(kind=dbl_kind), dimension(:,:), allocatable :: resp
 
 !EL....added new info from crop_accum.F90
 !    do i = 1, subcount
-!       sib(i)%diag%tot_biomass(time%month) = sib(i)%diag%tot_biomass(time%month) +  &
-!            sib(i)%diag%tot_biomass(time%doy)
- !      sib(i)%diag%prodwt(time%month) = sib(i)%diag%prodwt(time%month) +  &
- !           sib(i)%diag%prodwt(time%doy)
+!       sib(i)%diag%tot_biomass(time%month) = &
+!                sib(i)%diag%tot_biomass(time%month) +  &
+!                sib(i)%diag%tot_biomass(time%doy)
+!       sib(i)%diag%prodwt(time%month) = sib(i)%diag%prodwt(time%month) +  &
+!               sib(i)%diag%prodwt(time%doy)
 !    enddo
 
 
@@ -59,13 +60,11 @@ real(kind=dbl_kind), dimension(:,:), allocatable :: resp
 !            do i = 1, subcount 
 !              sib(i)%diag%tot_BM_an(13)= sib(i)%diag%tot_BM_an +  &
 !                    sib(i)%diag%tot_biomass(m)  
- !             sib(i)%diag%tot_prod_an(13)= sib(i)%diag%tot_prod_an +  &
+!              sib(i)%diag%tot_prod_an(13)= sib(i)%diag%tot_prod_an +  &
 !                    sib(i)%diag%prodwt(m)
 !            enddo
         enddo
         
-
-
         call respire( sib )
         
         ! write out respfactor file
@@ -80,6 +79,10 @@ real(kind=dbl_kind), dimension(:,:), allocatable :: resp
                         '    respfactor, level'
                 enddo
                 close( 37 )
+
+                !kdcorbin, 02/11 - reset pd_annual
+               sib(1)%diag%pd_annual = 0
+
             else
                 allocate( resp(nsib,nsoil) )
                 resp(:,:) = 0.0_dbl_kind
@@ -93,6 +96,18 @@ real(kind=dbl_kind), dimension(:,:), allocatable :: resp
                 write( 37 ) resp
                 close( 37 )
                 deallocate( resp )
+
+                !kdcorbin, 02/11 - switch biome types and reset crop planting date
+                do i=1,subcount
+                      if (sib(i)%param%biome == 20) then
+                          sib(i)%param%biome=21
+                          sib(i)%diag%pd_annual = 0
+                     elseif (sib(i)%param%biome == 21) then
+                         sib(i)%param%biome=20
+                         sib(i)%diag%pd_annual = 0
+                    endif
+                 enddo
+
             endif
         endif
         
@@ -100,8 +115,8 @@ real(kind=dbl_kind), dimension(:,:), allocatable :: resp
     
 end subroutine respfactor_control
 
-!===============================================================================
-!===============================================================================
+!==============================================
+!==============================================
 
 subroutine respire( sib,time )
 
@@ -147,9 +162,12 @@ double precision :: xbg         ! fraction of annual respiration from
                                 !   below-ground sources    
 double precision :: roota       ! rooting distribution parameters
 double precision :: rootb
-real :: temp1,tempc_sib
+
 parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
     kxag=5.e-3, roota = 5.0, rootb = 1.5)
+
+!kdcorbin, 02/11
+real :: respfact
 
     do n = 1, subcount
 
@@ -158,10 +176,6 @@ parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
 
         ! above-ground fraction
 
-!print*,'tot_an=',sib(n)%diag%tot_an(13),'anainflec=',anainflec, sib(n)%param%rootf(1),sib(n)%param%rootf(2)
-     
-
-
         xag = xagmin + (xagmax - xagmin) /  &
            ( 1.0 + exp( -kxag * ( sib(n)%diag%tot_an(13) * 12. - anainflec ) ) )
 
@@ -169,33 +183,31 @@ parameter(xagmin = 0.10, xagmax = 0.75, anainflec = 1000.,  &
 
         xbg = 1.0 - xag
 
-!for crops, multiply tot_an (below) by 0.78 to represent that 40% was removed in harvest..
+        !kdcorbin, 02/11 - for crops, multiply tot_an (below) by 0.78 to represent 
+        !   that 40% was removed in harvest..
+        respfact = 1.0
+        if (sib(n)%param%biome >= 20) respfact=0.7
+
         ! vertical distribution of respiration flux in the root zone   
 
-
         ! top two layers
-        sib(n)%param%respfactor(1) = sib(n)%diag%tot_an(13) * 0.78 *( 0.5 * xag  +  &
+        sib(n)%param%respfactor(1) = sib(n)%diag%tot_an(13) * respfact *( 0.5 * xag  +  &
             xbg * sib(n)%param%rootf(1))
 
-        sib(n)%param%respfactor(2) = sib(n)%diag%tot_an(13) * 0.78 *( 0.5 * xag  +  &
+        sib(n)%param%respfactor(2) = sib(n)%diag%tot_an(13) * respfact *( 0.5 * xag  +  &
             xbg * sib(n)%param%rootf(2))
 
         ! rooting layers (3..10)
         do l = 3, nsoil
             sib(n)%param%respfactor(l) = sib(n)%diag%tot_an(13)* 0.78 * xbg  &
                 * sib(n)%param%rootf(l)
-!print*,'rootf_l=3',sib(n)%param%rootf(l)
         end do
 
         !  divide by annual soilscale sum at each grid pt and layer
-
-
         do l = 1, nsoil
             sib(n)%param%respfactor(l) = sib(n)%param%respfactor(l) /  &
                 sib(n)%diag%tot_ss(13,l)
-!print*,'tot_ss',sib(n)%diag%tot_ss(13,l)
         end do ! (next layer)
- 
 
     end do ! (next grid cell)
        

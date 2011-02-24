@@ -1,5 +1,5 @@
 
-!=====================SUBROUTINE CYCALC=================================
+!===============SUBROUTINE CYCALC=======================
 
 
 subroutine cycalc( aparkk, vm, atheta, btheta, par, &
@@ -10,27 +10,27 @@ subroutine cycalc( aparkk, vm, atheta, btheta, par, &
 
     implicit none
 
-    !=======================================================================
+    !===================================================
     !
     !     CALCULATION EQUIVALENT TO STEPS IN FIGURE 4 OF SE-92A
     !     C4 CALCULATION BASED ON CO-92.
     ! 
-    !=======================================================================
+    !===================================================
 
 
-    !++++++++++++++++++++++++++++++OUTPUT+++++++++++++++++++++++++++++++++++
+    !++++++++++++++++++++OUTPUT++++++++++++++++++++++++++
     !     
     !       ASSIM         
     !       ASSIMN
     !
-    !++++++++++++++++++++++++++DIAGNOSTICS++++++++++++++++++++++++++++++++++
+    !+++++++++++++++++++DIAGNOSTICS++++++++++++++++++++++++
     !
     !       OMC            RUBISCO LIMITED ASSIMILATION (MOL M-2 S-1)
     !       OME            LIGHT LIMITED ASSIMILATION (MOL M-2 S-1)
     !       OMS            SINK LIMITED ASSIMILATION (MOL M-2 S-1)
     !       CO2S           CANOPY SURFACE CO2 CONCENTRATION (MOL MOL-1)
     !
-    !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    !++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     !Bio...INPUT VARIABLES
     real(kind=dbl_kind),intent(in) :: &
@@ -61,14 +61,14 @@ subroutine cycalc( aparkk, vm, atheta, btheta, par, &
         sqrtin   !
 
 
-    !-----------------------------------------------------------------------
+    !-------------------------------------------------------------
     !     CALCULATE ASSIMILATION RATE
     !
     !      OMC         (OMEGA-C): EQUATION (11) , SE-92A
     !      OME         (OMEGA-E): EQUATION (12) , SE-92A
     !      OMS         (OMEGA-S): EQUATION (13) , SE-92A
     !      ASSIMN      (A-N)    : EQUATION (14,15), SE-92A
-    !-----------------------------------------------------------------------
+    !--------------------------------------------------------------
 
     omc = vm *(pco2i-gammas)/(pco2i + rrkk)*c3    &
         + vm * c4

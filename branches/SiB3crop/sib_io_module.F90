@@ -98,13 +98,19 @@ module sib_io_module
         grid_path,    & !jk path to gridmap file
         c4_path         !itb path to c4 fraction file-monthly bc
 
-    ! jk flag to indicate driver data type
+    ! flag to indicate driver data type
     character (len=8) :: drvr_type 
-                        !jk 'ecmwf'   - ECMWF global 
-                        !jk 'single'  - single point ASCII table
-                        !KS 'ncep1'   - ncep1 global
-                        !   'ncep2'   - ncep2 global
-                        !   'geos4'   - geos4 global
+                        ! 'ecmwf'   - ECMWF global 
+                        ! 'single'  - single point ASCII table
+                        ! 'ncep1'   - ncep1 global
+                        ! 'ncep2'   - ncep2 global
+                        ! 'geos4'   - geos4 global
+                        ! 'narr' - north american regional reanalysis
+
+    ! flag to indicate vegetation data type - kdcorbin, 02/11
+    character (len=8) :: param_type
+                        ! 'ndvi' - NDVI
+                        ! 'modis' - LAI and fPAR
 
     ! parameter attributes
     character (len=100) :: biome_source

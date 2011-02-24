@@ -1,6 +1,6 @@
 module sibtype
 
-!----------------------------------------------------------------------
+!---------------------------------------------------------------
 !
 !   New SiB module: SiB returns to a single-point model, for 
 !   reasons of compatability with BUGS and MPI offline code (SiBDRV)
@@ -9,8 +9,8 @@ module sibtype
 ! Modifications
 !  created Ian Baker, 06 Feb 2002
 !  Kevin Schaefer changed tdew1/2 to sh1/2 (8/17/04)
-!
-!----------------------------------------------------------------------
+!  kdcorbin, 02/11 - removed pd7_est and pdindx7
+!--------------------------------------------------------------
 
 use kinds
 use sib_const_module, only: nsoil, nsnow
@@ -222,8 +222,11 @@ type param_vars
     real(kind=dbl_kind) :: vwcmin    ! soil wilting point (volumetric)
     real(kind=dbl_kind) :: fieldcap  ! soil field capacity (volumetric)
 
-
-
+    !kdcorbin, 02/11 - crop variables specified in set_ti.F90
+    !real(kind=dbl_kind) :: crop_soref2, crop_vcover, &
+    !       crop_physfrac1, crop_physfrac2, crop_z2, crop_vmax0,   &
+    !       crop_effcon, crop_slope, crop_atheta, crop_respcp,         &
+    !       crop_slti, crop_hltii, crop_shti, crop_hhti
 
     !...boundary conditions-TIME VARYING
     real(kind=dbl_kind) :: aparc      ! absorbed fraction of PAR (-)
@@ -274,6 +277,14 @@ type param_vars
     real(kind=dbl_kind) :: d13cresp1  ! del13C of respiration (per mil vs PDB)
     real(kind=dbl_kind) :: d13cresp2  ! del13C of respiration (per mil vs PDB)
 
+    ! kdcorbin, 02/11
+    real(kind=real_kind) :: lai    ! Leaf Area Index (-)
+    real(kind=real_kind) :: fpar ! Fraction Photosynthetically Active Radiation (-)
+    real(kind=real_kind) :: modis_time      !MODIS lai/fpar time (doy)
+    real(kind=real_kind) :: modis_period   !MODIS lai/fpar time (period)
+    real(kind=real_kind) :: scatp   ! Canopy transmittance + reflectance of PAR
+    real(kind=real_kind) :: scatg   ! Ground transmittance + reflectance of PAR
+    real(kind=real_kind) :: park    ! Mean canopy absorption optical depth wrt PAR
 
 end type param_vars
 
@@ -397,112 +408,70 @@ type prognostic_vars
 
 end type prognostic_vars
 
-
-
-
-
 !------------------------------------------------------------------
 !                   DIAGNOSTIC VARIABLES
 !------------------------------------------------------------------
 type diagnostic_vars
 
-
-!itb_crop...diagnostics for crop model development
-    real(kind=dbl_kind) :: ta_bar    ! daily mean CAS air temp (K)
+!Crop Model Variables:  (modified by kdcorbin, 01/11)
+    real(kind=dbl_kind) :: gdd         ! growing degree days
+    real(kind=dbl_kind) :: tempf      ! daily mean CAS air temp (F)     
+    real(kind=dbl_kind) :: tempc     ! daily mean CAS air temp (C) 
+    real(kind=dbl_kind) :: ta_bar     ! daily mean CAS air temp (K)
                                      ! used for calculating growing degree days
-    real(kind=dbl_kind) :: gdd       ! growing degree days
-    real(kind=dbl_kind) :: gdd_c     !added temporarily  
-    real(kind=dbl_kind) :: tb_temp(20000) 
-	 ! placeholder for accumulating
-                                     ! temperature for GDD
+    real(kind=dbl_kind) :: tb_temp     ! placeholder for accumulating temperature
+    integer(kind=int_kind) :: tb_indx ! index for counting up sib timesteps    
 
     real(kind=dbl_kind) :: rstfac_d
-    real(kind=dbl_kind) :: tb_rst(20000) 								
+    real(kind=dbl_kind) :: tb_rst      !placeholder for accumulating respiration
 
-!EL.. The following variables were added from the phenology scheme
-    real(kind=dbl_kind) :: assim_d ! daily assimilation	
-    real(kind=dbl_kind) :: tempf	 ! daily mean CAS air temp (F)     
-    real(kind=dbl_kind) :: tempc	 ! daily mean CAS air temp (C) 
-    real(kind=dbl_kind) :: w_main 	 ! dryweight+maintenance respiration for the whole plant
+    real(kind=dbl_kind) :: assim_d    ! daily assimilation	
+    real(kind=dbl_kind) :: tb_assim   ! placeholder for accumulating assimilation
+
+    real(kind=dbl_kind) :: w_main 	 ! dryweight+maintenance respiration
+    			   		   	         !     for the whole plant
     real(kind=dbl_kind) :: w_main_pot    !potential initial w_main
-    real(kind=dbl_kind) :: cropht        !for calculation of crop height based on a daily growth rate   
-    real(kind=dbl_kind) :: leafwt_c  ! final leaf weight
-    real(kind=dbl_kind) :: phen_LAI  ! LAI from phenology model
-    real(kind=dbl_kind) :: tb_assim (20000) 
-									 ! placeholder for accumulating assimilation within a day
+    real(kind=dbl_kind) :: leafwt_c     ! final leaf weight
+    real(kind=dbl_kind) :: phen_lai   ! LAI from phenology model
    					
-    real(kind=dbl_kind) :: day_allocwt (4)  !place holder for accumulating allocwt 
-    real(kind=dbl_kind)	:: alloc(4)			! basic allocation fractions for different
-                                            !   plant parts (1-roots;2-leaves;3-stems;4-products)
-    real(kind=dbl_kind)	:: allocwt(4)		! dryweight+maintenance respiration 
-                                            !   for different plant parts 
-    real(kind=dbl_kind) :: cum_wt(4)	! cumulative (dryweight+maintenance respiration)
-                                            !   for different plant parts
-    real(kind=dbl_kind) :: cum_wt_P(4)
-
-    real(kind=dbl_kind)	:: phen_maintr(4)	! maintenance respiration from phenology model 
-    real(kind=dbl_kind)	:: phen_growthr(4)	! maintenance respiration from phenology model 
+    real(kind=dbl_kind) :: day_allocwt (4)  ! place holder for accumulating allocwt 
+    real(kind=dbl_kind)	:: alloc(4)	         ! basic allocation fractions for plant parts 
+           ! (1-roots;2-leaves;3-stems;4-products)
+    real(kind=dbl_kind)	:: allocwt(4)	
+           ! dryweight+maintenance respiration for different plant parts 
+    real(kind=dbl_kind) :: cum_wt(4)	
+           ! cumulative (dryweight+maintenance respiration) for different plant parts
+    real(kind=dbl_kind)	:: cum_drywt(4)        ! final, cumulative dry wt of each plant part
     real(kind=dbl_kind)	:: wch(4)			! dry wt change per day
-    real(kind=dbl_kind)	:: cum_drywt(4)		! final, cumulative dry wt of each plant part
-    real(kind=dbl_kind)	:: tot_biomass		! total aboveground biomass of all plant parts
-!EL... the following was added temporarily
-    real(kind=dbl_kind)	:: tot_resp
+    real(kind=dbl_kind)	:: phen_maintr(4)	! maintenance respiration from phenology
+    real(kind=dbl_kind)	:: phen_growthr(4)	! maintenance respiration from phenology 
 
-!    real(kind=dbl_kind)	:: tot_bM_an(13)            ! annual sum of total biomass of all plant parts
-    real(kind=dbl_kind)	:: final_drywt(4)	!variable used to output daily cum_drywt 
-                                                !   in a separate text file
-!    real(kind=dbl_kind)	:: tot_prod_an(13)          ! annual sum of total biomass in products
-!    real(kind=dbl_kind)	:: prodwt(365)               !weight of products renamed for facilitating respfactor in resp_control.F90 
-
-
-    integer(kind=int_kind) :: tb_indx           ! index for counting up sib timesteps                                                           
+    real(kind=dbl_kind)	:: tot_biomass		! total aboveground biomass of all parts
+    !real(kind=dbl_kind)	:: tot_prod_an(13)    ! annual sum of total biomass in products
+    !real(kind=dbl_kind)	:: prodwt(365)          ! weight of products 
+                                            !   renamed for facilitating respfactor in resp_control.F90 
+                                                       
     integer(kind=int_kind) :: year       ! to represent years with different crops
     integer(kind=int_kind) :: doy        ! to calculate planting dates and growth stages 
-                                         !   of certain crops- EL
+                                                         !   of certain crops
     integer(kind=int_kind) :: pd         ! planting date
-    integer(kind=int_kind) :: pd7        ! seventh day with the optimum temperature for planting
-    integer(kind=int_kind) :: pd7_est    ! estimated seventh day with the optimum 
-                                         !    temperature for planting
+    integer(kind=int_kind) :: pd_annual  !switch for limiting crops to one season per year
+
     integer(kind=int_kind) :: emerg_d    ! day of emergence
     
     integer(kind=int_kind) :: ndf_opt    ! the number of consecutive days with the 
                                          !  optimum temperature for planting
     integer(kind=int_kind) :: nd_emerg   ! no. of days since emergence (including the 
-                                         !day of emergence
-    integer(kind=int_kind) :: pdindx7    ! a counter for counting the number of days 
-                                         !  after the day when ndf_opt=7
-    integer(kind=int_kind) :: use_phen   ! logical variable: are we using the phenology model?
+                                         ! day of emergence
+
+    integer(kind=int_kind) :: phen_switch  ! switch to trigger phenology model
                                          ! if 1 ==> yes; use phenology model for all 
                                          !          time-varying veg params
                                          ! if 0 ==> no; use minimum NDVI/fvcover value
                                          !          (min_ndvi_crop,min_fvcov_crop)
-	integer(kind=int_kind) :: phen_switch! switch to trigger (or not) the phenology model
-
-    real(kind=dbl_kind) :: min_ndvi_crop = 0.07 
                                          ! this is the minimum NDVI value to use when 
                                          ! phenology model is NOT being used
-    real(kind=dbl_kind) :: min_z2_crop = 0.25 
-                                         ! this is the minimum crop height to be used when 
-                                         ! phenology model is NOT being used
-    real(kind=dbl_kind) :: min_fvcov_crop = 0.1
-
-real(kind=dbl_kind)	:: phen_maintr_sib
-real(kind=dbl_kind)	:: tempc_sib
-
-!itb_crop...initial LAI for the day when the crop emerges from seeds. 
-!itb_crop...this number is arbitrary right now, will change as we
-!itb_crop...learn more.
-
-    real(kind=dbl_kind) :: zlt_crop_init = 0.32
-
-
-!itb_crop_end...
-
-	
-                                     
-
-!itb...end crop variables
-
+!End Crop Model Variables
 
     real(kind=dbl_kind) :: eastar    ! CAS saturation vapor pressure (hPa or mb)
     real(kind=dbl_kind) :: rha       ! CAS relative humidity (-)
@@ -695,9 +664,6 @@ real(kind=dbl_kind)	:: tempc_sib
     real(kind=dbl_kind) :: ess       ! snow latent heat flux (W m^-2)
     real(kind=dbl_kind) :: ect       ! latent heat flux, canopy transpiration
     !                 (W m^-2)
-
-
-
 
 
     real(kind=dbl_kind) :: aparkk    ! canopy PAR use factor (-)

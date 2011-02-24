@@ -1,13 +1,14 @@
-!===================================================================================
+!===============================================
 subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      & 
         nnqp3, npbp1, npbp2, npbp1mx, npbp2mx, ijtlen, doqp2, doqp3,  &
         nnqp2mx, nnqp3mx, indxqp3, indxqp2, indxpbp1, indxpbp2, time)
-!===================================================================================
-! Calculates time averages for diagnostic output for single point (pbp) and entire domain (qp)
+!===============================================
+! Calculates time averages for diagnostic output for single point (pbp) and
+!  entire domain (qp)
 !
 ! Modifications:
 !  Kevin Schaefer corrected pbp2 from indxpbp1 to indxpbp2 (11/17/04)
-!===================================================================================
+!===============================================
 
     use kinds
     use sib_const_module
@@ -51,12 +52,12 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
     real(kind=dbl_kind), intent(inout) :: pbp1(npbp1+1,ijtlen) 
     real(kind=dbl_kind), intent(inout) :: pbp2(nsoil, npbp2, ijtlen)
 
-    !----------------------------------------------------------------------
+    !-------------------------------------------------------------
 
     type(sib_t), dimension(subcount), intent(inout) :: sib
     type(time_struct), intent(in) :: time
 
-    !----------------------------------------------------------------------  
+    !-------------------------------------------------------------  
 
     !...LOCAL VARIABLES...
     integer(kind=int_kind) :: out_index,i,l,n
@@ -562,7 +563,8 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
         !   depth dependent diagnostics
             do l = 1,nsoil
                 pbp2(l,indxpbp2(1),n) = pbp2(l,indxpbp2(1),n) +    &
-                    sib(imultpbpsib(n))%prog%www_liq(l)/(sib(imultpbpsib(n))%prog%dz(l) * sib(imultpbpsib(n))%param%poros * denh2o)
+                    sib(imultpbpsib(n))%prog%www_liq(l)/(sib(imultpbpsib(n))%prog%dz(l) * &
+                                sib(imultpbpsib(n))%param%poros * denh2o)
             enddo
             do l = 1,nsoil
                 pbp2(l,indxpbp2(2),n) = pbp2(l,indxpbp2(2),n) +    &
@@ -582,294 +584,400 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                     sib(imultpbpsib(n))%diag%soilscale(l)
             enddo
 	    
-
-	    
         !   depth independent diagnostics
-            pbp1(indxpbp1(1),n) = pbp1(indxpbp1(1),n) +    &
+            out_index=1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%fss
 
-            pbp1(indxpbp1(2),n) = pbp1(indxpbp1(2),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%fws
 
-            pbp1(indxpbp1(3),n) = pbp1(indxpbp1(3),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%rst(6)
 
-            pbp1(indxpbp1(4),n) = pbp1(indxpbp1(4),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%assimn(6)*1.0E6
 
-            pbp1(indxpbp1(5),n) = pbp1(indxpbp1(5),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(5),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%respg*1.E6
 
-
-            pbp1(indxpbp1(6),n) = pbp1(indxpbp1(6),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(6),n) = pbp1(indxpbp1(out_index),n) +    &
                 (sib(imultpbpsib(n))%diag%respg - &
                 sib(imultpbpsib(n))%diag%assimn(6))*1.E6
 
-            pbp1(indxpbp1(7),n) = pbp1(indxpbp1(7),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(7),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%cflux * 1.E6
 
-            pbp1(indxpbp1(8),n) = pbp1(indxpbp1(8),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%td(sib(imultpbpsib(n))%prog%nsl+1)
 
-            pbp1(indxpbp1(9),n) = pbp1(indxpbp1(9),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%tc
 
-            pbp1(indxpbp1(10),n) = pbp1(indxpbp1(10),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%ea
 
-            pbp1(indxpbp1(11),n) = pbp1(indxpbp1(11),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%ta
 
-            pbp1(indxpbp1(12),n) = pbp1(indxpbp1(12),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%em
 
-            pbp1(indxpbp1(13),n) = pbp1(indxpbp1(13),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rha
 
-            pbp1(indxpbp1(14),n) = pbp1(indxpbp1(14),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%capac(1)
 
-            pbp1(indxpbp1(15),n) = pbp1(indxpbp1(15),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%capac(2)
 
-            pbp1(indxpbp1(16),n) = pbp1(indxpbp1(16),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%snow_veg
 
-            pbp1(indxpbp1(17),n) = pbp1(indxpbp1(17),n) -    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) -    &
                 sib(imultpbpsib(n))%prog%nsl
 
-            pbp1(indxpbp1(18),n) = pbp1(indxpbp1(18),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%areas
 
-            pbp1(indxpbp1(19),n) = pbp1(indxpbp1(19),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%snow_mass
 
-            pbp1(indxpbp1(20),n) = pbp1(indxpbp1(20),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%snow_depth
 
-            pbp1(indxpbp1(21),n) = pbp1(indxpbp1(21),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%pco2ap
 
-            pbp1(indxpbp1(22),n) = pbp1(indxpbp1(22),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%pco2c(6)
 
-            pbp1(indxpbp1(23),n) = pbp1(indxpbp1(23),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%pco2i(6)
 
-            pbp1(indxpbp1(24),n) = pbp1(indxpbp1(24),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%pco2s(6)
 
-            pbp1(indxpbp1(25),n) = pbp1(indxpbp1(25),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%roff
 
-            pbp1(indxpbp1(26),n) = pbp1(indxpbp1(26),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%qqq 
 
-            pbp1(indxpbp1(27),n) = pbp1(indxpbp1(27),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%roffo
 
-            pbp1(indxpbp1(28),n) = pbp1(indxpbp1(28),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%ra
 
-            pbp1(indxpbp1(29),n) = pbp1(indxpbp1(29),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rb
 
-            pbp1(indxpbp1(30),n) = pbp1(indxpbp1(30),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rc
 
-            pbp1(indxpbp1(31),n) = pbp1(indxpbp1(31),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rd
 
-            pbp1(indxpbp1(32),n) = pbp1(indxpbp1(32),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rsoil
 
-            pbp1(indxpbp1(33),n) = pbp1(indxpbp1(33),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rstfac(1)
 
-            pbp1(indxpbp1(34),n) = pbp1(indxpbp1(34),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rstfac(2)
 
-            pbp1(indxpbp1(35),n) = pbp1(indxpbp1(35),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rstfac(3)
 
-            pbp1(indxpbp1(36),n) = pbp1(indxpbp1(36),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rstfac(4)
 
-            pbp1(indxpbp1(37),n) = pbp1(indxpbp1(37),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +   &
+                sib(imultpbpsib(n))%param%scatp
+
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +   &
+                sib(imultpbpsib(n))%param%scatg
+
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +   &
+                sib(imultpbpsib(n))%param%park
+
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +   &
+                sib(imultpbpsib(n))%param%gmudmu
+
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%aparkk
 
-            pbp1(indxpbp1(38),n) = pbp1(indxpbp1(38),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%param%zlt
 
-            pbp1(indxpbp1(39),n) = pbp1(indxpbp1(39),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%param%green
 
-            pbp1(indxpbp1(40),n) = pbp1(indxpbp1(40),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%chf
 
-            pbp1(indxpbp1(41),n) = pbp1(indxpbp1(41),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%shf
 
-            pbp1(indxpbp1(42),n) = pbp1(indxpbp1(42),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%hc * dti
 
-            pbp1(indxpbp1(43),n) = pbp1(indxpbp1(43),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%hg * dti
 
-            pbp1(indxpbp1(44),n) = pbp1(indxpbp1(44),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%ect * dti
 
-            pbp1(indxpbp1(45),n) = pbp1(indxpbp1(45),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%eci * dti
 
-            pbp1(indxpbp1(46),n) = pbp1(indxpbp1(46),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%egs * dti
 
-            pbp1(indxpbp1(47),n) = pbp1(indxpbp1(47),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%egi * dti
 
-            pbp1(indxpbp1(48),n) = pbp1(indxpbp1(48),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%ess   
 
-            pbp1(indxpbp1(49),n) = pbp1(indxpbp1(49),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%omepot(6)
 
-            pbp1(indxpbp1(50),n) = pbp1(indxpbp1(50),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%assimpot(6)
 
-            pbp1(indxpbp1(51),n) = pbp1(indxpbp1(51),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%assimnp(6) 
 
-            pbp1(indxpbp1(52),n) = pbp1(indxpbp1(52),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%antemp(6) 
 
-            pbp1(indxpbp1(53),n) = pbp1(indxpbp1(53),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%wsfws(6) 
 
-            pbp1(indxpbp1(54),n) = pbp1(indxpbp1(54),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%wsfht(6)
 
-            pbp1(indxpbp1(55),n) = pbp1(indxpbp1(55),n) +    & 
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    & 
                 sib(imultpbpsib(n))%diag%wsflt(6)
 
-            pbp1(indxpbp1(56),n) = pbp1(indxpbp1(56),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%wags(6)
 
-            pbp1(indxpbp1(57),n) = pbp1(indxpbp1(57),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%wegs(6)
 
-            pbp1(indxpbp1(58),n) = pbp1(indxpbp1(58),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%param%aparc
 
-            pbp1(indxpbp1(59),n) = pbp1(indxpbp1(59),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%assimci(6)
 
-            pbp1(indxpbp1(60),n) = pbp1(indxpbp1(60),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%wci(6)
 
-            pbp1(indxpbp1(61),n) = pbp1(indxpbp1(61),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%pfd
 
-            pbp1(indxpbp1(62),n) = pbp1(indxpbp1(62),n) + &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) + &
                 (sib(imultpbpsib(n))%diag%ecmass +    &
                 sib(imultpbpsib(n))%diag%egmass) * dti * 55.56
 
-            pbp1(indxpbp1(63),n) = pbp1(indxpbp1(63),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%assim(6)*1.e6
 
-            pbp1(indxpbp1(64),n) = pbp1(indxpbp1(64),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%whs(6)
 
-            pbp1(indxpbp1(65),n) = pbp1(indxpbp1(65),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%cu
 
-            pbp1(indxpbp1(66),n) = pbp1(indxpbp1(66),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%ct
 
-            pbp1(indxpbp1(67),n) = pbp1(indxpbp1(67),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%ventmf
 
-            pbp1(indxpbp1(68),n) = pbp1(indxpbp1(68),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%tm
 
-            pbp1(indxpbp1(69),n) = pbp1(indxpbp1(69),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%thm
 
-            pbp1(indxpbp1(70),n) = pbp1(indxpbp1(70),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%sh
 
-            pbp1(indxpbp1(71),n) = pbp1(indxpbp1(71),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%radvbc
 
-            pbp1(indxpbp1(72),n) = pbp1(indxpbp1(72),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%radvdc
 
-            pbp1(indxpbp1(73),n) = pbp1(indxpbp1(73),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%radnbc
 
-            pbp1(indxpbp1(74),n) = pbp1(indxpbp1(74),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%radndc
 
-            pbp1(indxpbp1(75),n) = pbp1(indxpbp1(75),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%dlwbot
 
-            pbp1(indxpbp1(76),n) = pbp1(indxpbp1(76),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%spdm
 
-            pbp1(indxpbp1(77),n) = pbp1(indxpbp1(77),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%ps
 
-            pbp1(indxpbp1(78),n) = pbp1(indxpbp1(78),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%lspr*3600.0
 
-            pbp1(indxpbp1(79),n) = pbp1(indxpbp1(79),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%cupr*3600.0
 
-            pbp1(indxpbp1(80),n) = pbp1(indxpbp1(80),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radc3(1)
 
-            pbp1(indxpbp1(81),n) = pbp1(indxpbp1(81),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radc3(2)
 
-            pbp1(indxpbp1(82),n) = pbp1(indxpbp1(82),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%stat%cosz
 
-            pbp1(indxpbp1(83),n) = pbp1(indxpbp1(83),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%d13cca
 
-            pbp1(indxpbp1(84),n) = pbp1(indxpbp1(84),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%d13cm
 
-            pbp1(indxpbp1(85),n) = pbp1(indxpbp1(85),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%param%d13cresp
 
-            pbp1(indxpbp1(86),n) = pbp1(indxpbp1(86),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%kiecps(1)
 
-            pbp1(indxpbp1(87),n) = pbp1(indxpbp1(87),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%kiecps(2)
 
-            pbp1(indxpbp1(88),n) = pbp1(indxpbp1(88),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%d13cassimn(1)
 
-            pbp1(indxpbp1(89),n) = pbp1(indxpbp1(89),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%d13cassimn(2)
 
-            pbp1(indxpbp1(90),n) = pbp1(indxpbp1(90),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%d13cassimn(6)
 
-            pbp1(indxpbp1(91),n) = pbp1(indxpbp1(91),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%flux13c
 
-            pbp1(indxpbp1(92),n) = pbp1(indxpbp1(92),n) +    & 
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    & 
                 sib(imultpbpsib(n))%diag%flux12c
 
-            pbp1(indxpbp1(93),n) = pbp1(indxpbp1(93),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%flux_turb
 
 !itb...soil/snow temperatures (loop)
 
-            out_index = 94
+            out_index = out_index + 1 !index at: 98
             do l=-nsnow+1,nsoil
 
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
@@ -880,7 +988,6 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
 !itb...soil/snow liquid water (loop)
 
-            out_index = 109
             do l=-nsnow+1,nsoil
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%prog%www_liq(l)
@@ -891,7 +998,6 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
 !itb...soil/snow ice water (loop)
 
-            out_index = 124
             do l=-nsnow+1,nsoil
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%prog%www_ice(l)
@@ -899,9 +1005,12 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                 out_index = out_index + 1
             enddo
 
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%www_tot_soil
+
 !itb...volumetric soil water content (loop)
 
-            out_index = 139
+            out_index = out_index + 1 !index at: 144
             do l=1,nsoil
 
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) + &
@@ -914,7 +1023,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
 !itb...phystype-specific stomatal resistance (loop)
 
-            out_index = 149
+            !index at: 154
             do l=1,5
 
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
@@ -926,8 +1035,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
 !itb...phystype-specific net assimilation (loop)
 
-            out_index = 154
-            do l=1,5 
+             do l=1,5 
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%diag%assimn(l)*1.0E6
 
@@ -937,7 +1045,6 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
 !itb...phystype-specific chloroplast CO2 partial pressure (loop)
 
-            out_index = 159
             do l =1,5
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%diag%pco2c(l)
@@ -948,7 +1055,6 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
 !itb...phystype-specific leaf internal CO2 partial pressure (loop)
 
-            out_index = 164
             do l=1,5
 
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
@@ -959,7 +1065,6 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
 
 !itb...phystype-specific leaf surface CO2 partial pressure (loop)
 
-            out_index = 169
             do l=1,5
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%diag%pco2s(l)
@@ -967,143 +1072,131 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                 out_index = out_index + 1
             enddo
 
-            pbp1(indxpbp1(174),n) = pbp1(indxpbp1(174),n) +    &
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%prog%pco2m
+
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%stat%coszbar
 
-            pbp1(indxpbp1(175),n) = pbp1(indxpbp1(175),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%sw_dwn2
 
-            pbp1(indxpbp1(176),n) = pbp1(indxpbp1(176),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%prog%sw_dwn
 
-            pbp1(indxpbp1(177),n) = pbp1(indxpbp1(177),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radt(1)
 
-            pbp1(indxpbp1(178),n) = pbp1(indxpbp1(178),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radt(2)
 
-            pbp1(indxpbp1(179),n) = pbp1(indxpbp1(179),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radt(3)
 
-            pbp1(indxpbp1(180),n) = pbp1(indxpbp1(180),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%cas_e_storage
 
-            pbp1(indxpbp1(181),n) = pbp1(indxpbp1(181),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(1,1,1)
 
-            pbp1(indxpbp1(182),n) = pbp1(indxpbp1(182),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(1,2,1)
 
-            pbp1(indxpbp1(183),n) = pbp1(indxpbp1(183),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(1,1,2)
 
-            pbp1(indxpbp1(184),n) = pbp1(indxpbp1(184),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(1,2,2)
 
-            pbp1(indxpbp1(185),n) = pbp1(indxpbp1(185),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(2,1,1)
 
-            pbp1(indxpbp1(186),n) = pbp1(indxpbp1(186),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(2,2,1)
 
-
-            pbp1(indxpbp1(187),n) = pbp1(indxpbp1(187),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(2,1,2)
 
-            pbp1(indxpbp1(188),n) = pbp1(indxpbp1(188),n) +    &
+            out_index=out_index+1
+            pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%radfac(2,2,2)
 
-            pbp1(indxpbp1(189),n) = pbp1(indxpbp1(189),n) +    &
-                sib(imultpbpsib(n))%diag%ta_bar
-
-            pbp1(indxpbp1(190),n) = pbp1(indxpbp1(190),n) +    &
-                sib(imultpbpsib(n))%diag%gdd
-
-            pbp1(indxpbp1(191),n) = pbp1(indxpbp1(191),n) +    &
-                sib(imultpbpsib(n))%diag%cum_drywt(1)
-
-            pbp1(indxpbp1(192),n) = pbp1(indxpbp1(192),n) +    &
-                sib(imultpbpsib(n))%diag%cum_drywt(2)
-
-            pbp1(indxpbp1(193),n) = pbp1(indxpbp1(193),n) +    &
-                sib(imultpbpsib(n))%diag%cum_drywt(3)
-
-            pbp1(indxpbp1(194),n) = pbp1(indxpbp1(194),n) +    &
-                sib(imultpbpsib(n))%diag%cum_drywt(4)
-
-!EL...temporarily added canopy maint resp for output  
-
-           out_index = 195
+            out_index=out_index+1 
             do l =1,6
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%diag%respc(l)*1.E6
             
                 out_index = out_index + 1
             enddo
-    
-          pbp1(indxpbp1(201),n) = pbp1(indxpbp1(201),n) +    &
-                sib(imultpbpsib(n))%diag%tempf
 
-          pbp1(indxpbp1(202),n) = pbp1(indxpbp1(202),n) +    &
-                sib(imultpbpsib(n))%diag%tot_biomass
-
-          pbp1(indxpbp1(203),n) = pbp1(indxpbp1(203),n) +    &
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                (sib(imultpbpsib(n))%diag%respg + &
                sib(imultpbpsib(n))%diag%aparkk* sib(imultpbpsib(n))%diag%respc(6))*1.E6
 
-          pbp1(indxpbp1(204),n) = pbp1(indxpbp1(204),n) +    &
-                sib(imultpbpsib(n))%prog%pco2m
+           out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) + &
+               sib(imultpbpsib(n))%param%clayfrac
            
-          pbp1(indxpbp1(205),n) = pbp1(indxpbp1(205),n) +    &
-                sib(imultpbpsib(n))%diag%www_tot_soil
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) + &
+               sib(imultpbpsib(n))%param%sandfrac
 
-!itb...new diagnostic output, debugging crop behavior
-          pbp1(indxpbp1(206),n) = pbp1(indxpbp1(206),n) +    &
-                sib(imultpbpsib(n))%diag%gdd_c
+            out_index=out_index+1
+         pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) + &
+               sib(imultpbpsib(n))%param%biome
 
-          pbp1(indxpbp1(207),n) = pbp1(indxpbp1(207),n) +    &
-                sib(imultpbpsib(n))%diag%tempf
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) + &
+                sib(imultpbpsib(n))%param%vcover
 
-          pbp1(indxpbp1(208),n) = pbp1(indxpbp1(208),n) +    &
-                sib(imultpbpsib(n))%diag%ndf_opt
-
-          pbp1(indxpbp1(209),n) = pbp1(indxpbp1(209),n) +    &
-                sib(imultpbpsib(n))%diag%pd7_est
-
-          pbp1(indxpbp1(210),n) = pbp1(indxpbp1(210),n) +    &
-                sib(imultpbpsib(n))%diag%pdindx7
-
-          pbp1(indxpbp1(211),n) = pbp1(indxpbp1(211),n) +    &
-                sib(imultpbpsib(n))%diag%pd
-
-          pbp1(indxpbp1(212),n) = pbp1(indxpbp1(212),n) +    &
-                sib(imultpbpsib(n))%diag%pd7
-
-          pbp1(indxpbp1(213),n) = pbp1(indxpbp1(213),n) +    &
+          !Crop Variables (modified by kdcorbin, 02/11)
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%gdd
 
-          pbp1(indxpbp1(214),n) = pbp1(indxpbp1(214),n) +    &
-                sib(imultpbpsib(n))%diag%nd_emerg
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%tempf
 
-          pbp1(indxpbp1(215),n) = pbp1(indxpbp1(215),n) +    &
-                sib(imultpbpsib(n))%diag%emerg_d
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%ta_bar
 
-          pbp1(indxpbp1(216),n) = pbp1(indxpbp1(216),n) +    &
-                sib(imultpbpsib(n))%diag%assim_d
-
-          pbp1(indxpbp1(217),n) = pbp1(indxpbp1(217),n) +    &
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%rstfac_d
 
-          pbp1(indxpbp1(218),n) = pbp1(indxpbp1(218),n) +    &
-                sib(imultpbpsib(n))%diag%w_main_pot
+            out_index=out_index+1
+         pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%assim_d
 
-          pbp1(indxpbp1(219),n) = pbp1(indxpbp1(219),n) +    &
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                 sib(imultpbpsib(n))%diag%w_main
 
-          pbp1(indxpbp1(220),n) = pbp1(indxpbp1(220),n) +    &
-                sib(imultpbpsib(n))%diag%phen_switch
+            out_index=out_index+1
+         pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%leafwt_c
 
-           out_index = 221
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%phen_lai
+
+            out_index=out_index+1
             do l =1,4
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%diag%alloc(l)
@@ -1111,22 +1204,53 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                 out_index = out_index + 1
             enddo
 
-           out_index = 225
-            do l =1,4
-                pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
-                    sib(imultpbpsib(n))%diag%cum_wt_p(l)
-            
-                out_index = out_index + 1
-            enddo
-
-           out_index = 229
+         !index at: 218
             do l =1,4
                 pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
                     sib(imultpbpsib(n))%diag%cum_wt(l)
             
                 out_index = out_index + 1
             enddo
-         
+
+            do l =1,4
+                pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                    sib(imultpbpsib(n))%diag%cum_drywt(l)
+            
+                out_index = out_index + 1
+            enddo
+
+         !index at: 226
+            do l =1,4
+                pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                    sib(imultpbpsib(n))%diag%phen_maintr(l)
+            
+                out_index = out_index + 1
+            enddo
+
+            do l =1,4
+                pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                    sib(imultpbpsib(n))%diag%phen_growthr(l)
+            
+                out_index = out_index + 1
+            enddo
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%pd
+
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%emerg_d
+
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%ndf_opt
+
+            out_index=out_index+1
+          pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%phen_switch
+
+            out_index=out_index+1
+         pbp1(indxpbp1(out_index),n) = pbp1(indxpbp1(out_index),n) +    &
+                sib(imultpbpsib(n))%diag%tot_biomass
 
         enddo
     endif

@@ -1,29 +1,29 @@
-!=================SUBROUTINE RADA2======================================
+!=================SUBROUTINE RADA2=======================
 subroutine rada2(sib,sib_loc)
 
 
 
-    !=======================================================================
+    !===================================================
     !
     !     CALCULATION OF ALBEDOS VIA TWO STREAM APPROXIMATION( DIRECT
     !     AND DIFFUSE ) AND PARTITION OF RADIANT ENERGY
     !
-    !-----------------------------------------------------------------------
+    !----------------------------------------------------------------
 
 
-    !++++++++++++++++++++++++++++++OUTPUT+++++++++++++++++++++++++++++++++++
+    !++++++++++++++++++++++OUTPUT++++++++++++++++++++++++
     !
     !       SALB(2,2)      SURFACE ALBEDOS 
     !       TGEFF4         EFFECTIVE SURFACE RADIATIVE TEMPERATURE (K) 
     !       RADFAC(2,2,2)  RADIATION ABSORPTION FACTORS 
     !       THERMK         CANOPY GAP FRACTION FOR TIR RADIATION 
     !
-    !++++++++++++++++++++++++++DIAGNOSTICS++++++++++++++++++++++++++++++++++
+    !+++++++++++++++++++DIAGNOSTICS+++++++++++++++++++++++
     !
     !       ALBEDO(2,2,2)  COMPONENT REFLECTANCES 
     !
     !
-    !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    !+++++++++++++++++++++++++++++++++++++++++++++++++++
     !
     !      REFERENCE
     !
@@ -41,13 +41,13 @@ subroutine rada2(sib,sib_loc)
         tice
     implicit none   
 
-    !----------------------------------------------------------------------
+    !-------------------------------------------------------------
 
     type(sib_t), intent(inout) :: sib
     type(sib_local_vars)     ,intent(inout) :: sib_loc
     ! variables local to SiB
 
-    !----------------------------------------------------------------------  
+    !-------------------------------------------------------------  
 
     !...LOCAL VARIABLES...
     integer(kind=int_kind) :: iwave, irad   ! loop variables
@@ -109,7 +109,7 @@ subroutine rada2(sib,sib_loc)
 
 
     !
-    !----------------------------------------------------------------------
+    !---------------------------------------------------------------
     !
     !
     !     MODIFICATION FOR EFFECT OF SNOW ON UPPER STOREY ALBEDO
@@ -117,15 +117,13 @@ subroutine rada2(sib,sib_loc)
     !         SNOW TRANSMITTANCE = 0.20, 0.54
     !
     !
-    !-----------------------------------------------------------------------
+    !--------------------------------------------------------------
     !
     !
-
     sib%diag%canex         = 1.-( sib%prog%snow_veg*5.-sib%param%z1)/  &
         (sib%param%z2-sib%param%z1)
     sib%diag%canex         = max( 0.1_dbl_kind, sib%diag%canex )
     sib%diag%canex         = min( 1.0_dbl_kind, sib%diag%canex )
-
 
     !...both satcap values are in meters: multiply by density to get
     !...kg/m^2...
@@ -152,7 +150,7 @@ subroutine rada2(sib,sib_loc)
     facs  = min( 0.4_dbl_kind, facs)
     fmelt = 1.0 - facs
 
-    !-----------------------------------------------------------------------
+    !--------------------------------------------------------------
     do iwave = 1, 2
 
         scov =  min( 0.5_dbl_kind, (sib%prog%snow_veg/1000.0)/sib%param%satcap(1) )
@@ -167,7 +165,7 @@ subroutine rada2(sib,sib_loc)
         tran2 = sib%param%tran(iwave,2) * ( 1. - scov )                     &
             + scov * ( 1.- ( 1.2 - iwave * 0.4 ) * fmelt ) * 0.9   &
             * sib%param%tran(iwave,2)
-        !-----------------------------------------------------------------------
+        !--------------------------------------------------------------
         !
         !     CALCULATE AVERAGE SCATTERING COEFFICIENT, LEAF PROJECTION AND
         !     OTHER COEFFICIENTS FOR TWO-STREAM MODEL.
@@ -181,7 +179,7 @@ subroutine rada2(sib,sib_loc)
         !      UPSCAT(OMEGA*BETA)    : EQUATION (3)   , SE-85
         !      BETAO (1BETA-0)       : EQUATION (4)   , SE-85 
         !
-        !-----------------------------------------------------------------------
+        !--------------------------------------------------------------
 
         scat = sib%param%green*( tran1 + reff1 ) +( 1.-sib%param%green ) *  &
             ( tran2 + reff2)
@@ -207,7 +205,7 @@ subroutine rada2(sib,sib_loc)
         betao = ( 1. + zmew * extkb )   &
             / ( scat * zmew * extkb ) * acss
 
-        !-----------------------------------------------------------------------
+        !---------------------------------------------------------------
         !
         !     Intermediate variables identified in appendix of SE-85.
         !
@@ -228,7 +226,7 @@ subroutine rada2(sib,sib_loc)
         !      ZAT         (L-T)   : APPENDIX      , SE-85
         !      EPSI        (S1)    : APPENDIX      , SE-85
         !      EK          (S2)    : APPENDIX      , SE-85
-        !-----------------------------------------------------------------------
+        !---------------------------------------------------------------
 
         be = 1. - scat + upscat
         ce = upscat
@@ -260,11 +258,11 @@ subroutine rada2(sib,sib_loc)
             + ( 1.2-iwave*0.4 )*fmelt * sib%diag%areas
         ge = albedo(2,iwave,1)/albedo(2,iwave,2)
 
-        !----------------------------------------------------------------
+        !--------------------------------------------------------------
         !     CALCULATION OF DIFFUSE ALBEDOS
         !
         !     ALBEDO(1,IWAVE,2) ( I-UP ) : APPENDIX , SE-85
-        !----------------------------------------------------------------
+        !--------------------------------------------------------------
 
         f1 = be - ce / albedo(2,iwave,2)
         zp = zmew * psi
@@ -319,15 +317,15 @@ subroutine rada2(sib,sib_loc)
 
         albedo(1,iwave,1) = hh1 / bot + hh2 + hh3
         !
-        !----------------------------------------------------------------------
+        !----------------------------------------------------------
         !
         !
-        !----------------------------------------------------------------------
+        !----------------------------------------------------------
         !     CALCULATION OF TERMS WHICH MULTIPLY INCOMING SHORT WAVE FLUXES
         !     TO GIVE ABSORPTION OF RADIATION BY CANOPY AND GROUND
         !
         !      RADFAC      (F(IL,IMU,IV)) : EQUATION (19,20) , SE-86
-        !----------------------------------------------------------------------
+        !----------------------------------------------------------
         !
         sib%diag%radfac(2,iwave,1) = ( 1.-sib%param%vcover )   &
             * ( 1.-albedo(2,iwave,1) ) + sib%param%vcover      &
@@ -347,10 +345,10 @@ subroutine rada2(sib,sib_loc)
             * ( ( 1.-albedo(1,iwave,2) )                    &
             - tranc2(iwave) * ( 1.-albedo(2,iwave,2) ) )
         !
-        !----------------------------------------------------------------------
+        !--------------------------------------------------------------
         !     CALCULATION OF TOTAL SURFACE ALBEDOS ( SALB ) WITH WEIGHTING
         !     FOR COVER FRACTIONS.
-        !----------------------------------------------------------------------
+        !--------------------------------------------------------------
         !
         do irad = 1, 2
             sib%diag%salb(iwave,irad) = ( 1.-sib%param%vcover )   & 
@@ -358,15 +356,15 @@ subroutine rada2(sib,sib_loc)
                 sib%param%vcover * albedo(1,iwave,irad)
         enddo
         !
-        !----------------------------------------------------------------------
+        !---------------------------------------------------------------
         !
     enddo  ! iwave loop
     !
-    !----------------------------------------------------------------------
+    !-----------------------------------------------------------------
     !
     !     CALCULATION OF LONG-WAVE FLUX TERMS FROM CANOPY AND GROUND
     !
-    !----------------------------------------------------------------------
+    !-----------------------------------------------------------------
     !
     tsurf = min(tice,sib%prog%td(sib%prog%nsl+1))*sib%diag%areas   &
         + sib%prog%td(1)*(1.-sib%diag%areas)

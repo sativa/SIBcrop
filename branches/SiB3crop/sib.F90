@@ -1,4 +1,4 @@
-!----------------------------------------------------------------------
+!-----------------------------------------------------------------
 
 subroutine sib_main ( sib )
 
@@ -9,13 +9,13 @@ subroutine sib_main ( sib )
 
     implicit none
 
-!---PARAMETERS---------------------------------------------------------
+!---PARAMETERS----------------------------------------------------
 
     type(sib_t), intent(inout) :: sib
     type(sib_local_vars) :: sib_loc
 
 
-!-------------------------------------------------------------------
+!-----------------------------------------------------------------
 
 !     REFERENCES: Sato, N., P. J. Sellers, D. A. Randall, E. K. Schneider, 
 !          J. Shukla, J. L Kinter III, Y-T, Hou, and Albertazzi (1989) 
@@ -34,11 +34,11 @@ subroutine sib_main ( sib )
 !     FUNCTIONS CALLED:
 
 
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 !
 !   local variables
 !
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 
 
     real(kind=dbl_kind) :: zzwind    ! adjusted wind measurement height (m) 
@@ -65,17 +65,16 @@ subroutine sib_main ( sib )
 
     real(kind=dbl_kind),dimension(1) :: ppl, ttl,tess
                                                ! temp vars for call to eau_sat
-                                                                                           ! dimension(1) to keep SGI compiler happy
+                                               ! dimension(1) to keep SGI compiler happy
 
     integer(kind=int_kind) :: i, j, k, n, ksoil, l
 
 
-!----------------------------------------------------------------------
+!------------------------------------------------------------------
 !
 !   end local variables
 !
-!----------------------------------------------------------------------
-
+!------------------------------------------------------------------
 
     !...first guesses for ta and ea
 
@@ -108,19 +107,16 @@ subroutine sib_main ( sib )
     !...temporarily hardwiring the carbon isotopic ratios of the mixed layer
     !...and respireation into SiBDRIVE
     sib%prog%d13cm    = -7.8              ! del13C of mixed layer
-!    sib%param%d13cresp   = -28.0             ! del13C of respiration
+    !sib%param%d13cresp   = -28.0             ! del13C of respiration
     !
     !...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX...CFRAX
 
-
     sib%diag%cuprt = sib%prog%cupr * 0.001
     sib%diag%lsprt = sib%prog%lspr * 0.001  ! converting units to m/sec
-
     sib%diag%roff       = 0.0
     sib%diag%roffo      = 0.0
     sib%prog%pco2ap_old = sib%prog%pco2ap
     sib%prog%cas_old = sib%prog%cas
-!    print*, 'sib', sib%prog%pco2ap
 
     !...calculate albedo/reflectance/transmissivity
     call rada2(sib,sib_loc)
@@ -128,16 +124,15 @@ subroutine sib_main ( sib )
     !...distribute incident radiation between canopy and surface
     call rnload(sib)
 
-
     sib%param%zpd_adj   = sib%param%z2 - ( sib%param%z2-sib%param%zp_disp )   &
                                            * sib%diag%canex
 
     sib%param%z0        = sib%param%z0d/( sib%param%z2-sib%param%zp_disp )    &
                                         * ( sib%param%z2-sib%param%zpd_adj )
 
-!    print*,'SiB, zpd:',sib%param%zp_disp,sib%param%zpd_adj
-!    print*,'SiB, z0:',sib%param%z0d,sib%param%z0
-!    print*,'SiB,z2:',sib%param%z2,sib%param%z1
+    !print*,'SiB, zpd:',sib%param%zp_disp,sib%param%zpd_adj
+    !print*,'SiB, z0:',sib%param%z0d,sib%param%z0
+    !print*,'SiB,z2:',sib%param%z2,sib%param%z1
 
     sib%param%rbc       = sib%param%cc1/sib%diag%canex
     sib%param%rdc       = sib%param%cc2*sib%diag%canex
@@ -150,14 +145,12 @@ subroutine sib_main ( sib )
 !   after begtem, get beginning-of-timestep CAS water in kg/m^2
     cas_q = sib%prog%sha * sib%prog%ros * sib%diag%cas_cap_co2
 
-
 !     CALCULATE RADT USING RADIATION FROM PHYSICS AND CURRENT
 !     LOSSES FROM CANOPY AND GROUND!
 
     call netrad(sib,sib_loc)
 
 !     GET RESISTANCES FOR SIB, update stomatal resistance 
-
     call vntlat(sib,sib_loc)
 
 !   this call for ustar, cu for oceanic value of z0 
@@ -171,7 +164,6 @@ subroutine sib_main ( sib )
     !itb...with respect to ground/canopy/snow temp, as well as
     !itb...some other derivatives.
 
-
     call dellwf(sib,sib_loc)
 
     
@@ -180,14 +172,10 @@ subroutine sib_main ( sib )
 
     call delhf(sib,sib_loc)
 
-!
 !   solve matrix of prognostic variables
-!
-
     call sibslv(sib,sib_loc)
 
 !    update prognostic variables, get total latent and sensible fluxes
-
     call addinc(sib,sib_loc)
 
     !itb...call eau_sat instead of vnqsat...
@@ -219,7 +207,6 @@ subroutine sib_main ( sib )
     !...update infiltration and soil water
     call hydro_soil(sib)
 
-
 !itb...the next three routines need only be called if there is snow
 !itb...snow layers are initialized in hydro_canopy.
 
@@ -232,7 +219,6 @@ subroutine sib_main ( sib )
        call combine_snow(sib)
 
     !...subdivide snow levels where necessary
-
        call subdivide_snow(sib)
 
 !    endif                                  !snow layers present
@@ -272,6 +258,5 @@ subroutine sib_main ( sib )
 
     !...check that energy and water balance is maintained
     call balan(sib,nsl_old,wwwliq_old,wwwice_old,capac_old,cas_q)
-
 
 end subroutine sib_main
