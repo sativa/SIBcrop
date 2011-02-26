@@ -106,6 +106,7 @@ real(kind=dbl_kind), dimension(:,:), allocatable :: resp
                          sib(i)%param%biome=20
                          sib(i)%diag%pd_annual = 0
                     endif
+
                  enddo
 
             endif
