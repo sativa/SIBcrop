@@ -305,7 +305,6 @@ real(kind=dbl_kind) :: vmax_factor
 !EL...1-roots, 2-leaves,3-stems,4-products (flowers and grains)
 !EL...allocation to different growth stages after emergence 
 !......(each stage given as a range of GDDs below) 
-
         if(sib(sibpt)%diag%gdd < 100.0) then
                sib(sibpt)%diag%alloc(:) = 0.0
 	elseif(sib(sibpt)%diag%gdd <500.0) then
@@ -631,8 +630,9 @@ real(kind=dbl_kind) :: vmax_factor
 !---------------------------
 
 !EL...sib%diag%ndf_opt = no. of days with avg. temperature above 67F
+!kdcorbin, 02/11 - changed from 67 to 68  (Bondville 2000 alone, use 70)
 
-	if (sib(sibpt)%diag%tempf < 67.0) then
+	if (sib(sibpt)%diag%tempf < 68.0) then
               sib(sibpt)%diag%ndf_opt = 0			
 	else   	
            sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
@@ -830,22 +830,22 @@ real(kind=dbl_kind) :: vmax_factor
           	if (sib(sibpt)%diag%tempc<=8) then
                     dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.01
          	elseif (sib(sibpt)%diag%tempc<10.0) then
-                    dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                                0.01 - ((0.01 - 0.25) * (sib(sibpt)%diag%tempc-8.)/(10.-8.))
+                    dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.01 &
+                                + (0.24 * (sib(sibpt)%diag%tempc-8.)/2.)
               	elseif (sib(sibpt)%diag%tempc < 20.0) then
                      dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                                (0.25 - ((0.25 - 0.9) * (sib(sibpt)%diag%tempc-10.)/(20.-10.)))
+                                (0.25 + (0.65 * (sib(sibpt)%diag%tempc-10.)/10.))
 	        elseif (sib(sibpt)%diag%tempc < 27.0) then
                       dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                               (0.9 - ((0.9 - 1.05) * (sib(sibpt)%diag%tempc-20.)/(27.-20.)))
+                               (0.9 + (0.15 * (sib(sibpt)%diag%tempc-20.)/7.))
              	elseif (sib(sibpt)%diag%tempc < 30.0) then
                       dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                                (1.05 - ((1.05 - 1.1) * (sib(sibpt)%diag%tempc-27.)/(30.-27.)))
+                                (1.05 + (.06 * (sib(sibpt)%diag%tempc-27.)/3.))
 	        elseif (sib(sibpt)%diag%tempc < 40.0) then
                       dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                                (1.1 - ((1.1 -1.2 ) * (sib(sibpt)%diag%tempc - 30.0) / (40.0 - 30.0)))
+                                (1.1 + (0.1 * (sib(sibpt)%diag%tempc - 30.0)/10.))
          	endif
- 
+
         sib(sibpt)%diag%w_main_pot=sib(sibpt)%diag%w_main_pot+dgrowth
         sib(sibpt)%diag%w_main=max(sib(sibpt)%diag%w_main_pot, &
                                                         sib(sibpt)%diag%w_main)
@@ -880,7 +880,7 @@ real(kind=dbl_kind) :: vmax_factor
 !EL...the final values could also be found in Lokupiitya et al., 2009
 
        temp1 = (0.03 * coeff) *                   &
-             (2.0**((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+             (1.8**((sib(sibpt)%diag%tempc - 20.0) / 10.0))
        sib(sibpt)%diag%phen_maintr(1) =  sib(sibpt)%diag%cum_wt(1)       &
              * 0.32 * temp1  
 
@@ -1044,6 +1044,7 @@ subroutine wheat_phen
 implicit none
 
 real(kind=dbl_kind) :: temp1
+real(kind=dbl_kind) :: vmax_factor
 
 !EL...calculation of the planting date of winterwheat was set to start 
 !EL...after Aug 15 (by looking at USDA planting dates), and the
@@ -1113,27 +1114,24 @@ endif  !biome == 23
 !EL...date based on the above ndf_opt criterion
 
 if (sib(sibpt)%param%biome == 22) then
-	if (sib(sibpt)%diag%pd > 0                      .AND.         &
-            sib(sibpt)%diag%tempc > 0.0             .AND.         &
-            sib(sibpt)%diag%tempc < 26.0)      then
-                    sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + &
-                                                       sib(sibpt)%diag%tempc- 0.0_dbl_kind
-         elseif (sib(sibpt)%diag%pd==0 .and. time%doy==2) then
-             sib(sibpt)%diag%gdd=769.0
-         elseif (sib(sibpt)%diag%pd==0 .and. time%doy>2  .and.  &
-                   sib(sibpt)%diag%gdd>500.0 .and. &
+        if (sib(sibpt)%diag%doy==1) then
+	    	sib(sibpt)%diag%gdd=769.0
+        elseif (sib(sibpt)%diag%pd == 0 .and. time%doy == 2) then
+                sib(sibpt)%diag%gdd=769.0
+	elseif (sib(sibpt)%diag%pd > 0  .AND.   &
+            sib(sibpt)%diag%tempc > 0.0  .AND. sib(sibpt)%diag%tempc < 26.0)      then
+                    sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + sib(sibpt)%diag%tempc
+         elseif (sib(sibpt)%diag%pd==0 .and. time%doy>2  .AND.  &
+                   sib(sibpt)%diag%gdd>500.0 .AND. &
                    sib(sibpt)%diag%tempc > 0.0 .AND. sib(sibpt)%diag%tempc < 26.0 ) then
-             sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + &
-                                               sib(sibpt)%diag%tempc- 0.0_dbl_kind
+             sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + sib(sibpt)%diag%tempc
         endif
 endif  !biome == 22
-
 
 if (sib(sibpt)%param%biome == 23) then
 	if (sib(sibpt)%diag%pd > 0                     .AND.         & 
             time%doy  >=  sib(sibpt)%diag%pd   .AND.         &
-            sib(sibpt)%diag%tempc > 0.0            .AND.         &
-            sib(sibpt)%diag%tempc < 21.11) then
+            sib(sibpt)%diag%tempc > 0.0 .AND. sib(sibpt)%diag%tempc < 21.11) then
              	     sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + &
                                                        sib(sibpt)%diag%tempc- 0.0_dbl_kind
         endif
@@ -1141,10 +1139,8 @@ if (sib(sibpt)%param%biome == 23) then
         if (sib(sibpt)%diag%gdd >= 215.0) then
             if (sib(sibpt)%diag%pd > 0                     .AND.         & 
 		time%doy  >=  sib(sibpt)%diag%pd    .AND.         &
-                sib(sibpt)%diag%tempc > 0.0             .AND.         &
-                sib(sibpt)%diag%tempc < 35.0 ) then
-                     sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + &
-                                                        sib(sibpt)%diag%tempc- 0.0_dbl_kind
+                sib(sibpt)%diag%tempc > 0.0 .AND. sib(sibpt)%diag%tempc < 35.0 ) then
+                     sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + sib(sibpt)%diag%tempc
             endif
         endif
 endif  !biome == 23
@@ -1182,86 +1178,52 @@ endif
 		sib(sibpt)%diag%alloc(3)=0.2	
 		sib(sibpt)%diag%alloc(4)=0.0	
         elseif (sib(sibpt)%diag%gdd <680.0) then
-                sib(sibpt)%diag%alloc(1)=0.4-(0.4-0.3)* &
-                          (sib(sibpt)%diag%gdd-350.0)/(680.0-350.0)
-		sib(sibpt)%diag%alloc(2)=0.4-(0.4-0.25)* &
-                          (sib(sibpt)%diag%gdd-350.0)/(680.0-350.0)
-		sib(sibpt)%diag%alloc(3)=0.2-(0.2-0.45)* &
-                          (sib(sibpt)%diag%gdd-350.0)/(680.0-350.0)		
+                sib(sibpt)%diag%alloc(1)=0.4-0.1 * (sib(sibpt)%diag%gdd-350.0)/330.0
+		sib(sibpt)%diag%alloc(2)=0.4-0.15 * (sib(sibpt)%diag%gdd-350.0)/330.0
+		sib(sibpt)%diag%alloc(3)=0.2+0.25 * (sib(sibpt)%diag%gdd-350.0)/330.0
 		sib(sibpt)%diag%alloc(4)=0.0
-       elseif (sib(sibpt)%diag%gdd<769) then
-                sib(sibpt)%diag%alloc(1)=0.3-(0.3-0.4)* &
-                          (sib(sibpt)%diag%gdd-680.0)/(769.0-680.0)
-		sib(sibpt)%diag%alloc(2)=0.25-(0.25-0.001)* &
-                          (sib(sibpt)%diag%gdd-680.0)/(769.0-680.0)
-		sib(sibpt)%diag%alloc(3)=0.45-(0.45-0.599)* &
-                          (sib(sibpt)%diag%gdd-680.0)/(769.0-680.0)		
+       elseif (sib(sibpt)%diag%gdd<769.0) then
+                sib(sibpt)%diag%alloc(1)=0.3+0.1 * (sib(sibpt)%diag%gdd-680.0)/89.0
+		sib(sibpt)%diag%alloc(2)=0.25-0.249 * (sib(sibpt)%diag%gdd-680.0)/89.0
+		sib(sibpt)%diag%alloc(3)=0.45+0.149 * (sib(sibpt)%diag%gdd-680.0)/89.0
 		sib(sibpt)%diag%alloc(4)=0.0
-       elseif  (sib(sibpt)%param%biome == 22 .and. &
-                   sib(sibpt)%diag%pd>0  .and. time%doy<366) then
-                sib(sibpt)%diag%gdd=769.0
-                sib(sibpt)%diag%alloc(1)=0.4
-		sib(sibpt)%diag%alloc(2)=0.001
-		sib(sibpt)%diag%alloc(3)=0.599
 		sib(sibpt)%diag%alloc(4)=0.0
        elseif (sib(sibpt)%diag%gdd<910.0) then
-                if (sib(sibpt)%param%biome == 22 .and. sib(sibpt)%diag%doy==1) then
-	         	sib(sibpt)%diag%gdd=769.0
-                endif
-                sib(sibpt)%diag%alloc(1)=0.4
-		sib(sibpt)%diag%alloc(2)=0.001
-		sib(sibpt)%diag%alloc(3)=0.599
+                sib(sibpt)%diag%alloc(1)=0.4   
+		sib(sibpt)%diag%alloc(2)=0.4   
+		sib(sibpt)%diag%alloc(3)=0.2   
 		sib(sibpt)%diag%alloc(4)=0.0
        elseif (sib(sibpt)%diag%gdd<1074.0) then 
-    		sib(sibpt)%diag%alloc(1)=0.3
-		sib(sibpt)%diag%alloc(2)=0.34
-		sib(sibpt)%diag%alloc(3)=0.36	
+    		sib(sibpt)%diag%alloc(1)=0.4 - 0.15 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+		sib(sibpt)%diag%alloc(2)=0.45 - 0.05 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+		sib(sibpt)%diag%alloc(3)=0.15 + 0.2 * (sib(sibpt)%diag%gdd - 910.0)/164.0
 		sib(sibpt)%diag%alloc(4)=0.0
       elseif (sib(sibpt)%diag%gdd<1569.0) then
-        	sib(sibpt)%diag%alloc(1)=0.3-(0.3-0.25)* &
-                            (sib(sibpt)%diag%gdd-1074.0)/(1569.0-1074.0)
-		sib(sibpt)%diag%alloc(2)=0.34-(0.34-0.35)* &
-                            (sib(sibpt)%diag%gdd-1074.0)/(1569.0-1074.0)	
-		sib(sibpt)%diag%alloc(3)=0.36-(0.36-0.4)* &
-                            (sib(sibpt)%diag%gdd-1074.0)/(1569.0-1074.0)		
+        	sib(sibpt)%diag%alloc(1)=0.25-0.05 * (sib(sibpt)%diag%gdd-1074.0)/495.0
+                sib(sibpt)%diag%alloc(2) = .4 - .1*(sib(sibpt)%diag%gdd-1073.0)/495.0
+                sib(sibpt)%diag%alloc(3) = 0.35 + .15*(sib(sibpt)%diag%gdd-1073.0)/495.0
 		sib(sibpt)%diag%alloc(4)=0.0
 	elseif (sib(sibpt)%diag%gdd<1629.0) then
-                sib(sibpt)%diag%alloc(1)=0.25-(0.25-0.25)* &
-                            (sib(sibpt)%diag%gdd-1569.0)/(1629.0-1569.0)
-		sib(sibpt)%diag%alloc(2)=0.35-(0.35-0.3)* &
-                            (sib(sibpt)%diag%gdd-1569.0)/(1629.0-1569.0)	
-		sib(sibpt)%diag%alloc(3)=0.4-(0.4-0.35)* &
-                            (sib(sibpt)%diag%gdd-1569.0)/(1629.0-1569.0)		
-		sib(sibpt)%diag%alloc(4)=0.0-(0.0-0.1)* &
-                            (sib(sibpt)%diag%gdd-1569.0)/(1629.0-1569.0)	
-	elseif (sib(sibpt)%diag%gdd<1773.0)then
-        	sib(sibpt)%diag%alloc(1)=0.25-(0.25-0.2)* &
-                           (sib(sibpt)%diag%gdd-1629.0)/(1773.0-1629.0)
-		sib(sibpt)%diag%alloc(2)=0.3-(0.3-0.06)* &
-                           (sib(sibpt)%diag%gdd-1629.0)/(1773.0-1629.0)	
-		sib(sibpt)%diag%alloc(3)=0.35-(0.35-0.15)* &
-                           (sib(sibpt)%diag%gdd-1629.0)/(1773.0-1629.0)		
-		sib(sibpt)%diag%alloc(4)=0.1-(0.3-0.59)* &
-                           (sib(sibpt)%diag%gdd-1629.0)/(1773.0-1629.0)		
+                sib(sibpt)%diag%alloc(1)=0.25
+		sib(sibpt)%diag%alloc(2)=0.35-0.05 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
+		sib(sibpt)%diag%alloc(3)=0.4-0.05 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
+		sib(sibpt)%diag%alloc(4)=0.1 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
+	elseif (sib(sibpt)%diag%gdd<1773.0) then
+        	sib(sibpt)%diag%alloc(1)=0.25-0.05 * (sib(sibpt)%diag%gdd-1629.0)/144.0
+		sib(sibpt)%diag%alloc(2)=0.3-0.24 * (sib(sibpt)%diag%gdd-1629.0)/144.0
+		sib(sibpt)%diag%alloc(3)=0.35-0.2 * (sib(sibpt)%diag%gdd-1629.0)/144.0
+		sib(sibpt)%diag%alloc(4)=0.1+0.29 * (sib(sibpt)%diag%gdd-1629.0)/144.0
 	elseif (sib(sibpt)%diag%gdd < 2184.0) then
-		sib(sibpt)%diag%alloc(1)=0.2-(0.2-0.15)* &
-                           (sib(sibpt)%diag%gdd-1773.0)/(2184.0-1773.0)	
-		sib(sibpt)%diag%alloc(2)=0.06-(0.06-0.01)* &
-                           (sib(sibpt)%diag%gdd-1773.0)/(2184.0-1773.0)	
-		sib(sibpt)%diag%alloc(3)=0.15-(0.15-0.1)* &
-                           (sib(sibpt)%diag%gdd-1773.0)/(2184.0-1773.0)	
-		sib(sibpt)%diag%alloc(4)=0.59-(0.59-0.74)* &
-                           (sib(sibpt)%diag%gdd-1773.0)/(2184.0-1773.0)
+		sib(sibpt)%diag%alloc(1)=0.2-0.05 * (sib(sibpt)%diag%gdd-1773.0)/411.0	
+		sib(sibpt)%diag%alloc(2)=0.06-0.05 * (sib(sibpt)%diag%gdd-1773.0)/411.0
+		sib(sibpt)%diag%alloc(3)=0.15-0.05 * (sib(sibpt)%diag%gdd-1773.0)/411.0	
+		sib(sibpt)%diag%alloc(4)=0.59+0.15 * (sib(sibpt)%diag%gdd-1773.0)/411.0
         !EL...winterwheat root fraction reaches 0.1 towards maturity (ref: Baret et al., 1992)
 	elseif (sib(sibpt)%diag%gdd < 2269.0) then
-		sib(sibpt)%diag%alloc(1)=0.15-(0.15-0.1)* &
-                           (sib(sibpt)%diag%gdd-2184.0)/(2269.0-2184.0)
-		sib(sibpt)%diag%alloc(2)=0.01-(0.01-0.0)* &
-                           (sib(sibpt)%diag%gdd-2184.0)/(2269.0-2184.0)		
-		sib(sibpt)%diag%alloc(3)=0.1-(0.1-0.05)* &
-                           (sib(sibpt)%diag%gdd-2184.0)/(2269.0-2184.0)		
-		sib(sibpt)%diag%alloc(4)=0.74-(0.74-0.85)* &
-                           (sib(sibpt)%diag%gdd-2184.0)/(2269.0-2184.0)
+		sib(sibpt)%diag%alloc(1)=0.15-0.05 * (sib(sibpt)%diag%gdd-2184.0)/85.0
+		sib(sibpt)%diag%alloc(2)=0.01-0.01 * (sib(sibpt)%diag%gdd-2184.0)/85.0
+		sib(sibpt)%diag%alloc(3)=0.1-0.05 * (sib(sibpt)%diag%gdd-2184.0)/85.0
+		sib(sibpt)%diag%alloc(4)=0.74+0.11 * (sib(sibpt)%diag%gdd-2184.0)/85.0
 	else
                print*,'Error with gdd and alloc calculations in crop_accum.F90'
                stop
@@ -1329,31 +1291,31 @@ endif
                .or. (sib(sibpt)%diag%gdd>769.0 .and. &
                       sib(sibpt)%diag%gdd<1074.0)) then             
             	if (sib(sibpt)%diag%tempc<=2.0) then
-                	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.0
+                	dgrowth = 0.0
             	elseif (sib(sibpt)%diag%tempc >= 2.0 .and. &
                            sib(sibpt)%diag%tempc < 10.0) then
                      	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                              (0.0-((0.0-0.68) * (sib(sibpt)%diag%tempc-2.)/(10.-2.)))
+                              (0.68 * (sib(sibpt)%diag%tempc-2.)/8.)
             	elseif (sib(sibpt)%diag%tempc >= 10.0 .and. &
                            sib(sibpt)%diag%tempc < 15.0) then
                     	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                              (0.68-((0.68-0.89) * (sib(sibpt)%diag%tempc-10.)/(15.-10.)))
+                              (0.68+(0.21 * (sib(sibpt)%diag%tempc-10.)/5.))
              	elseif (sib(sibpt)%diag%tempc >= 15.0 .and. &
                           sib(sibpt)%diag%tempc < 20.0) then
                      	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                              (0.89-((0.89-1.0) * (sib(sibpt)%diag%tempc-15.)/(20.-15.)))
+                              (0.89+(0.11 * (sib(sibpt)%diag%tempc-15.)/5.))
              	elseif (sib(sibpt)%diag%tempc >= 20.0 .and. &
                            sib(sibpt)%diag%tempc < 25.0) then
                      	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                               (1.0-((1.0-1.03) * (sib(sibpt)%diag%tempc-20.)/(25.-20.)))
+                               (1.0+(0.03 * (sib(sibpt)%diag%tempc-20.)/5.))
             	elseif (sib(sibpt)%diag%tempc>=25.0 .and. &
                            sib(sibpt)%diag%tempc<30.0) then
                      	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                              (1.03-((1.03-1.05) * (sib(sibpt)%diag%tempc-25)/(25-30)))
+                              (1.03+(0.02 * (sib(sibpt)%diag%tempc-25)/5.0))
             	elseif (sib(sibpt)%diag%tempc>=30.0 .and. &
                           sib(sibpt)%diag%tempc<35.0) then
                       	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                             (1.05-((1.05-1.06) * (sib(sibpt)%diag%tempc-30)/(30-35)))
+                             (1.05+(0.01 * (sib(sibpt)%diag%tempc-30)/5.0))
 	       endif
 
                if(sib(sibpt)%diag%gdd == 105.0_dbl_kind .or. &
@@ -1375,18 +1337,18 @@ endif
 
         if (sib(sibpt)%diag%gdd>=105.0 .AND. sib(sibpt)%diag%gdd<=310.0) then             
   	    if (sib(sibpt)%diag%tempc<-10.0) then
-        	   dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.0
+        	   dgrowth = 0.0
 	    elseif (sib(sibpt)%diag%tempc < 0.0) then
           	  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.01
 	    elseif (sib(sibpt)%diag%tempc < 20.0) then
           	  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                       (0.01 - ((0.01 - 0.9) * (sib(sibpt)%diag%tempc - 0.0) / (20.0 - 0.0)))
+                       (0.01 + (0.89 * sib(sibpt)%diag%tempc / 20.0))
 	    elseif (sib(sibpt)%diag%tempc < 25.0) then
                   dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                       (0.9-((0.9-1.0) * (sib(sibpt)%diag%tempc - 20.0) / (25.0 - 20.0)))
+                       (0.9 + (0.1 * (sib(sibpt)%diag%tempc - 20.0) / 5.0))
 	    elseif (sib(sibpt)%diag%tempc < 35.0) then
                   dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
-                       (1.0 - ((1.0 - 1.2) * (sib(sibpt)%diag%tempc - 25.0) / (35.0 - 25.0)))
+                       (1.0 + (0.2 * (sib(sibpt)%diag%tempc - 25.0) / 10.0 ))
             endif
 
             if(time%doy == sib(sibpt)%diag%emerg_d) then
@@ -1470,16 +1432,6 @@ enddo
         sib(sibpt)%diag%phen_growthr(3) = sib(sibpt)%diag%allocwt(3)*0.408 * coeff
         sib(sibpt)%diag%phen_growthr(4) = sib(sibpt)%diag%allocwt(4)*0.347 * coeff
 
-! EL..crop harvest adjustment
-		
-	if (sib(sibpt)%diag%gdd > 2290.0) then
-	
-           do i = 1,4
-              sib(sibpt)%diag%phen_maintr(i) = 0.0001
-           enddo
-
-	endif
-		
 !------------------------------
 !Calculate dry weight change
 !-----------------------------
@@ -1489,17 +1441,6 @@ enddo
                 sib(sibpt)%diag%phen_maintr(i)
       enddo
 	
-
-!EL.. harvest adjustment
-
-	  if (sib(sibpt)%diag%gdd > 2290.0) then
-   
-             do i = 1,4
-		  sib(sibpt)%diag%wch(i)=0.0001
-             enddo
-
-	  endif
-
 !--------------------------------------------------------------
 !Calculate final cumulative dry weight (g C m-2) of each plant part
 !--------------------------------------------------------------
@@ -1510,6 +1451,24 @@ enddo
 
          sib(sibpt)%diag%tot_biomass= sib(sibpt)%diag%cum_drywt(2) + &
                   sib(sibpt)%diag%cum_drywt(3)+ sib(sibpt)%diag%cum_drywt(4)
+
+!---------------------------------------------------
+!
+!Decreasing the vmax during the seed filling stage and senescence down
+!  to 60% of original vmax value.  
+!This is supported in Crafts-Brandner et al. (Plant Physiol., 1992), 
+!   Jiang et al. (Plant Physiol., 1993), and Jiang et al. (Photosynthesis Research, 1997)
+!
+!kdcorbin, 02/11
+!---------------------------------------------------
+
+if (sib(sibpt)%diag%gdd >= vmax_start(wwheat_num) .and. &
+     sib(sibpt)%diag%gdd < vmax_stop(wwheat_num)) then
+          vmax_factor = crop_vmax0a(wwheat_num) - crop_vmax0b(wwheat_num)
+          sib(sibpt)%param%vmax0(1) = crop_vmax0a(wwheat_num) - &
+                  vmax_factor * (sib(sibpt)%diag%gdd - vmax_start(wwheat_num)) / &
+                    (vmax_stop(wwheat_num)-vmax_start(wwheat_num)-1)
+endif
 
 !------------------------------------------------
 !final leaf weight (C g m-2) 
@@ -1522,7 +1481,7 @@ enddo
             sib(sibpt)%diag%leafwt_c = sib(sibpt)%diag%cum_drywt(2)
       elseif (sib(sibpt)%diag%gdd < 2440.0) then
             sib(sibpt)%diag%leafwt_c = sib(sibpt)%diag%cum_drywt(2) -   &
-                     (1.0-0.01) * sib(sibpt)%diag%cum_drywt(2) *      &
+                     0.99 * sib(sibpt)%diag%cum_drywt(2) *      &
                     ((sib(sibpt)%diag%gdd - 2269.0) / 171.0)
       endif
 

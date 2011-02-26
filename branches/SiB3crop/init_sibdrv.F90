@@ -603,8 +603,13 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%diag%w_main = w_main(subset(i))
 
         do j=1,4
-            sib(i)%diag%cum_wt(j) = cum_wt(subset(i),j)
-            sib(i)%diag%cum_drywt(j) = cum_drywt(subset(i),j)    
+           if (cum_drywt(subset(i),j) < 0.) then
+              sib(i)%diag%cum_wt(j) = 0.001
+              sib(i)%diag%cum_drywt(j) = 0.001
+           else
+               sib(i)%diag%cum_wt(j) = cum_wt(subset(i),j)
+               sib(i)%diag%cum_drywt(j) = cum_drywt(subset(i),j)    
+          endif
         enddo
 
         if(sib(i)%diag%ndf_opt > 0) sib(i)%diag%ndf_opt=sib(i)%diag%ndf_opt-1

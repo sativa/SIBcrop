@@ -96,10 +96,12 @@ biometype=sibpt%param%biome-19
 if (biometype > 0) then
      cinttype=crop_cint(biometype)
       !set physfrac - kdcorbin, 02/11
-      sibpt%param%physfrac(1) = crop_physfrac1(biometype)
-      sibpt%param%physfrac(2) = crop_physfrac2(biometype)
-      sibpt%param%physfrac1 = sibpt%param%physfrac
-      sibpt%param%physfrac2 = sibpt%param%physfrac
+      if ( drvr_type .ne. 'single' ) then
+          sibpt%param%physfrac(1) = crop_physfrac1(biometype)
+          sibpt%param%physfrac(2) = crop_physfrac2(biometype)
+          sibpt%param%physfrac1 = sibpt%param%physfrac
+          sibpt%param%physfrac2 = sibpt%param%physfrac
+      endif
 
       if (sibpt%diag%phen_switch > 0) then
           sibpt%param%soref(1) = crop_soref1(biometype)

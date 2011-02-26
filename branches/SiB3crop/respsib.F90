@@ -52,10 +52,8 @@ subroutine respsib(sib)
     do j=1,nsoil
 !
 ! calculate soil moisture fraction of saturation
-        wfrac(j) = sib%prog%www_liq(j) / (sib%prog%dz(j) * sib%param%poros * denh2o) !  &
-!                 + sib%prog%www_ice(j) / (sib%prog%dz(j) * sib%param%poros * denice)
-!        print*,'wfrac=',j,wfrac(j)
-!
+        wfrac(j) = sib%prog%www_liq(j) / (sib%prog%dz(j) * sib%param%poros * denh2o) 
+
 ! calculate wetness exponent
         wet_exp(j) = ((wfrac(j)**sib%param%zm-woptzm)/(1.-woptzm))**2
         wet_exp(j) = min(wet_exp(j),10.0_dbl_kind)
@@ -65,7 +63,6 @@ subroutine respsib(sib)
 !
 ! calculate soil temperature respiration scaling factor
         sib%diag%soilQ10(j) = exp(0.087547 * (sib%prog%td(j) - 298.15))
-!print *,sib%diag%soilQ10(j),moist(j)
 !
 ! calculate total soil respiration scaling factor
         sib%diag%soilscale(j) = sib%diag%soilQ10(j) * moist(j)

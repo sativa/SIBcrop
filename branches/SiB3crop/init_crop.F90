@@ -140,9 +140,9 @@ do i=1,subcount
    endif  !crop variable biome class
 
    !Set initial parameters for crops - kdcorbin, 02/11
-   if (drvr_type .ne. 'single') then    
+   !!!if (drvr_type .ne. 'single') then    
         call set_ti(sib(i))
-   endif
+   !!!endif
 
 enddo  !subcount
 
