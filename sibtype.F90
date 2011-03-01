@@ -222,12 +222,6 @@ type param_vars
     real(kind=dbl_kind) :: vwcmin    ! soil wilting point (volumetric)
     real(kind=dbl_kind) :: fieldcap  ! soil field capacity (volumetric)
 
-    !kdcorbin, 02/11 - crop variables specified in set_ti.F90
-    !real(kind=dbl_kind) :: crop_soref2, crop_vcover, &
-    !       crop_physfrac1, crop_physfrac2, crop_z2, crop_vmax0,   &
-    !       crop_effcon, crop_slope, crop_atheta, crop_respcp,         &
-    !       crop_slti, crop_hltii, crop_shti, crop_hhti
-
     !...boundary conditions-TIME VARYING
     real(kind=dbl_kind) :: aparc      ! absorbed fraction of PAR (-)
     real(kind=dbl_kind) :: aparc1     ! absorbed fraction of PAR (-)

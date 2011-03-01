@@ -19,7 +19,6 @@ type(time_struct),intent(inout) :: time
 integer :: i
 
 !time dependant, output variables
-!kdcorbin, 02/11 - added scatp, scatg, park
 type time_dep_var
      real (kind=real_kind) :: fPAR    ! Canopy absorbed fraction of PAR
      real (kind=real_kind) :: LAI     ! Leaf-area index
@@ -28,9 +27,6 @@ type time_dep_var
      real (kind=real_kind) :: zp_disp ! Zero plane displacement
      real (kind=real_kind) :: RbC     ! RB Coefficient (c1)
      real (kind=real_kind) :: RdC     ! RC Coefficient (c2)
-     real (kind=real_kind) :: scatp   ! Canopy transmittance + reflectance of PAR
-     real (kind=real_kind) :: scatg   ! Ground transmittance + reflectance of PAR
-     real (kind=real_kind) :: park     ! Mean canopy absorption optical depth wrt PAR
      real (kind=real_kind) :: gmudmu  ! Time-mean leaf projection
 end type time_dep_var
 
@@ -133,16 +129,10 @@ do i=1,subcount
            sib(i)%param%rdc2 = timevar%rdc
            sib(i)%param%gmudmu2 = timevar%gmudmu
   
-           sib(i)%param%scatp = timevar%scatp
-           sib(i)%param%scatg = timevar%scatg
-           sib(i)%param%park = timevar%park
+      !Set initial parameters for crops - kdcorbin, 02/11
+      call set_ti(sib(i))
 
    endif  !crop variable biome class
-
-   !Set initial parameters for crops - kdcorbin, 02/11
-   !!!if (drvr_type .ne. 'single') then    
-        call set_ti(sib(i))
-   !!!endif
 
 enddo  !subcount
 

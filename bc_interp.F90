@@ -68,6 +68,14 @@ integer k2    ! 2nd month index for interpolation scaling factors
                                    tpgf2*sib(i)%param%physfrac2(k)
         enddo
 
+       !kdcorbin, 03/11 - calculate daily scatp, scatg and park
+        sib(i)%param%scatp = sib(i)%param%green * &
+                                         (sib(i)%param%tran(1,1) + sib(i)%param%ref(1,1)) + &
+                                         (1-sib(i)%param%green) * &
+                                         (sib(i)%param%tran(1,2) + sib(i)%param%ref(1,2))
+        sib(i)%param%scatg = sib(i)%param%tran(1,1) + sib(i)%param%ref(1,1)
+        sib(i)%param%park = sqrt(1.-sib(i)%param%scatp)*sib(i)%param%gmudmu
+
     enddo
 
 end subroutine bc_interp

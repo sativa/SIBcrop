@@ -19,7 +19,6 @@ real(kind=dbl_kind)    :: drate,   &
 real(kind=dbl_kind)  :: coeff  !variable for carbon/CO2 conversion coefficient
 
 ! begin time dependant, output variables
-! kdcorbin, 02/11 - added scatp, scatg, park
 type time_dep_var
    real (kind=real_kind) :: fPAR    ! Canopy absorbed fraction of PAR
    real (kind=real_kind) :: LAI     ! Leaf-area index
@@ -28,9 +27,6 @@ type time_dep_var
    real (kind=real_kind) :: zp_disp ! Zero plane displacement
    real (kind=real_kind) :: RbC     ! RB Coefficient (c1)
    real (kind=real_kind) :: RdC     ! RC Coefficient (c2)
-   real (kind=real_kind) :: scatp   ! Canopy transmittance + reflectance of PAR
-   real (kind=real_kind) :: scatg   ! Ground transmittance + reflectance of PAR
-   real (kind=real_kind) :: park     ! Mean canopy absorption optical depth wrt PAR
    real (kind=real_kind) :: gmudmu  ! Time-mean leaf projection
 end type time_dep_var
 
@@ -188,10 +184,6 @@ sib(sibpt)%diag%tempc=sib(sibpt)%diag%ta_bar - tice  !tice=273K
        sib(sibpt)%param%rbc2 = timevar%rbc
        sib(sibpt)%param%rdc2 = timevar%rdc
        sib(sibpt)%param%gmudmu2 = timevar%gmudmu
-
-       sib(sibpt)%param%scatp = timevar%scatp
-       sib(sibpt)%param%scatg = timevar%scatg
-       sib(sibpt)%param%park = timevar%park
 
  endif  !crop type
 enddo
@@ -1146,7 +1138,7 @@ if (sib(sibpt)%param%biome == 23) then
 endif  !biome == 23
 
 !kdcorbin, 02/11 - crop harvest
-if (sib(sibpt)%diag%gdd .gt. 2440.) then
+if (sib(sibpt)%diag%gdd .gt. 2300.) then
     sib(sibpt)%diag%gdd = 0.
     sib(sibpt)%diag%w_main = 0.0001
     sib(sibpt)%diag%w_main_pot = 0.0001
@@ -1170,7 +1162,7 @@ endif
 !-----------------------------------------------------------   
 !EL...1-roots, 2-leaves,3-stems,4-products (flowers and grains)
 
-	if(sib(sibpt)%diag%gdd < 105.0 .or. sib(sibpt)%diag%gdd > 2269.0) then
+	if(sib(sibpt)%diag%gdd < 105.0 .or. sib(sibpt)%diag%gdd > 2300.0) then
                sib(sibpt)%diag%alloc(:) = 0.0
         elseif (sib(sibpt)%diag%gdd <350.0) then
 		sib(sibpt)%diag%alloc(1)=0.4
@@ -1194,36 +1186,36 @@ endif
 		sib(sibpt)%diag%alloc(3)=0.2   
 		sib(sibpt)%diag%alloc(4)=0.0
        elseif (sib(sibpt)%diag%gdd<1074.0) then 
-    		sib(sibpt)%diag%alloc(1)=0.4 - 0.15 * (sib(sibpt)%diag%gdd - 910.0)/164.0
-		sib(sibpt)%diag%alloc(2)=0.45 - 0.05 * (sib(sibpt)%diag%gdd - 910.0)/164.0
-		sib(sibpt)%diag%alloc(3)=0.15 + 0.2 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+    		sib(sibpt)%diag%alloc(1)=0.4 - 0.12 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+		sib(sibpt)%diag%alloc(2)=0.4 !- 0.05 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+		sib(sibpt)%diag%alloc(3)=0.2 + 0.12 * (sib(sibpt)%diag%gdd - 910.0)/164.0
 		sib(sibpt)%diag%alloc(4)=0.0
       elseif (sib(sibpt)%diag%gdd<1569.0) then
-        	sib(sibpt)%diag%alloc(1)=0.25-0.05 * (sib(sibpt)%diag%gdd-1074.0)/495.0
-                sib(sibpt)%diag%alloc(2) = .4 - .1*(sib(sibpt)%diag%gdd-1073.0)/495.0
-                sib(sibpt)%diag%alloc(3) = 0.35 + .15*(sib(sibpt)%diag%gdd-1073.0)/495.0
+        	sib(sibpt)%diag%alloc(1)= 0.28 - 0.05 * (sib(sibpt)%diag%gdd-1074.0)/495.0
+                sib(sibpt)%diag%alloc(2) = 0.4 + 0.05*(sib(sibpt)%diag%gdd-1074.0)/495.0
+                sib(sibpt)%diag%alloc(3) = 0.32 
 		sib(sibpt)%diag%alloc(4)=0.0
 	elseif (sib(sibpt)%diag%gdd<1629.0) then
-                sib(sibpt)%diag%alloc(1)=0.25
-		sib(sibpt)%diag%alloc(2)=0.35-0.05 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
-		sib(sibpt)%diag%alloc(3)=0.4-0.05 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
-		sib(sibpt)%diag%alloc(4)=0.1 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
+                sib(sibpt)%diag%alloc(1)=0.23
+		sib(sibpt)%diag%alloc(2)=0.45-0.05 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
+		sib(sibpt)%diag%alloc(3)=0.32-0.12 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
+		sib(sibpt)%diag%alloc(4)=0.17 * (sib(sibpt)%diag%gdd-1569.0)/60.0	
 	elseif (sib(sibpt)%diag%gdd<1773.0) then
-        	sib(sibpt)%diag%alloc(1)=0.25-0.05 * (sib(sibpt)%diag%gdd-1629.0)/144.0
-		sib(sibpt)%diag%alloc(2)=0.3-0.24 * (sib(sibpt)%diag%gdd-1629.0)/144.0
-		sib(sibpt)%diag%alloc(3)=0.35-0.2 * (sib(sibpt)%diag%gdd-1629.0)/144.0
-		sib(sibpt)%diag%alloc(4)=0.1+0.29 * (sib(sibpt)%diag%gdd-1629.0)/144.0
+        	sib(sibpt)%diag%alloc(1)=0.23-0.13 * (sib(sibpt)%diag%gdd-1629.0)/144.0
+		sib(sibpt)%diag%alloc(2)=0.4-0.25 * (sib(sibpt)%diag%gdd-1629.0)/144.0
+		sib(sibpt)%diag%alloc(3)=0.2-0.1 * (sib(sibpt)%diag%gdd-1629.0)/144.0
+		sib(sibpt)%diag%alloc(4)=0.17+0.48 * (sib(sibpt)%diag%gdd-1629.0)/144.0
 	elseif (sib(sibpt)%diag%gdd < 2184.0) then
-		sib(sibpt)%diag%alloc(1)=0.2-0.05 * (sib(sibpt)%diag%gdd-1773.0)/411.0	
-		sib(sibpt)%diag%alloc(2)=0.06-0.05 * (sib(sibpt)%diag%gdd-1773.0)/411.0
-		sib(sibpt)%diag%alloc(3)=0.15-0.05 * (sib(sibpt)%diag%gdd-1773.0)/411.0	
-		sib(sibpt)%diag%alloc(4)=0.59+0.15 * (sib(sibpt)%diag%gdd-1773.0)/411.0
+		sib(sibpt)%diag%alloc(1)=0.1-0.05 * (sib(sibpt)%diag%gdd-1773.0)/411.0	
+		sib(sibpt)%diag%alloc(2)=0.15-0.1 * (sib(sibpt)%diag%gdd-1773.0)/411.0
+		sib(sibpt)%diag%alloc(3)=0.1-0.05 * (sib(sibpt)%diag%gdd-1773.0)/411.0	
+		sib(sibpt)%diag%alloc(4)=0.65 + 0.2 * (sib(sibpt)%diag%gdd-1773.0)/411.0
         !EL...winterwheat root fraction reaches 0.1 towards maturity (ref: Baret et al., 1992)
-	elseif (sib(sibpt)%diag%gdd < 2269.0) then
-		sib(sibpt)%diag%alloc(1)=0.15-0.05 * (sib(sibpt)%diag%gdd-2184.0)/85.0
-		sib(sibpt)%diag%alloc(2)=0.01-0.01 * (sib(sibpt)%diag%gdd-2184.0)/85.0
-		sib(sibpt)%diag%alloc(3)=0.1-0.05 * (sib(sibpt)%diag%gdd-2184.0)/85.0
-		sib(sibpt)%diag%alloc(4)=0.74+0.11 * (sib(sibpt)%diag%gdd-2184.0)/85.0
+	elseif (sib(sibpt)%diag%gdd < 2300.0) then
+		sib(sibpt)%diag%alloc(1)=0.05-0.02 * (sib(sibpt)%diag%gdd-2184.0)/116.0
+		sib(sibpt)%diag%alloc(2)=0.05-0.02 * (sib(sibpt)%diag%gdd-2184.0)/116.0
+		sib(sibpt)%diag%alloc(3)=0.05-0.02 * (sib(sibpt)%diag%gdd-2184.0)/116.0
+		sib(sibpt)%diag%alloc(4)=0.85+0.06 * (sib(sibpt)%diag%gdd-2184.0)/116.0
 	else
                print*,'Error with gdd and alloc calculations in crop_accum.F90'
                stop

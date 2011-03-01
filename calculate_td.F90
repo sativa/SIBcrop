@@ -28,7 +28,6 @@ integer(kind=int_kind) :: i,k   ! index variable
 real(kind=real_kind) :: temptran (2,2)
 real(kind=real_kind) :: tempref (2,2)
 
-! kdcorbin, 02/11 - added scatp, scatg, and park
 type time_dep_var
     real(kind=real_kind) :: fpar       ! canopy absorbed fraction of par
     real(kind=real_kind) :: lai        ! leaf-area index
@@ -37,9 +36,6 @@ type time_dep_var
     real(kind=real_kind) :: zp_disp    ! zero plane displacement
     real(kind=real_kind) :: rbc        ! rb coefficient (c1)
     real(kind=real_kind) :: rdc        ! rc coefficient (c2)
-    real (kind=real_kind) :: scatp   ! Canopy transmittance + reflectance of PAR
-    real (kind=real_kind) :: scatg   ! Ground transmittance + reflectance of PAR
-    real (kind=real_kind) :: park     ! Mean canopy absorption optical depth wrt PAR
     real(kind=real_kind) :: gmudmu     ! time-mean leaf projection
 end type time_dep_var
 type(time_dep_var) :: timevar
@@ -83,10 +79,6 @@ type(aero_var) :: tempaerovar(50,50)
         sib(i)%param%rbc2 = timevar%rbc
         sib(i)%param%rdc2 = timevar%rdc
         sib(i)%param%gmudmu2 = timevar%gmudmu
-
-         sib(i)%param%scatp = timevar%scatp
-         sib(i)%param%scatg = timevar%scatg
-         sib(i)%param%park = timevar%park
 
     enddo      
 

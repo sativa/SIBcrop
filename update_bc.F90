@@ -34,16 +34,33 @@ character*100 filename  !filename used to read in ndvi data
               endif
          enddo
        
-        ! set the previous fractions
+        ! set the previous variables - kdcorbin, 03/11
+        sib(1)%param%aparc1 = sib(1)%param%aparc2
+        sib(1)%param%zlt1 = sib(1)%param%zlt2
+        sib(1)%param%green1 = sib(1)%param%green2
+        sib(1)%param%z0d1 = sib(1)%param%z0d2
+        sib(1)%param%zp_disp1 = sib(1)%param%zp_disp2
+        sib(1)%param%rbc1 = sib(1)%param%rbc2
+        sib(1)%param%rdc1 = sib(1)%param%rdc2
+        sib(1)%param%gmudmu1 = sib(1)%param%gmudmu2
+        sib(1)%param%d13cresp1 = sib(1)%param%d13cresp2
         sib(1)%param%physfrac1 = sib(1)%param%physfrac2
+
 
         ! read in the phys fracs from the current month
         do k = 1,time%nmonth
             read (32,*)
         
-            do i=1,9
-                  read(32,*) dummy
-            enddo
+            read(32,*) sib(1)%param%aparc2
+            read(32,*) sib(1)%param%zlt2
+            read(32,*) sib(1)%param%green2
+            read(32,*) sib(1)%param%z0d2
+            read(32,*) sib(1)%param%zp_disp2
+            read(32,*) sib(1)%param%rbc2
+            read(32,*) sib(1)%param%rdc2
+            read(32,*) sib(1)%param%gmudmu2
+            read(32,*) sib(1)%param%d13cresp2
+
             read(32,*) sib(1)%param%physfrac2(1)
             read(32,*) sib(1)%param%physfrac2(2)
             read(32,*) sib(1)%param%physfrac2(3)

@@ -175,8 +175,7 @@ type(time_dep_var) TimeVar
     call file_closer
     !
     ! print message
-    print*, 'end simulation'
-      total = etime(elapsed)
+    total = etime(elapsed)
     print *, 'End: total=', total, ' user=', elapsed(1),' system=', elapsed(2)
 
 !itb_crop...close diagnostic files
