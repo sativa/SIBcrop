@@ -235,7 +235,6 @@ subroutine phosib(sib,sib_loc)
     !---------------------------------------------------------------
 
     !kdcorbin, 02/11 - moved calculation of scatp, scatg, and park to mapper
-
     sib%diag%aparkk   = sib%param%aparc / sib%param%park * sib%param%green
 
     !itb...start PHYSIOLOGY LOOP here...

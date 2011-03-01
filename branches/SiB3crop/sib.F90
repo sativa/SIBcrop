@@ -166,9 +166,7 @@ subroutine sib_main ( sib )
 
     call dellwf(sib,sib_loc)
 
-    
     call delef(sib,sib_loc)
-
 
     call delhf(sib,sib_loc)
 

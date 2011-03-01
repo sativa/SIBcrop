@@ -55,7 +55,6 @@ real (kind=real_kind) :: fVCovergrid(50)   ! grid of fVCover values for
                                          !  interpolation table
 
 ! begin time dependant, output variables
-! kdcorbin, 02/11 - added scatp, scatg, and park
 type time_dep_var
    real (kind=real_kind) :: fPAR    ! Canopy absorbed fraction of PAR
    real (kind=real_kind) :: LAI     ! Leaf-area index
@@ -64,9 +63,6 @@ type time_dep_var
    real (kind=real_kind) :: zp_disp ! Zero plane displacement
    real (kind=real_kind) :: RbC     ! RB Coefficient (c1)
    real (kind=real_kind) :: RdC     ! RC Coefficient (c2)
-   real (kind=real_kind) :: scatp   ! Canopy transmittance + reflectance of PAR
-   real (kind=real_kind) :: scatg   ! Ground transmittance + reflectance of PAR
-   real (kind=real_kind) :: park     ! Mean canopy absorption optical depth wrt PAR
    real (kind=real_kind) :: gmudmu  ! Time-mean leaf projection
 end type time_dep_var
 
@@ -99,12 +95,11 @@ real(kind=real_kind), parameter :: fPARmin=0.01
 
    ! recalculate fPAR adjusting for Sun angle, vegetation cover fraction,
    ! and greeness fraction, and LAI
-   ! kdcorbin, 02/11 - added scatp, scatg, and park to call 
    call aparnew (TimeVar%LAI, TimeVar%Green, LTran, LRef,   &
-                 TimeVar%scatp, TimeVar%scatg, TimeVar%park,   &
                  TimeVar%gmudmu, fVCover, TimeVar%fPAR,     &
                  fPARmax, fPARmin)
    return
+
 end subroutine phen_mapper
 
 !subrountine averageapar deleted- EL
