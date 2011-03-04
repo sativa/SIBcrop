@@ -194,7 +194,7 @@ module sib_const_module
           !crop type: 1=C3, 2=C4
 
     integer(kind=int_kind),dimension(ncrops) :: vmax_start = (/40,15,900,900/)
-    integer(kind=int_kind),dimension(ncrops) :: vmax_stop = (/61,61,2000,2000/)
+    integer(kind=int_kind),dimension(ncrops) :: vmax_stop = (/61,61,1600,1600/)
 
     real(kind=dbl_kind),dimension(ncrops) :: &
           crop_soref1 = (/0.11,0.11,0.11,0.11/),           &
@@ -203,9 +203,9 @@ module sib_const_module
           crop_physfrac1 = (/0.,1.,1.,1./),                      &
           crop_physfrac2 = (/1.,0.,0.,0./),                      &
           crop_z2 = (/2.5,1.,0.5,0.5/),                                &
-          crop_vmax0a = (/8.0E-5,1.2E-4,9.3E-5,9.3E-5/),  &
+          crop_vmax0a = (/8.0E-5,9.5E-5,9.3E-5,9.3E-5/),  &
              !initial vmax0 for crops
-          crop_vmax0b = (/3.5E-5,7.5E-5,6.6E-5,6.6E-5/),  &
+          crop_vmax0b = (/3.5E-5,7.0E-5,6.6E-5,6.6E-5/),  &
              !ending vmax0 for crops
           crop_effcon = (/0.05,0.08,0.08,0.08/),            &
           crop_slope = (/4.,9.,9.,9./),                              &
