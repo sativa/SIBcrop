@@ -622,9 +622,8 @@ real(kind=dbl_kind) :: vmax_factor
 !---------------------------
 
 !EL...sib%diag%ndf_opt = no. of days with avg. temperature above 67F
-!kdcorbin, 02/11 - changed from 67 to 68  (Bondville 2000 alone, use 70)
 
-	if (sib(sibpt)%diag%tempf < 68.0) then
+	if (sib(sibpt)%diag%tempf < 66.5) then
               sib(sibpt)%diag%ndf_opt = 0			
 	else   	
            sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1

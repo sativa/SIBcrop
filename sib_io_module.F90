@@ -95,7 +95,6 @@ module sib_io_module
         qp_path,      & !jk path to qpopts file
         pbp_path,     & !jk path to pbpopts file
         co2_path,     & !jk path to CO2_resp file
-        grid_path,    & !jk path to gridmap file
         c4_path         !itb path to c4 fraction file-monthly bc
 
     ! flag to indicate driver data type

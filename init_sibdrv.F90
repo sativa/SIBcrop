@@ -76,7 +76,7 @@ integer(kind=int_kind) :: i
     print *, '   obtaining previous month time-variant boundary conditions'
     call previous_bc( sib, time )
 
-    print *, '   reading in initial conditions '
+    print *, '   reading in initial conditions: ',trim(ic_path)
     call read_ic(sib,time)
 
    print *,'   setting soil properties '

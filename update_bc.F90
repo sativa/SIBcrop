@@ -35,39 +35,48 @@ character*100 filename  !filename used to read in ndvi data
          enddo
        
         ! set the previous variables - kdcorbin, 03/11
-        sib(1)%param%aparc1 = sib(1)%param%aparc2
-        sib(1)%param%zlt1 = sib(1)%param%zlt2
-        sib(1)%param%green1 = sib(1)%param%green2
-        sib(1)%param%z0d1 = sib(1)%param%z0d2
-        sib(1)%param%zp_disp1 = sib(1)%param%zp_disp2
-        sib(1)%param%rbc1 = sib(1)%param%rbc2
-        sib(1)%param%rdc1 = sib(1)%param%rdc2
-        sib(1)%param%gmudmu1 = sib(1)%param%gmudmu2
-        sib(1)%param%d13cresp1 = sib(1)%param%d13cresp2
-        sib(1)%param%physfrac1 = sib(1)%param%physfrac2
+         if (sib(1)%param%biome < 20) then
+           sib(1)%param%aparc1 = sib(1)%param%aparc2
+           sib(1)%param%zlt1 = sib(1)%param%zlt2
+           sib(1)%param%green1 = sib(1)%param%green2
+           sib(1)%param%z0d1 = sib(1)%param%z0d2
+           sib(1)%param%zp_disp1 = sib(1)%param%zp_disp2
+           sib(1)%param%rbc1 = sib(1)%param%rbc2
+           sib(1)%param%rdc1 = sib(1)%param%rdc2
+           sib(1)%param%gmudmu1 = sib(1)%param%gmudmu2
+          endif
 
+          sib(1)%param%d13cresp1 = sib(1)%param%d13cresp2
+          sib(1)%param%physfrac1 = sib(1)%param%physfrac2
 
-        ! read in the phys fracs from the current month
-        do k = 1,time%nmonth
-            read (32,*)
+          ! read in the phys fracs from the current month
+          do k = 1,time%nmonth
+              read (32,*)
         
-            read(32,*) sib(1)%param%aparc2
-            read(32,*) sib(1)%param%zlt2
-            read(32,*) sib(1)%param%green2
-            read(32,*) sib(1)%param%z0d2
-            read(32,*) sib(1)%param%zp_disp2
-            read(32,*) sib(1)%param%rbc2
-            read(32,*) sib(1)%param%rdc2
-            read(32,*) sib(1)%param%gmudmu2
-            read(32,*) sib(1)%param%d13cresp2
+              if (sib(1)%param%biome < 20) then
+                 read(32,*) sib(1)%param%aparc2
+                 read(32,*) sib(1)%param%zlt2
+                 read(32,*) sib(1)%param%green2
+                 read(32,*) sib(1)%param%z0d2
+                 read(32,*) sib(1)%param%zp_disp2
+                 read(32,*) sib(1)%param%rbc2
+                 read(32,*) sib(1)%param%rdc2
+                 read(32,*) sib(1)%param%gmudmu2
+              else
+                 do i=1,8
+                      read(32,*) dummy
+                 enddo
+              endif
 
-            read(32,*) sib(1)%param%physfrac2(1)
-            read(32,*) sib(1)%param%physfrac2(2)
-            read(32,*) sib(1)%param%physfrac2(3)
-            read(32,*) sib(1)%param%physfrac2(4)
-            read(32,*) sib(1)%param%physfrac2(5)
-        enddo
-        close( 32 )
+              read(32,*) sib(1)%param%d13cresp2
+              read(32,*) sib(1)%param%physfrac2(1)
+              read(32,*) sib(1)%param%physfrac2(2)
+              read(32,*) sib(1)%param%physfrac2(3)
+              read(32,*) sib(1)%param%physfrac2(4)
+              read(32,*) sib(1)%param%physfrac2(5)
+          enddo
+
+       close( 32 )
 
     endif
     
