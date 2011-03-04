@@ -21,8 +21,8 @@ endif
 # BLAS (Basic Linear Algebra System) and LAPACK (Linear Algebra Package)
 
 # Directory containing netcdf's include/ and lib/ directories.
-NETCDF_ROOT = /usr/local/
-#NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
+#NETCDF_ROOT = /usr/local/
+NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
 #NETCDF_ROOT = /usr/local/netcdf3
 
 

@@ -198,6 +198,7 @@ implicit none
 
 !Local Variables
 real(kind=dbl_kind) :: temp1, litter
+real(kind=dbl_kind) :: temp_rstfac2
 integer(kind=int_kind) :: dapd
 real(kind=dbl_kind) :: vmax_factor
 
@@ -385,22 +386,29 @@ real(kind=dbl_kind) :: vmax_factor
 	max_wmain=8.0
         dgrowth_opt=(max_wmain-0.37)*drate
 
+        !kdcorbin, 03/11 - set temp_rstfac2=1.0 to assume that 
+        !    soil moisture stress does not affect crop growth.  
+        !temp_rstfac2 = 1.0
+        temp_rstfac2 = sib(sibpt)%diag%rstfac_d
+
+        dgrowth_opt = (max_wmain-0.26) * drate * temp_rstfac2
+
 	if (sib(sibpt)%diag%tempc<8.0) then
-               dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.01
+               dgrowth = dgrowth_opt * 0.01
 	elseif (sib(sibpt)%diag%tempc < 14.0) then
-                dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                dgrowth = dgrowth_opt * &
                               (0.01+.19 * (sib(sibpt)%diag%tempc-8)/6.)
 	elseif (sib(sibpt)%diag%tempc < 19.0) then
-                 dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                 dgrowth = dgrowth_opt * &
                             (0.2 + 0.4 * (sib(sibpt)%diag%tempc-14.)/5.)
 	elseif (sib(sibpt)%diag%tempc < 28.0) then
-                  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                  dgrowth = dgrowth_opt * &
                                 (0.6+0.4 * (sib(sibpt)%diag%tempc-19.)/9.)
 	elseif (sib(sibpt)%diag%tempc < 35.0) then
-                  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                  dgrowth = dgrowth_opt * &
                                (1.0 - 0.1 * (sib(sibpt)%diag%tempc-28.)/7.)
 	elseif (sib(sibpt)%diag%tempc<45.0) then
-                  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                  dgrowth = dgrowth_opt * &
                                 (0.9-0.89 * (sib(sibpt)%diag%tempc-35.)/10.)
 	endif          
 
@@ -614,6 +622,7 @@ implicit none
 !Local Variables
 
 real(kind=dbl_kind) :: temp1, litter
+real(kind=dbl_kind) :: temp_rstfac2
 integer(kind=int_kind) :: dapd
 real(kind=dbl_kind) :: vmax_factor
 
@@ -816,24 +825,29 @@ real(kind=dbl_kind) :: vmax_factor
             time%doy    <= (sib(sibpt)%diag%pd + 21)) then 
 		drate=0.091	
 		max_wmain=8.0
-                dgrowth_opt = (max_wmain-0.26) * drate
+     
+                !kdcorbin, 03/11 - set temp_rstfac2=1.0 to assume that 
+                !    crop stress does not affect growth. 
+                !temp_rstfac2 = 1.0
+                temp_rstfac2 = sib(sibpt)%diag%rstfac_d
+                dgrowth_opt = (max_wmain-0.26) * drate * temp_rstfac2
 
           	if (sib(sibpt)%diag%tempc<=8) then
-                    dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.01
+                    dgrowth = dgrowth_opt * 0.01
          	elseif (sib(sibpt)%diag%tempc<10.0) then
-                    dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.01 &
+                    dgrowth = dgrowth_opt * 0.01 &
                                 + (0.24 * (sib(sibpt)%diag%tempc-8.)/2.)
               	elseif (sib(sibpt)%diag%tempc < 20.0) then
-                     dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                     dgrowth = dgrowth_opt * &
                                 (0.25 + (0.65 * (sib(sibpt)%diag%tempc-10.)/10.))
 	        elseif (sib(sibpt)%diag%tempc < 27.0) then
-                      dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                      dgrowth = dgrowth_opt * &
                                (0.9 + (0.15 * (sib(sibpt)%diag%tempc-20.)/7.))
              	elseif (sib(sibpt)%diag%tempc < 30.0) then
-                      dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                      dgrowth = dgrowth_opt * &
                                 (1.05 + (.06 * (sib(sibpt)%diag%tempc-27.)/3.))
 	        elseif (sib(sibpt)%diag%tempc < 40.0) then
-                      dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                      dgrowth = dgrowth_opt * &
                                 (1.1 + (0.1 * (sib(sibpt)%diag%tempc - 30.0)/10.))
          	endif
 
@@ -1035,6 +1049,7 @@ subroutine wheat_phen
 implicit none
 
 real(kind=dbl_kind) :: temp1
+real(kind=dbl_kind) :: temp_rstfac2
 real(kind=dbl_kind) :: vmax_factor
 
 !EL...calculation of the planting date of winterwheat was set to start 
@@ -1273,7 +1288,11 @@ endif
 !EL...drates based on temperature 
 !EL...were set based on the info in de Vries et al. 1989 
 
-       dgrowth_opt=(max_wmain-0.48)*drate
+        !kdcorbin, 03/11 - set temp_rstfac2=1.0 to assume that 
+        !    crops are not stressed.  
+        !temp_rstfac2 = 1.0
+        temp_rstfac2 = sib(sibpt)%diag%rstfac_d
+        dgrowth_opt=(max_wmain-0.48)*drate*temp_rstfac2
 
 !EL.. initial growth scheme for winter wheat
 
@@ -1285,27 +1304,27 @@ endif
                 	dgrowth = 0.0
             	elseif (sib(sibpt)%diag%tempc >= 2.0 .and. &
                            sib(sibpt)%diag%tempc < 10.0) then
-                     	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                     	dgrowth = dgrowth_opt * &
                               (0.68 * (sib(sibpt)%diag%tempc-2.)/8.)
             	elseif (sib(sibpt)%diag%tempc >= 10.0 .and. &
                            sib(sibpt)%diag%tempc < 15.0) then
-                    	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                    	dgrowth = dgrowth_opt * &
                               (0.68+(0.21 * (sib(sibpt)%diag%tempc-10.)/5.))
              	elseif (sib(sibpt)%diag%tempc >= 15.0 .and. &
                           sib(sibpt)%diag%tempc < 20.0) then
-                     	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                     	dgrowth = dgrowth_opt * &
                               (0.89+(0.11 * (sib(sibpt)%diag%tempc-15.)/5.))
              	elseif (sib(sibpt)%diag%tempc >= 20.0 .and. &
                            sib(sibpt)%diag%tempc < 25.0) then
-                     	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                     	dgrowth = dgrowth_opt * &
                                (1.0+(0.03 * (sib(sibpt)%diag%tempc-20.)/5.))
             	elseif (sib(sibpt)%diag%tempc>=25.0 .and. &
                            sib(sibpt)%diag%tempc<30.0) then
-                     	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                     	dgrowth = dgrowth_opt * &
                               (1.03+(0.02 * (sib(sibpt)%diag%tempc-25)/5.0))
             	elseif (sib(sibpt)%diag%tempc>=30.0 .and. &
                           sib(sibpt)%diag%tempc<35.0) then
-                      	dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                      	dgrowth = dgrowth_opt * &
                              (1.05+(0.01 * (sib(sibpt)%diag%tempc-30)/5.0))
 	       endif
 
@@ -1330,15 +1349,15 @@ endif
   	    if (sib(sibpt)%diag%tempc<-10.0) then
         	   dgrowth = 0.0
 	    elseif (sib(sibpt)%diag%tempc < 0.0) then
-          	  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * 0.01
+          	  dgrowth = dgrowth_opt * 0.01
 	    elseif (sib(sibpt)%diag%tempc < 20.0) then
-          	  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+          	  dgrowth = dgrowth_opt * &
                        (0.01 + (0.89 * sib(sibpt)%diag%tempc / 20.0))
 	    elseif (sib(sibpt)%diag%tempc < 25.0) then
-                  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                  dgrowth = dgrowth_opt * &
                        (0.9 + (0.1 * (sib(sibpt)%diag%tempc - 20.0) / 5.0))
 	    elseif (sib(sibpt)%diag%tempc < 35.0) then
-                  dgrowth = dgrowth_opt * sib(sibpt)%diag%rstfac_d * &
+                  dgrowth = dgrowth_opt * &
                        (1.0 + (0.2 * (sib(sibpt)%diag%tempc - 25.0) / 10.0 ))
             endif
 
