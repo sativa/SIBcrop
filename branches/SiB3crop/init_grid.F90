@@ -3,7 +3,9 @@ subroutine init_grid( rank, nchunks )
 ! reads in sibdrv control variables and inputs
 ! sets up grid
 !
-! modofications:
+! modifications:
+! kdcorbin, 03/11 - removed grid_path file
+
 #ifdef PGF
 use netcdf
 use typeSizes
@@ -37,16 +39,6 @@ integer(kind=int_kind) :: lon_index             ! index value for pbp's
 integer(kind=int_kind), allocatable, dimension(:,:) :: temp_pbp ! temporary array of
                                                             ! pbp coordinates
 
-real(kind=real_kind), dimension(:), allocatable ::  &
-    areasib,      & !  SiB gridpoint area
-    weight_sib,   & !  weight factor
-    wgt2_sib,     & !  weight factor
-    lat_hr,       & !  used for output
-    lon_hr          !  used for output
-logical (kind=log_kind), dimension(:), allocatable :: hr_sib        
-integer (kind=int_kind), dimension(:), allocatable   ::    &
-    link_hr_sib !  link between sib and global points
-
 ! subgridding and parallelization variables
 real(kind=dbl_kind) ::     dlat   ! latitude gridcell spacing
 real(kind=dbl_kind) ::     dlon   ! longitude gridcell spacing
@@ -66,11 +58,12 @@ real(kind=dbl_kind), dimension(:,:), allocatable :: lonlatpbp ! temporary array 
                                                     ! pbp coordinates
 
 !     NAMELISTS
+!     kdcorbin, 03/11 - removed grid_path
 namelist /inlist_sibdrv/ & ! USER DEFINED PARAMETERS
     nsib,ztemp,zwind
 namelist /IOLIST_SIBDRV/ & !jk USER SELETED I/O OPTIONS
     param_path, ic_path, dr_format, out_path, qp_path,  &
-    pbp_path, co2_path, grid_path, drvr_type, param_type
+    pbp_path, co2_path, drvr_type, param_type
 namelist /SUBGRID_SIBDRV/ &
     minlon, maxlon, minlat, maxlat
 namelist /PBPLIST_SIBDRV/ & ! USER DEFINED PBP DIAGNOSTIC LOCATIONS
@@ -114,67 +107,16 @@ namelist /SIBDRV_CONTROL_LIST/ &
 
     histpp = ndtsibpbp /= 0
     !----------------------------------------------------------------
-    ! read in grid information
+    ! read in grid information from TI file
     !----------------------------------------------------------------
     allocate( latsib(nsib) )
     allocate( lonsib(nsib) )
-    print*,'   nsib= ',nsib
-    print*, '   drvr_type= ',drvr_type
-    if(drvr_type=='single')then
-        allocate( areasib(1) )
-        allocate(link_hr_sib(1) )
-        allocate(weight_sib(1) )
-        allocate(hr_sib(1) )
-        open(unit=3,file=grid_path,form='formatted') !jk
-        read(3,*)ntest1
-        if(ntest1 /= 1) stop ' sib_gridmap file no match with model nsib'
-        read(3,*)ntest2
-        if(ntest2 /= 1) stop ' sib_gridmap file no match with model ihr'
-        read(3,*)ntest3
-        if(ntest3 /= 1) stop ' sib_gridmap file no match with model jhr'
-        read(3,*)lonsib(1)
-        read(3,*)latsib(1)
-        read(3,*)areasib(1)
-        read(3,*)link_hr_sib(1)
-        read(3,*)weight_sib(1)         ! jk
-        read(3,*)hr_sib(1)        
-        ! assign some grid information and exit subroutine
-        subcount = 1
-        allocate(subset(1))
-        allocate(imultpbpsib(1))
-        !allocate(newmap(1,1))
-        allocate(lat_hr(1))
-        allocate(lon_hr(1))
-        allocate(latpbp(1))
-        allocate(lonpbp(1))
-        allocate(latindex(1))
-        allocate(lonindex(1))
-        allocate(sublon(1))
-        allocate(sublat(1))
-        allocate(latitude(1))
-        allocate(longitude(1))
-        subset(1) = 1
-        imultpbpsib(1) = 1
-        ijtlensib = 1
-        !newmap(1,1) = 1
-        lat_hr(1) = lonlatpbp(2,1)
-        lon_hr(1) = lonlatpbp(1,1)
-        ihr = 1
-        jhr = 1
-        nhr = 1
-        latpbp(1) = lonlatpbp(2,1)
-        lonpbp(1) = lonlatpbp(1,1)
-        latindex(1) = 1
-        lonindex(1) = 1
-        sublon(1) = 1
-        sublat(1) = 1
-        latitude(1) = latsib(1)
-        longitude(1) = lonsib(1)
-        return
-    endif
-
     allocate( latindex(nsib) )
     allocate( lonindex(nsib) )
+
+    print*,'   nsib= ',nsib
+    print*, '   drvr_type= ',drvr_type
+
     print*,'   reading parameter file: ',trim(param_path)//'_TI.nc'
     status = nf90_open( trim(param_path)//'_TI.nc', nf90_nowrite, ncid )
     if ( status /= nf90_noerr ) call handle_err( status )
@@ -188,10 +130,18 @@ namelist /SIBDRV_CONTROL_LIST/ &
     status = nf90_get_var( ncid, varid, latsib )
     status = nf90_inq_varid( ncid, 'lonsib', varid )
     status = nf90_get_var( ncid, varid, lonsib )
-    status = nf90_inq_varid( ncid, 'latindex', varid )
-    status = nf90_get_var( ncid, varid, latindex )
-    status = nf90_inq_varid( ncid, 'lonindex', varid )
-    status = nf90_get_var( ncid, varid, lonindex )
+
+     !kdcorbin, 03/11 - modified reading TI file for single point runs
+     if (drvr_type == 'single') then 
+         latindex=1
+         lonindex=1
+     else
+         status = nf90_inq_varid( ncid, 'latindex', varid )
+         status = nf90_get_var( ncid, varid, latindex )
+         status = nf90_inq_varid( ncid, 'lonindex', varid )
+         status = nf90_get_var( ncid, varid, lonindex )
+    endif
+
     status = nf90_inq_varid( ncid, 'numlat', varid )
     status = nf90_get_var( ncid, varid, jhr )
     status = nf90_inq_varid( ncid, 'numlon', varid )
@@ -368,6 +318,7 @@ namelist /SIBDRV_CONTROL_LIST/ &
         allocate(imultpbpsib(j))
         allocate( latpbp(j) )
         allocate( lonpbp(j) )
+
         j = 0
         do i = 1, ijtlensib
             if ( temp_pbp(1,i) /= 0 .and. temp_pbp(2,i) /= 0 )  then

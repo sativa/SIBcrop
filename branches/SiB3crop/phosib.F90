@@ -226,7 +226,6 @@ subroutine phosib(sib,sib_loc)
     co2cap = sib%diag%cas_cap_co2 * 44.6 * tprcor/sib%prog%ta  ! moles air / m2
     co2cap = sib%diag%cas_cap_co2 * sib%prog%ps*100.0 /rstar/sib%prog%ta
 
-
     !--------------------------------------------------------------
     !
     !     CALCULATION OF CANOPY PAR USE PARAMETER.

@@ -137,7 +137,6 @@ subroutine sib_main ( sib )
     sib%param%rbc       = sib%param%cc1/sib%diag%canex
     sib%param%rdc       = sib%param%cc2*sib%diag%canex
 
-
 !     initialize energy and water budgets
 !     Initialize heat capacities, soil properties
     call begtem(sib,sib_loc)

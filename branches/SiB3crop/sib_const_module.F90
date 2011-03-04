@@ -177,10 +177,10 @@ module sib_const_module
    integer(kind=int_kind), parameter :: corn_num=1,soy_num=2, &
                  wwheat_num=3,swheat_num=4
 
-   integer(kind=int_kind), parameter :: temp_biome_bare = 11
+   integer(kind=int_kind), parameter :: temp_biome_bare = 12
    integer(kind=int_kind), parameter :: temp_biome_crop = 12
 
-    real(kind=dbl_kind),parameter :: min_lai_crop = 0.001
+    real(kind=dbl_kind),parameter :: min_lai_crop = 0.01
     real(kind=dbl_kind),parameter :: min_ndvi_crop = 0.07
           !minimum NDVI value when phenology model is NOT used
     real(kind=dbl_kind),parameter :: min_fvcov_crop = 0.1
@@ -203,9 +203,9 @@ module sib_const_module
           crop_physfrac1 = (/0.,1.,1.,1./),                      &
           crop_physfrac2 = (/1.,0.,0.,0./),                      &
           crop_z2 = (/2.5,1.,0.5,0.5/),                                &
-          crop_vmax0a = (/8.E-5,1.0E-4,9.3E-5,9.3E-5/),  &
+          crop_vmax0a = (/8.0E-5,1.2E-4,9.3E-5,9.3E-5/),  &
              !initial vmax0 for crops
-          crop_vmax0b = (/3.5E-5,7.0E-5,6.6E-5,6.6E-5/),  &
+          crop_vmax0b = (/3.5E-5,7.5E-5,6.6E-5,6.6E-5/),  &
              !ending vmax0 for crops
           crop_effcon = (/0.05,0.08,0.08,0.08/),            &
           crop_slope = (/4.,9.,9.,9./),                              &
