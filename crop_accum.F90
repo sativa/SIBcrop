@@ -1091,8 +1091,10 @@ if (sib(sibpt)%param%biome == 23) then
         sib(sibpt)%diag%ndf_opt=sib(sibpt)%diag%ndf_opt+1
    endif
 
-   if (sib(sibpt)%diag%ndf_opt==7 .AND. sib(sibpt)%diag%pd == 0)  then
+   !kdcorbin, 03/11 - removed pd check and set gdd to 0.
+   if (sib(sibpt)%diag%ndf_opt== 7)  then
         sib(sibpt)%diag%pd = time%doy
+        sib(sibpt)%diag%gdd = 0.0
    endif
 
     if (sib(sibpt)%diag%tempc <= -20.0) then
@@ -1135,16 +1137,16 @@ if (sib(sibpt)%param%biome == 22) then
 endif  !biome == 22
 
 if (sib(sibpt)%param%biome == 23) then
-	if (sib(sibpt)%diag%pd > 0                     .AND.         & 
-            time%doy  >=  sib(sibpt)%diag%pd   .AND.         &
+	if (sib(sibpt)%diag%pd > 0 .AND.  & 
+            time%doy  >=  sib(sibpt)%diag%pd .AND.  &
             sib(sibpt)%diag%tempc > 0.0 .AND. sib(sibpt)%diag%tempc < 21.11) then
              	     sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + &
-                                                       sib(sibpt)%diag%tempc- 0.0_dbl_kind
+                                     sib(sibpt)%diag%tempc- 0.0_dbl_kind
         endif
 
         if (sib(sibpt)%diag%gdd >= 215.0) then
-            if (sib(sibpt)%diag%pd > 0                     .AND.         & 
-		time%doy  >=  sib(sibpt)%diag%pd    .AND.         &
+            if (sib(sibpt)%diag%pd > 0  .AND. & 
+		time%doy  >=  sib(sibpt)%diag%pd .AND.  &
                 sib(sibpt)%diag%tempc > 0.0 .AND. sib(sibpt)%diag%tempc < 35.0 ) then
                      sib(sibpt)%diag%gdd=sib(sibpt)%diag%gdd + sib(sibpt)%diag%tempc
             endif

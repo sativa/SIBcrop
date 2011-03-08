@@ -613,7 +613,13 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         enddo
 
         if(sib(i)%diag%ndf_opt > 0) sib(i)%diag%ndf_opt=sib(i)%diag%ndf_opt-1
-        if(sib(i)%diag%pd > 0) sib(i)%diag%pd_annual=1
+ 
+        !kdcorbin, 03/11 - added pd_annual
+        if(sib(i)%diag%pd > 0) then 
+           sib(i)%diag%pd_annual=1
+        else
+           sib(i)%diag%pd_annual=0
+        endif
         if(sib(i)%diag%gdd > 100.0 ) sib(i)%diag%phen_switch = 1
       !End crop vars
 
