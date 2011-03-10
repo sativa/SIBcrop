@@ -1,5 +1,35 @@
 # Makfile for SiB3crop
-# All options are set at the top of this file
+#
+# You will need GNU's version of Make, which is the default on Linux, OS X
+# but not necessarily other Unixes.
+#
+# If you want to change the compiler or optimization without editing the
+# makefile, set the COMPILER or OPT environment variables on the command
+# line like so:
+#
+# user@host:~$ COMPILER=ifort OPT=opt make clean all
+#
+# Values for COMPILER: gcc*, pgi, ifort
+# Values for OPT: debug*, opt
+#
+# * = default
+#
+# To name the SiB binary with the platform, define the FULL_SUFFIX environment
+# like this before running make:
+#
+# user@host:~$ export FULL_SUFFIX=1                        # bourne shells
+#
+# user@host:~$ setenv FULL_SUFFIX 1                        # c shell
+#
+# You can tell the Makefile where to find NetCDF and LAPACK/BLAS libraries
+# by setting the NETCDF_ROOT and LAPACK_ROOT environment variables as well:
+#
+# user@host:~$ export NETCDF_ROOT=/usr/local
+#
+# the includes will be searched for in $(NETCDF_ROOT)/include and
+# $(LAPACK_ROOT)/include, and the libraries will be searched for in
+# $(NETCDF_ROOT)/lib and $(LAPACK_ROOT)/lib.
+
 OS = $(shell uname -s)
 PROC = $(shell uname -p)
 
@@ -8,6 +38,7 @@ PROC = $(shell uname -p)
 ifndef COMPILER
   COMPILER = gcc
   #COMPILER = pgi
+  #COMPILER = ifort
 endif
 
 # Uncomment one of these to select optimize vs. debug compile modes.
@@ -21,21 +52,29 @@ endif
 # BLAS (Basic Linear Algebra System) and LAPACK (Linear Algebra Package)
 
 # Directory containing netcdf's include/ and lib/ directories.
-#NETCDF_ROOT = /usr/local/
-NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
-#NETCDF_ROOT = /usr/local/netcdf3
+ifndef NETCDF_ROOT
+  NETCDF_ROOT = /usr/local/netcdf3-$(COMPILER)
+  #NETCDF_ROOT = /usr/local/
+endif
 
+ifndef LAPACK_ROOT
+	LAPACK_ROOT = /usr/local/atlas
+endif
 
 ifeq ($(OS),Darwin)
-  SUFFIX	= mac
-  LALIB    	= -framework vecLib
+  ifdef FULL_SUFFIX
+    SUFFIX	= -mac$(COMPILER)-$(OPT)
+  endif
   INCLUDES 	= -I$(NETCDF_ROOT)/include
+  LALIB    	= -framework vecLib
   LIBS  	= $(LALIB) -L$(NETCDF_ROOT)/lib -lnetcdf
 endif
 
 ifeq ($(OS),Linux)
-  SUFFIX	= lx$(COMPILER)
-  LALIB 	= -L/usr/local/atlas/lib -llapack -lblas -lcblas -latlas
+  ifdef FULL_SUFFIX
+    SUFFIX	= -lx$(COMPILER)-$(OPT)
+  endif
+  LALIB 	= -L$(LAPACK_ROOT)/lib -llapack -lblas -lcblas -latlas
   INCLUDES 	= -I$(NETCDF_ROOT)/include
   LIBS     	= $(LALIB) -L$(NETCDF_ROOT)/lib -lnetcdf
 endif
@@ -69,6 +108,23 @@ ifeq ($(COMPILER),pgi)
   F90FLAGS += -DPGF=1 -Minfo=loop,inline -Minform=inform $(INCLUDES)
   F90FLAGS_NOOPT += -DPGF=1 -Minfo=loop,inline -Minform=inform $(INCLUDES)
   LFLAGS   = -v -Minform=inform $(LIBS)
+endif
+
+ifeq ($(COMPILER),ifort)
+  F90 = ifort
+  ifeq ($(OPT),opt)
+    F90FLAGS = -O2
+    F90FLAGS_NOOPT = -O0
+  else ifeq ($(OPT),debug)
+    F90FLAGS = -g -check bounds -fpe0
+    F90FLAGS_NOOPT = $(F90FLAGS)
+  endif
+  ifeq ($(PROC),powerpc)
+    F90FLAGS += -convert little_endian
+  endif
+  F90FLAGS += -DPGF -implicitnone -warn all $(INCLUDES)
+  F90FLAGS_NOOPT += -DPGF -implicitnone -warn all $(INCLUDES)
+  LFLAGS = $(LIBS)
 endif
 
 # Objects (DO NOT EDIT - Unless You Add or Remove Files)
@@ -168,16 +224,16 @@ DRV_OBJS  = init_grid.o \
 %.o: %.F90
 	$(F90) $(F90FLAGS) -c $< -o $@
 
-all: SiBD3crop-$(SUFFIX) sibmerge-$(SUFFIX)
+all: SiBD3crop$(SUFFIX) sibmerge$(SUFFIX)
 
 remake: clean all
 
-SiBD3crop-$(SUFFIX): $(VAR_OBJS) $(PRE_OBJS) $(SCI_OBJS) $(NCDF_OBJS) $(DRV_OBJS)
+SiBD3crop$(SUFFIX): $(VAR_OBJS) $(PRE_OBJS) $(SCI_OBJS) $(NCDF_OBJS) $(DRV_OBJS)
 	$(F90) $^ -o $@ $(LFLAGS)
 	@echo -e "\n"
 	@date
 
-sibmerge-$(SUFFIX): sibmerge.o
+sibmerge$(SUFFIX): sibmerge.o
 	$(F90) sibmerge.o -o $@ $(LFLAGS)
 
 crop_accum.o: crop_accum.F90
@@ -187,7 +243,7 @@ leaf_weight.o: leaf_weight.F90
 	$(F90) $(F90FLAGS_NOOPT) -c $< -o $@
 
 clean:
-	rm -f SiBD3crop-$(SUFFIX) sibmerge-$(SUFFIX) *.o *.mod *.stb *~
+	rm -f SiBD3crop$(SUFFIX) sibmerge$(SUFFIX) *.o *.mod *.stb *~
 
 distclean: clean
 	rm -rf SiBD3crop-* sibmerge-* #*#
