@@ -180,8 +180,7 @@ SCI_OBJS  = addinc.o \
 	    sib.o # sib.o NEEDS TO BE LAST
 
 # Netcdf Objects
-NCDF_OBJS = handle_err.o \
-			nc_util.o
+NCDF_OBJS = nc_util.o
 
 # SiB Drive objects
 DRV_OBJS  = init_grid.o \
@@ -190,7 +189,6 @@ DRV_OBJS  = init_grid.o \
 	    phen_mapper.o \
 	    crop_accum.o \
 	    leaf_weight.o \
-	    check.o \
 	    init_sibdrv.o \
 	    init_crop.o \
         time_init.o \
@@ -234,8 +232,8 @@ SiBD3crop$(SUFFIX): $(VAR_OBJS) $(PRE_OBJS) $(SCI_OBJS) $(NCDF_OBJS) $(DRV_OBJS)
 	@echo -e "\n"
 	@date
 
-sibmerge$(SUFFIX): sibmerge.o
-	$(F90) sibmerge.o -o $@ $(LFLAGS)
+sibmerge$(SUFFIX): sibmerge.o $(NCDF_OBJS)
+	$(F90) sibmerge.o $(NCDF_OBJS) -o $@ $(LFLAGS)
 
 crop_accum.o: crop_accum.F90
 	$(F90) $(F90FLAGS_NOOPT) -c $< -o $@

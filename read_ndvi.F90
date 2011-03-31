@@ -54,28 +54,24 @@ real(kind=real_kind), dimension(nsib) :: fpar   !temp fpar variable
 real(kind=real_kind), dimension(nsib) :: modis_time   !temp modis time variable
 
     ! Open the sib_bc file
-    status = nf90_open ( trim(filename), nf90_nowrite, yyid )
-    if (status /= nf90_noerr) call handle_err(status)
-    status = nf90_inq_dimid ( yyid, 'nsib', dimid )
-    if (status /= nf90_noerr) call handle_err(status)
-    status = nf90_inquire_dimension ( yyid, dimid, name, ntest1 )
-    if (status /= nf90_noerr) call handle_err(status)
+    CHECK( nf90_open( trim(filename), nf90_nowrite, yyid ) )
+    CHECK( nf90_inq_dimid ( yyid, 'nsib', dimid ) )
+    CHECK( nf90_inquire_dimension ( yyid, dimid, name, ntest1 ) )
     ! test if boundary condition files are correct
     if(ntest1 /= nsib) stop ' open: file sib_bc no match with model for nsib'
 
     !d13
     ENSURE_VAR( yyid, 'd13cresp', d13_id)
-    call check ( nf90_get_var ( yyid, d13_id, d13) )    
+    CHECK( nf90_get_var ( yyid, d13_id, d13) )    
 
     !physfrac
     ENSURE_VAR( yyid, 'physfrac', phys_id)
-    call check ( nf90_get_var ( yyid, phys_id, frac) )
+    CHECK( nf90_get_var ( yyid, phys_id, frac) )
 
     ! read in global attributes that are passed on to output files
-    status = nf90_get_att( yyid, nf90_global, 'ndvi_source', ndvi_source )
-    status = nf90_get_att( yyid, nf90_global, 'c4_source', c4_source )
-    status = nf90_get_att( yyid, nf90_global, 'd13cresp_source',  &
-        d13cresp_source )
+    CHECK( nf90_get_att( yyid, nf90_global, 'ndvi_source', ndvi_source ) )
+    CHECK( nf90_get_att( yyid, nf90_global, 'c4_source', c4_source ) )
+    CHECK( nf90_get_att( yyid, nf90_global, 'd13cresp_source', d13cresp_source ) )
 
     ! set the variables to sib values
     do i=1,subcount
@@ -100,12 +96,9 @@ real(kind=real_kind), dimension(nsib) :: modis_time   !temp modis time variable
        !begin (2)  = 1 
        !finish (1) = 1 
        !finish (2) = nsib 
-       !status = nf90_get_var ( yyid, ndvi_id, ndvi, begin, finish )
-       !if (status /= nf90_noerr) call handle_err (status)
-       !status = nf90_get_var ( yyid, d13_id, d13 )
-       !if (status /= nf90_noerr) call handle_err (status)
-       !status = nf90_get_var ( yyid, phys_id, frac )
-       !if (status /= nf90_noerr) call handle_err (status)
+       !CHECK( nf90_get_var ( yyid, ndvi_id, ndvi, begin, finish ) )
+       !CHECK( nf90_get_var ( yyid, d13_id, d13 ) )
+       !CHECK( nf90_get_var ( yyid, phys_id, frac ) )
 
        ! copy only points in subdomain
        !do i = 1, subcount
@@ -123,16 +116,16 @@ real(kind=real_kind), dimension(nsib) :: modis_time   !temp modis time variable
 
        !get the number of composite periods, start and stop times
        ENSURE_VAR( yyid, 'mapsyear', var_id)
-       call check ( nf90_get_var ( yyid, var_id, nper ) )
+       CHECK( nf90_get_var ( yyid, var_id, nper ) )
 
        allocate(mstart(nper))
        ENSURE_VAR( yyid, 'modis_start', var_id)
-       call check ( nf90_get_var ( yyid, var_id, mstart ) )
+       CHECK( nf90_get_var ( yyid, var_id, mstart ) )
        time%modis_start(1:nper) = mstart
 
        allocate(mstop(nper))
        ENSURE_VAR( yyid, 'modis_stop', var_id)
-       call check ( nf90_get_var ( yyid, var_id, mstop ) )
+       CHECK( nf90_get_var ( yyid, var_id, mstop ) )
        time%modis_stop(1:nper) = mstop
 
        do i=1,nper
@@ -147,9 +140,9 @@ real(kind=real_kind), dimension(nsib) :: modis_time   !temp modis time variable
        finish(1) = 1
        finish(2) = nsib
 
-       call check ( nf90_get_var ( yyid, lai_id, lai, begin, finish ) )
-       call check ( nf90_get_var ( yyid, fpar_id, fpar, begin, finish) )
-       call check ( nf90_get_var ( yyid, modis_time_id, modis_time, begin, finish) )
+       CHECK( nf90_get_var ( yyid, lai_id, lai, begin, finish ) )
+       CHECK( nf90_get_var ( yyid, fpar_id, fpar, begin, finish) )
+       CHECK( nf90_get_var ( yyid, modis_time_id, modis_time, begin, finish) )
 
        !copy points, only using non-crop points
        do i=1,nsib
@@ -163,7 +156,6 @@ real(kind=real_kind), dimension(nsib) :: modis_time   !temp modis time variable
     endif  !ndvi or lai/fpar 
 
    ! close file
-   status = nf90_close ( yyid )
-   if (status /= nf90_noerr) call handle_err (status)
+   CHECK( nf90_close( yyid ) )
 
 end subroutine read_ndvi

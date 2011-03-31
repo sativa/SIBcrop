@@ -116,8 +116,7 @@ data subname/'sibdrv_read '/
 
         write( filename, dr_format ) time%driver_year, time%driver_month
         print*,'      opening narr data: ',trim(filename)
-        status = nf90_open( trim(filename), nf90_nowrite, driver_id )
-        if(status/=nf90_noerr) call handle_err(status,'read_narr',1)
+        CHECK( nf90_open( trim(filename), nf90_nowrite, driver_id ) )
     endif
 
     ! Read new driver data
@@ -133,16 +132,11 @@ data subname/'sibdrv_read '/
 
     ! read time
     mstart(1) = time%driver_recnum
-    status = nf90_get_var( driver_id, ncyid,    xyear, mstart(1:1) )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',7)
-    status = nf90_get_var( driver_id, ncmid,   xmonth, mstart(1:1) )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',8)
-    status = nf90_get_var( driver_id, ncdoyid,   xdoy, mstart(1:1) )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',9)
-    status = nf90_get_var( driver_id, nctdid,    xday, mstart(1:1) )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',10)
-    status = nf90_get_var( driver_id, nchid,    xhour, mstart(1:1) )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',11)
+    CHECK( nf90_get_var( driver_id, ncyid,    xyear, mstart(1:1) ) )
+    CHECK( nf90_get_var( driver_id, ncmid,   xmonth, mstart(1:1) ) )
+    CHECK( nf90_get_var( driver_id, ncdoyid,   xdoy, mstart(1:1) ) )
+    CHECK( nf90_get_var( driver_id, nctdid,    xday, mstart(1:1) ) )
+    CHECK( nf90_get_var( driver_id, nchid,    xhour, mstart(1:1) ) )
 
     ihour=xhour
     iday =xday
@@ -168,39 +162,17 @@ data subname/'sibdrv_read '/
 
     !* get data
     mstart=(/1,time%driver_recnum/); mcount=(/nsib,1/)
-    status = nf90_get_var( driver_id, nct2mid, t2m,    & !Temperature at 2 m
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',23)
-    status = nf90_get_var( driver_id, nctccid, tcc,    & !Total Cloud Cover
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',24)
-    status = nf90_get_var( driver_id, ncswdid, swd,    & !Surface solar rad downwards
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',25)
-    status = nf90_get_var( driver_id, ncldwid, ldw,    & !Surface thermal rad downwards
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',26)
-    status = nf90_get_var( driver_id, ncuwdid, uwd,    & ! U-wind at 10 m
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',27)
-    status = nf90_get_var( driver_id, ncvwdid, vwd,    & ! V-wind at 10 m
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',28)
-    status = nf90_get_var( driver_id, ncshid, sh,      & ! humidity at 2 m
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',29)
-    status = nf90_get_var( driver_id, ncsfpid, sfp,    & ! Surface Pressure
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',30)
-    status = nf90_get_var( driver_id, nclspid, lsp,    & ! Large Scale Precipitation
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',31)
-    status = nf90_get_var( driver_id, nccvpid, cvp,    & ! Convective Precipitation
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',32)
-    status = nf90_get_var(driver_id, ncsflid, xx,    & ! Snow Fall
-         mstart,  mcount )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',33)
+    CHECK( nf90_get_var( driver_id, nct2mid, t2m, mstart, mcount ) ) !Temperature at 2 m
+    CHECK( nf90_get_var( driver_id, nctccid, tcc, mstart, mcount ) ) !Total Cloud Cover
+    CHECK( nf90_get_var( driver_id, ncswdid, swd, mstart, mcount ) ) !Surface solar rad downwards
+    CHECK( nf90_get_var( driver_id, ncldwid, ldw, mstart, mcount ) ) !Surface thermal rad downwards
+    CHECK( nf90_get_var( driver_id, ncuwdid, uwd, mstart, mcount ) ) ! U-wind at 10 m
+    CHECK( nf90_get_var( driver_id, ncvwdid, vwd, mstart, mcount ) ) ! V-wind at 10 m
+    CHECK( nf90_get_var( driver_id, ncshid, sh, mstart, mcount ) )   ! humidity at 2 m
+    CHECK( nf90_get_var( driver_id, ncsfpid, sfp, mstart, mcount ) ) ! Surface Pressure
+    CHECK( nf90_get_var( driver_id, nclspid, lsp, mstart, mcount ) ) ! Large Scale Precipitation
+    CHECK( nf90_get_var( driver_id, nccvpid, cvp, mstart, mcount ) ) ! Convective Precipitation
+    CHECK( nf90_get_var( driver_id, ncsflid, xx, mstart, mcount ) )  ! Snow Fall
     
 ! ncp, convert snowfall from meters to millimeters
     xx = 1000. * xx

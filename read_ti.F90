@@ -74,16 +74,13 @@ character(len=10) name
 
     ! open sib_bc_TI.nc file 
     print *, '      reading ',trim(param_path)//'_TI.nc'
-    status = nf90_open ( trim(param_path)//'_TI.nc', nf90_nowrite, tiid )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_open ( trim(param_path)//'_TI.nc', nf90_nowrite, tiid ) )
 
     ! check zwind and ztemp values
     ENSURE_VAR(tiid, 'zwind', varid)
-    status = nf90_get_var ( tiid, varid, testzwind )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, testzwind ) )
     ENSURE_VAR( tiid, 'ztemp', varid )
-    status = nf90_get_var ( tiid, varid, testztemp )
-    if ( status /= nf90_noerr ) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, testztemp ) )
     if ( zwind /= testzwind ) then
         print *, '     zwind value in ti file does not match namel file'
         print *, '     ti:  ', testzwind, 'namel:  ', zwind
@@ -96,115 +93,87 @@ character(len=10) name
     endif
 
     ! read in variables
-    status = nf90_inq_dimid ( tiid, 'numvar', dimid )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inquire_dimension ( tiid, dimid, name,nvar )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_inq_dimid ( tiid, 'numvar', dimid ) )
+    CHECK( nf90_inquire_dimension ( tiid, dimid, name,nvar ) )
 
     ! biome - not read in for single point runs
     ! kdcorbin, 01/11
    if (drvr_type .ne. 'single') then
        ENSURE_VAR( tiid, 'biome', varid )
-       status = nf90_get_var ( tiid, varid, biome )
-       if (status /= nf90_noerr) call handle_err (status)
+       CHECK( nf90_get_var( tiid, varid, biome ) )
    endif
 
     ! soilnum
     ENSURE_VAR( tiid, 'soilnum', varid )
-    if (status /= nf90_noerr) call handle_err (status)
     !kdcorbin, 02/11 - added name,ndims specifiers
-    status = nf90_inquire_variable ( tiid, varid, name=name,ndims=ndims )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_inquire_variable( tiid, varid, name=name,ndims=ndims ) )
 
     start (1) = 1
     start (2) = 1
     done (1)  = nsib
     done (2)  = 1
     if (ndims.eq.1) then
-        status = nf90_get_var ( tiid, varid, soilnum )
-        if (status /= nf90_noerr) call handle_err (status)
+        CHECK( nf90_get_var( tiid, varid, soilnum ) )
     else 
-        status = nf90_get_var ( tiid, varid, clayfrac, start, done )
-        if (status /= nf90_noerr) call handle_err (status) 
+        CHECK( nf90_get_var ( tiid, varid, clayfrac, start, done ) )
         start (2) = 2
-        status = nf90_get_var ( tiid, varid, sandfrac, start, done )
-        if (status /= nf90_noerr) call handle_err (status)
+        CHECK( nf90_get_var ( tiid, varid, sandfrac, start, done ) )
     endif
 
     ! fvcover
     ENSURE_VAR( tiid, 'fvcover', varid )
-    status = nf90_get_var ( tiid, varid, vcover )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, vcover ) )
 
     ! phystype
-    status = nf90_inq_dimid ( tiid, 'phys', dimid )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inquire_dimension ( tiid, dimid, name, phys )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_inq_dimid ( tiid, 'phys', dimid ) )
+    CHECK( nf90_inquire_dimension ( tiid, dimid, name, phys ) )
     allocate(phystype(nsib,phys))
     ENSURE_VAR( tiid, 'phystype', varid )
-    status = nf90_get_var ( tiid, varid, phystype )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, phystype ) )
 
     ! sorefvis
     ENSURE_VAR( tiid, 'sorefvis', varid )
-    status = nf90_get_var ( tiid, varid, soref1 )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, soref1 ) )
 
     ! sorefnir
     ENSURE_VAR( tiid, 'sorefnir', varid )
-    status = nf90_get_var ( tiid, varid, soref2 )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, soref2 ) )
 
     ! laigrid
     ENSURE_VAR( tiid, 'laigrid', varid )
-    status = nf90_get_var ( tiid, varid, laigrid )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, laigrid ) )
 
     ! fvcgrid
     ENSURE_VAR( tiid, 'fvcgrid', varid )
-    status = nf90_get_var ( tiid, varid, fvcovergrid )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, fvcovergrid ) )
 
     ! aero_zo
     allocate (aerovar(50,50,nvar))
     ENSURE_VAR( tiid, 'aero_zo', varid )
-    status = nf90_get_var ( tiid, varid, aerovar%zo )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, aerovar%zo ) )
 
     ! aero_zp
     ENSURE_VAR( tiid, 'aero_zp', varid )
-    status = nf90_get_var ( tiid, varid, aerovar%zp_disp )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, aerovar%zp_disp ) )
 
     ! aero_rbc
     ENSURE_VAR( tiid, 'aero_rbc', varid )
-    status = nf90_get_var ( tiid, varid, aerovar%rbc )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, aerovar%rbc ) )
 
     ! areo_rdc
     ENSURE_VAR( tiid, 'aero_rdc', varid )
-    status = nf90_get_var ( tiid, varid, aerovar%rdc )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, aerovar%rdc ) )
 
     !---------------read in the tables----------------------------------
 
-    status = nf90_inq_dimid ( tiid, 'numsoil', dimid )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inquire_dimension ( tiid, dimid, name, numsoil )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inq_dimid ( tiid, 'biovar', dimid )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inquire_dimension ( tiid, dimid, name,biovar )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inq_dimid ( tiid, 'soilvar', dimid )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inquire_dimension ( tiid, dimid, name,svar )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inq_dimid ( tiid, 'morphvar', dimid )
-    if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inquire_dimension ( tiid, dimid,name,morphvar )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_inq_dimid ( tiid, 'numsoil', dimid ) )
+    CHECK( nf90_inquire_dimension ( tiid, dimid, name, numsoil ) )
+    CHECK( nf90_inq_dimid ( tiid, 'biovar', dimid ) )
+    CHECK( nf90_inquire_dimension ( tiid, dimid, name,biovar ) )
+    CHECK( nf90_inq_dimid ( tiid, 'soilvar', dimid ) )
+    CHECK( nf90_inquire_dimension ( tiid, dimid, name,svar ) )
+    CHECK( nf90_inq_dimid ( tiid, 'morphvar', dimid ) )
+    CHECK( nf90_inquire_dimension ( tiid, dimid,name,morphvar ) )
 
     allocate(morphtab(nvar))
     allocate(biovart3(nvar,biovar))
@@ -213,24 +182,20 @@ character(len=10) name
     allocate(morphvart(nvar,morphvar))
 
     ENSURE_VAR( tiid, 'biome_tablec3', varid )
-    status = nf90_get_var ( tiid, varid, biovart3 )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, biovart3 ) )
     ENSURE_VAR( tiid, 'biome_tablec4', varid )
-    status = nf90_get_var ( tiid, varid, biovart4 )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, biovart4 ) )
     ENSURE_VAR( tiid, 'soil_table', varid )
-    status = nf90_get_var ( tiid, varid, soilvart )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, soilvart ) )
     ENSURE_VAR( tiid, 'morph_table', varid )
-    status = nf90_get_var ( tiid, varid, morphvart )
-    if (status /= nf90_noerr) call handle_err (status)
+    CHECK( nf90_get_var ( tiid, varid, morphvart ) )
 
     ! read in global attributes that are passed on to output files
-    status = nf90_get_att( tiid, nf90_global, 'biome_source', biome_source )
-    status = nf90_get_att( tiid, nf90_global, 'soil_source', soil_source )
-    status = nf90_get_att( tiid, nf90_global, 'soref_source', soref_source )
+    CHECK( nf90_get_att( tiid, nf90_global, 'biome_source', biome_source ) )
+    CHECK( nf90_get_att( tiid, nf90_global, 'soil_source', soil_source ) )
+    CHECK( nf90_get_att( tiid, nf90_global, 'soref_source', soref_source ) )
 
-    status = nf90_close(tiid)
+    CHECK( nf90_close(tiid) )
     
     !------------Assign values from tables into data structures--------
 

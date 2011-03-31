@@ -5,10 +5,10 @@ subroutine create_qp2( out_path, numvars, subcount, ihr, jhr, year,  &
                        qp2periodid, drvr_type, biome_source, soil_source,  &
                        soref_source, ndvi_source, c4_source, d13cresp_source,  &
                        rank )
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
+
+#include "nc_util.h"
 
 ! parameters
 character(len=256), intent(in) :: out_path      ! directory to write file to
@@ -66,7 +66,7 @@ integer :: unit_len, long_len       ! not used, returned by get_units()
     ! create file
     write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(out_path)//'hsib_',   &
         year, month, 'p', rank, '.qp2.nc'
-    status = nf90_create( trim(filename), nf90_clobber, qp2id)
+    CHECK( nf90_create( trim(filename), nf90_clobber, qp2id) )
     
     ! define global attributes
     call global_atts( qp2id, 'sib3', 'lat/lon', '1.0', drvr_type,  &
@@ -74,70 +74,71 @@ integer :: unit_len, long_len       ! not used, returned by get_units()
         d13cresp_source, rank )
 
     ! define dimensions
-    status = nf90_def_dim( qp2id, 'time', nf90_unlimited, timeid )
-    status = nf90_def_dim( qp2id, 'char_len', 10, charid )
-    status = nf90_def_dim( qp2id, 'latitude', jhr, latid )
-    status = nf90_def_dim( qp2id, 'longitude', ihr, lonid )
-    status = nf90_def_dim( qp2id, 'landpoints', subcount, subcountid )
+    CHECK( nf90_def_dim( qp2id, 'time', nf90_unlimited, timeid ) )
+    CHECK( nf90_def_dim( qp2id, 'char_len', 10, charid ) )
+    CHECK( nf90_def_dim( qp2id, 'latitude', jhr, latid ) )
+    CHECK( nf90_def_dim( qp2id, 'longitude', ihr, lonid ) )
+    CHECK( nf90_def_dim( qp2id, 'landpoints', subcount, subcountid ) )
     
     ! define control variables
-    status = nf90_def_var( qp2id, 'time', nf90_double, (/timeid/), qp2timeid )
-    status = nf90_put_att( qp2id, qp2timeid, 'quantity', 'time' )
-    status = nf90_put_att( qp2id, qp2timeid, 'units', 'days since 1-1-1' )
-    status = nf90_put_att( qp2id, qp2timeid, 'calender', 'noleap' )
+    CHECK( nf90_def_var( qp2id, 'time', nf90_double, (/timeid/), qp2timeid ) )
+    CHECK( nf90_put_att( qp2id, qp2timeid, 'quantity', 'time' ) )
+    CHECK( nf90_put_att( qp2id, qp2timeid, 'units', 'days since 1-1-1' ) )
+    CHECK( nf90_put_att( qp2id, qp2timeid, 'calender', 'noleap' ) )
     
-    status = nf90_def_var( qp2id, 'char_time', nf90_char, (/charid,timeid/), qp2charid )
-    status = nf90_put_att( qp2id, qp2charid, 'format', 'mm/dd/yyyy' )
+    CHECK( nf90_def_var( qp2id, 'char_time', nf90_char, (/charid,timeid/), qp2charid ) )
+    CHECK( nf90_put_att( qp2id, qp2charid, 'format', 'mm/dd/yyyy' ) )
     
-    status = nf90_def_var( qp2id, 'start_period', nf90_double, (/timeid/), qp2startid )
-    status = nf90_put_att( qp2id, qp2startid, 'long_name', 'start of averaged period' )
-    status = nf90_put_att( qp2id, qp2startid, 'units', 'days since 1-1-1' )
+    CHECK( nf90_def_var( qp2id, 'start_period', nf90_double, (/timeid/), qp2startid ) )
+    CHECK( nf90_put_att( qp2id, qp2startid, 'long_name', 'start of averaged period' ) )
+    CHECK( nf90_put_att( qp2id, qp2startid, 'units', 'days since 1-1-1' ) )
     
-    status = nf90_def_var( qp2id, 'end_period', nf90_double, (/timeid/), qp2endid )
-    status = nf90_put_att( qp2id, qp2endid, 'long_name', 'end of averaged period' )
-    status = nf90_put_att( qp2id, qp2endid, 'units', 'days since 1-1-1' )
+    CHECK( nf90_def_var( qp2id, 'end_period', nf90_double, (/timeid/), qp2endid ) )
+    CHECK( nf90_put_att( qp2id, qp2endid, 'long_name', 'end of averaged period' ) )
+    CHECK( nf90_put_att( qp2id, qp2endid, 'units', 'days since 1-1-1' ) )
     
-    status = nf90_def_var( qp2id, 'period_length', nf90_double, (/timeid/), qp2periodid )
-    status = nf90_put_att( qp2id, qp2periodid, 'long_name', 'length of averaged period' )
-    status = nf90_put_att( qp2id, qp2periodid, 'units', 'days' )
+    CHECK( nf90_def_var( qp2id, 'period_length', nf90_double, (/timeid/), qp2periodid ) )
+    CHECK( nf90_put_att( qp2id, qp2periodid, 'long_name', 'length of averaged period' ) )
+    CHECK( nf90_put_att( qp2id, qp2periodid, 'units', 'days' ) )
     
-    status = nf90_def_var( qp2id, 'latitude', nf90_float, (/latid/), latitudeid )
-    status = nf90_put_att( qp2id, latitudeid, 'units', 'degrees_north' )
-    status = nf90_put_att( qp2id, latitudeid, 'quantity', 'latitude' )
+    CHECK( nf90_def_var( qp2id, 'latitude', nf90_float, (/latid/), latitudeid ) )
+    CHECK( nf90_put_att( qp2id, latitudeid, 'units', 'degrees_north' ) )
+    CHECK( nf90_put_att( qp2id, latitudeid, 'quantity', 'latitude' ) )
     
-    status = nf90_def_var( qp2id, 'longitude', nf90_float, (/lonid/), longitudeid )
-    status = nf90_put_att( qp2id, longitudeid, 'units', 'degrees_east' )
-    status = nf90_put_att( qp2id, longitudeid, 'quantity', 'longitude' )
+    CHECK( nf90_def_var( qp2id, 'longitude', nf90_float, (/lonid/), longitudeid ) )
+    CHECK( nf90_put_att( qp2id, longitudeid, 'units', 'degrees_east' ) )
+    CHECK( nf90_put_att( qp2id, longitudeid, 'quantity', 'longitude' ) )
     
-    status = nf90_def_var( qp2id, 'lonindex', nf90_int, (/subcountid/), lonindexid )
-    status = nf90_put_att( qp2id, lonindexid, 'long_name', 'Longitude array index' )
-    status = nf90_put_att( qp2id, lonindexid, 'units', 'index-integer' )
+    CHECK( nf90_def_var( qp2id, 'lonindex', nf90_int, (/subcountid/), lonindexid ) )
+    CHECK( nf90_put_att( qp2id, lonindexid, 'long_name', 'Longitude array index' ) )
+    CHECK( nf90_put_att( qp2id, lonindexid, 'units', 'index-integer' ) )
 
-    status = nf90_def_var( qp2id, 'latindex', nf90_int, (/subcountid/), latindexid )
-    status = nf90_put_att( qp2id, latindexid, 'long_name', 'Latitude array index' )
-    status = nf90_put_att( qp2id, latindexid, 'units', 'index-integer' )
+    CHECK( nf90_def_var( qp2id, 'latindex', nf90_int, (/subcountid/), latindexid ) )
+    CHECK( nf90_put_att( qp2id, latindexid, 'long_name', 'Latitude array index' ) )
+    CHECK( nf90_put_att( qp2id, latindexid, 'units', 'index-integer' ) )
 
     ! define data variables
     do n = 1, numvars
         if ( doqpsib(n) ) then
-            status = nf90_def_var( qp2id, trim(nameqpsib(n)), nf90_float, &
+           status = nf90_def_var( qp2id, trim(nameqpsib(n)), nf90_float, &
                 (/subcountid,timeid/), qp2varid(n) )
+            CHECK( status )
             call get_units( listqpsib(n), longname, long_len, units, unit_len )
-            status = nf90_put_att( qp2id, qp2varid(n), 'long_name', trim(longname) )
-            status = nf90_put_att( qp2id, qp2varid(n), 'title', trim(longname) )
-            status = nf90_put_att( qp2id, qp2varid(n), 'units', trim(units) )
-            status = nf90_put_att( qp2id, qp2varid(n), 'missing_value', 1.e36 )
+            CHECK( nf90_put_att( qp2id, qp2varid(n), 'long_name', trim(longname) ) )
+            CHECK( nf90_put_att( qp2id, qp2varid(n), 'title', trim(longname) ) )
+            CHECK( nf90_put_att( qp2id, qp2varid(n), 'units', trim(units) ) )
+            CHECK( nf90_put_att( qp2id, qp2varid(n), 'missing_value', 1.e36 ) )
         endif
     enddo
     
     ! switch from definition mode to data mode
-    status = nf90_enddef( qp2id )
+    CHECK( nf90_enddef( qp2id ) )
     
     ! assign values to variables not variant with time
-    status = nf90_put_var( qp2id, latitudeid, latitude )
-    status = nf90_put_var( qp2id, longitudeid, longitude )
-    status = nf90_put_var( qp2id, lonindexid, lonindex )
-    status = nf90_put_var( qp2id, latindexid, latindex )
+    CHECK( nf90_put_var( qp2id, latitudeid, latitude ) )
+    CHECK( nf90_put_var( qp2id, longitudeid, longitude ) )
+    CHECK( nf90_put_var( qp2id, lonindexid, lonindex ) )
+    CHECK( nf90_put_var( qp2id, latindexid, latindex ) )
 
 end subroutine create_qp2
 
@@ -148,10 +149,8 @@ subroutine write_qp2( qp2id, qp2timeid, qp2startid, qp2endid, qp2periodid,  &
                       qp2charid, numvars, subcount, qp2varid, qpsib,  &
                       doqpsib, indxqpsib, year, month, day,  &
                       seconds, end_period, period_length )
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
 use kinds
 use sib_const_module, only: dtsib
 
@@ -188,26 +187,26 @@ character(len=10) :: name
 double precision :: secyear = 86400.
 
     ! find next time step
-    status = nf90_inq_dimid( qp2id, 'time', dimid )
-    status = nf90_inquire_dimension( qp2id, dimid, name, step )
+    CHECK( nf90_inq_dimid( qp2id, 'time', dimid ) )
+    CHECK( nf90_inquire_dimension( qp2id, dimid, name, step ) )
     step = step + 1
     
     ! write out time variables
     dyear = seconds/secyear
-    status = nf90_put_var( qp2id, qp2timeid, dyear, (/step/) )
-    status = nf90_put_var( qp2id, qp2startid, end_period - period_length,  &
-        (/step/) )
-    status = nf90_put_var( qp2id, qp2endid, end_period, (/step/) )
-    status = nf90_put_var( qp2id, qp2periodid, period_length, (/step/) )
+    CHECK( nf90_put_var( qp2id, qp2timeid, dyear, (/step/) ) )
+    CHECK( nf90_put_var( qp2id, qp2startid, end_period - period_length, (/step/) ) )
+    CHECK( nf90_put_var( qp2id, qp2endid, end_period, (/step/) ) )
+    CHECK( nf90_put_var( qp2id, qp2periodid, period_length, (/step/) ) )
     
     write(char_time, '(i2.2,a1,i2.2,a1,i4.4)') month, '/', day, '/', year
-    status = nf90_put_var( qp2id, qp2charid, char_time, (/1,step/), (/10,1/) )
+    CHECK( nf90_put_var( qp2id, qp2charid, char_time, (/1,step/), (/10,1/) ) )
     
     ! write out data variables
     do n = 1, numvars
         if ( doqpsib(n) ) then
-            status = nf90_put_var( qp2id, qp2varid(n), qpsib(:,indxqpsib(n)),  &
+           status = nf90_put_var( qp2id, qp2varid(n), qpsib(:,indxqpsib(n)), &
                 (/1,step/), (/subcount,1/) )
+            CHECK( status )
         endif
     enddo
 
@@ -222,10 +221,8 @@ subroutine create_qp3( out_path, numvars, subcount, ihr, jhr,  &
                        soref_source, ndvi_source, c4_source, d13cresp_source,  &
                        qp3id, qp3varid, qp3timeid, qp3charid, qp3startid,  &
                        qp3endid, qp3periodid, rank )
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
 
 ! parameters
 character(len=256), intent(in) :: out_path
@@ -288,7 +285,7 @@ character(len=256) :: filename      ! file name
     ! create file
     write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(out_path)//'hsib_',   &
         year, month, 'p', rank, '.qp3.nc'
-    status = nf90_create( trim(filename), nf90_clobber, qp3id)
+    CHECK( nf90_create( trim(filename), nf90_clobber, qp3id) )
     
     ! define global attributes
     call global_atts( qp3id, 'sib3', 'lat/lon', '1.0', drvr_type,  &
@@ -296,82 +293,79 @@ character(len=256) :: filename      ! file name
         d13cresp_source, rank )
     
     ! define dimensions
-    status = nf90_def_dim( qp3id, 'time', nf90_unlimited, timeid )
-    status = nf90_def_dim( qp3id, 'char_len', 10, charid )
-    status = nf90_def_dim( qp3id, 'latitude', jhr, latid )
-    status = nf90_def_dim( qp3id, 'longitude', ihr, lonid )
-    status = nf90_def_dim( qp3id, 'level', nsoil, levelid )
-    status = nf90_def_dim( qp3id, 'landpoints', subcount, landpointsid )
+    CHECK( nf90_def_dim( qp3id, 'time', nf90_unlimited, timeid ) )
+    CHECK( nf90_def_dim( qp3id, 'char_len', 10, charid ) )
+    CHECK( nf90_def_dim( qp3id, 'latitude', jhr, latid ) )
+    CHECK( nf90_def_dim( qp3id, 'longitude', ihr, lonid ) )
+    CHECK( nf90_def_dim( qp3id, 'level', nsoil, levelid ) )
+    CHECK( nf90_def_dim( qp3id, 'landpoints', subcount, landpointsid ) )
     
     ! define control variables
-    status = nf90_def_var( qp3id, 'time', nf90_double, (/timeid/), qp3timeid )
-    status = nf90_put_att( qp3id, qp3timeid, 'quantity', 'time' )
-    status = nf90_put_att( qp3id, qp3timeid, 'units', 'days since 1-1-1' )
-    status = nf90_put_att( qp3id, qp3timeid, 'calender', 'noleap' )
+    CHECK( nf90_def_var( qp3id, 'time', nf90_double, (/timeid/), qp3timeid ) )
+    CHECK( nf90_put_att( qp3id, qp3timeid, 'quantity', 'time' ) )
+    CHECK( nf90_put_att( qp3id, qp3timeid, 'units', 'days since 1-1-1' ) )
+    CHECK( nf90_put_att( qp3id, qp3timeid, 'calender', 'noleap' ) )
     
-    status = nf90_def_var( qp3id, 'char_time', nf90_char, (/charid,timeid/), qp3charid )
-    status = nf90_put_att( qp3id, qp3charid, 'format', 'mm/dd/yyyy' )
+    CHECK( nf90_def_var( qp3id, 'char_time', nf90_char, (/charid,timeid/), qp3charid ) )
+    CHECK( nf90_put_att( qp3id, qp3charid, 'format', 'mm/dd/yyyy' ) )
     
-    status = nf90_def_var( qp3id, 'start_period', nf90_double, (/timeid/), qp3startid )
-    status = nf90_put_att( qp3id, qp3startid, 'long_name', 'start of averaged period' )
-    status = nf90_put_att( qp3id, qp3startid, 'units', 'days since 1-1-1' )
+    CHECK( nf90_def_var( qp3id, 'start_period', nf90_double, (/timeid/), qp3startid ) )
+    CHECK( nf90_put_att( qp3id, qp3startid, 'long_name', 'start of averaged period' ) )
+    CHECK( nf90_put_att( qp3id, qp3startid, 'units', 'days since 1-1-1' ) )
     
-    status = nf90_def_var( qp3id, 'end_period', nf90_double, (/timeid/), qp3endid )
-    status = nf90_put_att( qp3id, qp3endid, 'long_name', 'end of averaged period' )
-    status = nf90_put_att( qp3id, qp3endid, 'units', 'days since 1-1-1' )
+    CHECK( nf90_def_var( qp3id, 'end_period', nf90_double, (/timeid/), qp3endid ) )
+    CHECK( nf90_put_att( qp3id, qp3endid, 'long_name', 'end of averaged period' ) )
+    CHECK( nf90_put_att( qp3id, qp3endid, 'units', 'days since 1-1-1' ) )
     
-    status = nf90_def_var( qp3id, 'period_length', nf90_double, (/timeid/), qp3periodid )
-    status = nf90_put_att( qp3id, qp3periodid, 'long_name', 'length of averaged period' )
-    status = nf90_put_att( qp3id, qp3periodid, 'units', 'days' )
+    CHECK( nf90_def_var( qp3id, 'period_length', nf90_double, (/timeid/), qp3periodid ) )
+    CHECK( nf90_put_att( qp3id, qp3periodid, 'long_name', 'length of averaged period' ) )
+    CHECK( nf90_put_att( qp3id, qp3periodid, 'units', 'days' ) )
     
-    status = nf90_def_var( qp3id, 'latitude', nf90_float, (/latid/), latitudeid )
-    status = nf90_put_att( qp3id, latitudeid, 'units', 'degrees_north' )
-    status = nf90_put_att( qp3id, latitudeid, 'quantity', 'latitude' )
+    CHECK( nf90_def_var( qp3id, 'latitude', nf90_float, (/latid/), latitudeid ) )
+    CHECK( nf90_put_att( qp3id, latitudeid, 'units', 'degrees_north' ) )
+    CHECK( nf90_put_att( qp3id, latitudeid, 'quantity', 'latitude' ) )
     
-    status = nf90_def_var( qp3id, 'longitude', nf90_float, (/lonid/), longitudeid )
-    status = nf90_put_att( qp3id, longitudeid, 'units', 'degrees_east' )
-    status = nf90_put_att( qp3id, longitudeid, 'quantity', 'longitude' )
+    CHECK( nf90_def_var( qp3id, 'longitude', nf90_float, (/lonid/), longitudeid ) )
+    CHECK( nf90_put_att( qp3id, longitudeid, 'units', 'degrees_east' ) )
+    CHECK( nf90_put_att( qp3id, longitudeid, 'quantity', 'longitude' ) )
     
-    status = nf90_def_var( qp3id, 'level', nf90_float, (/levelid/), levid )
+    CHECK( nf90_def_var( qp3id, 'level', nf90_float, (/levelid/), levid ) )
 
-    status = nf90_def_var( qp3id, 'lonindex', nf90_int, (/landpointsid/),  &
-        lonindexid )
-    status = nf90_put_att( qp3id, lonindexid, 'long_name',  &
-        'longitude index array' )
-    status = nf90_put_att( qp3id, lonindexid, 'units', 'index-integer' )
+    CHECK( nf90_def_var( qp3id, 'lonindex', nf90_int, (/landpointsid/), lonindexid ) )
+    CHECK( nf90_put_att( qp3id, lonindexid, 'long_name', 'longitude index array' ) )
+    CHECK( nf90_put_att( qp3id, lonindexid, 'units', 'index-integer' ) )
 
-    status = nf90_def_var( qp3id, 'latindex', nf90_int, (/landpointsid/),  &
-        latindexid )
-    status = nf90_put_att( qp3id, latindexid, 'long_name',  &
-        'latitude index array' )
-    status = nf90_put_att( qp3id, latindexid, 'units', 'index-integer' )
+    CHECK( nf90_def_var( qp3id, 'latindex', nf90_int, (/landpointsid/), latindexid ) )
+    CHECK( nf90_put_att( qp3id, latindexid, 'long_name', 'latitude index array' ) )
+    CHECK( nf90_put_att( qp3id, latindexid, 'units', 'index-integer' ) )
     
     ! define data variables
     do n = 1, numvars
         if ( doqp3sib(n) ) then
-            status = nf90_def_var( qp3id, trim(nameqp3sib(n)), nf90_float, &
+           status = nf90_def_var( qp3id, trim(nameqp3sib(n)), nf90_float, &
                 (/landpointsid,levelid,timeid/), qp3varid(n) )
+            CHECK( status )
             call get_units( listqp3sib(n), longname, long_len, units, unit_len )
-            status = nf90_put_att( qp3id, qp3varid(n), 'long_name', trim(longname) )
-            status = nf90_put_att( qp3id, qp3varid(n), 'title', trim(longname) )
-            status = nf90_put_att( qp3id, qp3varid(n), 'units', trim(units) )
-            status = nf90_put_att( qp3id, qp3varid(n), 'missing_value', 1.e36 )
+            CHECK( nf90_put_att( qp3id, qp3varid(n), 'long_name', trim(longname) ) )
+            CHECK( nf90_put_att( qp3id, qp3varid(n), 'title', trim(longname) ) )
+            CHECK( nf90_put_att( qp3id, qp3varid(n), 'units', trim(units) ) )
+            CHECK( nf90_put_att( qp3id, qp3varid(n), 'missing_value', 1.e36 ) )
         endif
     enddo
     
     ! switch from definition mode to data mode
-    status = nf90_enddef( qp3id )
+    CHECK( nf90_enddef( qp3id ) )
     
     ! assign values to variables not variant with time
-    status = nf90_put_var( qp3id, latitudeid, latitude )
-    status = nf90_put_var( qp3id, longitudeid, longitude )
-    status = nf90_put_var( qp3id, latindexid, latindex )
-    status = nf90_put_var( qp3id, lonindexid, lonindex )
+    CHECK( nf90_put_var( qp3id, latitudeid, latitude ) )
+    CHECK( nf90_put_var( qp3id, longitudeid, longitude ) )
+    CHECK( nf90_put_var( qp3id, latindexid, latindex ) )
+    CHECK( nf90_put_var( qp3id, lonindexid, lonindex ) )
     
     do n = 1, nsoil
         levels(n) = n
     enddo
-    status = nf90_put_var( qp3id, levid, levels )
+    CHECK( nf90_put_var( qp3id, levid, levels ) )
 
 end subroutine create_qp3
 
@@ -384,10 +378,8 @@ subroutine write_qp3( qp3id, qp3timeid, qp3startid, qp3endid, qp3periodid,  &
 !
 ! Modifications:
 !  Kevin Schaefer removed _date print statement (8/18/04)
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
 use kinds
 
 ! parameters
@@ -423,27 +415,27 @@ character(len=10) :: char_time      ! mm/dd/yyyy
 double precision :: secyear = 86400.
 character(len=10) :: name
     ! find next time step
-    status = nf90_inq_dimid( qp3id, 'time', dimid )
-    status = nf90_inquire_dimension( qp3id, dimid, name, step )
+    CHECK( nf90_inq_dimid( qp3id, 'time', dimid ) )
+    CHECK( nf90_inquire_dimension( qp3id, dimid, name, step ) )
     step = step + 1
     
     ! write out time variables
     dyear = seconds/secyear
-    status = nf90_put_var( qp3id, qp3timeid, dyear, (/step/) )
-    status = nf90_put_var( qp3id, qp3startid, end_period - period_length,  &
-        (/step/) )
-    status = nf90_put_var( qp3id, qp3endid, end_period, (/step/) )
-    status = nf90_put_var( qp3id, qp3periodid, period_length, (/step/) )
+    CHECK( nf90_put_var( qp3id, qp3timeid, dyear, (/step/) ) )
+    CHECK( nf90_put_var( qp3id, qp3startid, end_period - period_length, (/step/) ) )
+    CHECK( nf90_put_var( qp3id, qp3endid, end_period, (/step/) ) )
+    CHECK( nf90_put_var( qp3id, qp3periodid, period_length, (/step/) ) )
 
     write(char_time, '(i2.2,a1,i2.2,a1,i4.4)') month, '/', day, '/', year
-    status = nf90_put_var( qp3id, qp3charid, char_time, (/1,step/), (/10,1/) )
+    CHECK( nf90_put_var( qp3id, qp3charid, char_time, (/1,step/), (/10,1/) ) )
     
     ! write out data variables
     do n = 1, numvars
         if ( doqp3sib(n) ) then
-            status = nf90_put_var( qp3id, qp3varid(n),  &
+           status = nf90_put_var( qp3id, qp3varid(n),  &
                 qp3sib(:,:,indxqp3sib(n)), (/1,1,step/),  &
                 (/subcount,nsoil,1/) )
+            CHECK( status )
         endif
     enddo
 
@@ -466,11 +458,8 @@ subroutine global_atts (fileID, runname, grid, version, driver,  &
 !   netcdf file (fileID) must be in define mode.
 !
 !-----------------------------------------------------------------------
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
-
 
 ! input parameters
 integer, intent(in) :: fileID
@@ -504,28 +493,20 @@ integer, dimension(8) :: values
     write( c_rank, '(i4.4)' ) rank
 
     !   add standard global attributes
-    status = nf90_put_att ( fileID, nf90_global, 'calendar', 'noleap' )
-    status = nf90_put_att ( fileID, nf90_global, 'institution',   &
-        'Colorado State University' )
-    status = nf90_put_att ( fileID, nf90_global, 'history',   &
-        'Created: '//current_time )
-    status = nf90_put_att( fileID, nf90_global, 'run', runname )
-    status = nf90_put_att( fileID, nf90_global, 'rank', c_rank ) 
-    status = nf90_put_att( fileID, nf90_global, 'grid', grid )
-    status = nf90_put_att( fileID, nf90_global, 'version', version )
-    status = nf90_put_att( fileID, nf90_global, 'Driver_Data', driver )
-    status = nf90_put_att( fileID, nf90_global, 'biome_source',  &
-        trim(biome_source) )
-    status = nf90_put_att( fileID, nf90_global, 'soil_source',  &
-        trim(soil_source) )
-    status = nf90_put_att( fileID, nf90_global, 'soref_source',  &
-        trim(soref_source) )
-    status = nf90_put_att( fileID, nf90_global, 'ndvi_source',  &
-        trim(ndvi_source) )
-    status = nf90_put_att( fileID, nf90_global, 'c4_source',  &
-        trim(c4_source) )
-    status = nf90_put_att( fileID, nf90_global, 'd13cresp_source',  &
-        trim(d13cresp_source) )
+    CHECK( nf90_put_att ( fileID, nf90_global, 'calendar', 'noleap' ) )
+    CHECK( nf90_put_att ( fileID, nf90_global, 'institution', 'Colorado State University' ) )
+    CHECK( nf90_put_att ( fileID, nf90_global, 'history', 'Created: '//current_time ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'run', runname ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'rank', c_rank )  )
+    CHECK( nf90_put_att( fileID, nf90_global, 'grid', grid ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'version', version ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'Driver_Data', driver ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'biome_source', trim(biome_source) ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'soil_source', trim(soil_source) ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'soref_source', trim(soref_source) ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'ndvi_source', trim(ndvi_source) ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'c4_source', trim(c4_source) ) )
+    CHECK( nf90_put_att( fileID, nf90_global, 'd13cresp_source', trim(d13cresp_source) ) )
 
 end subroutine global_atts
 

@@ -5,6 +5,11 @@ use sibtype
 use timetype
 use sib_const_module
 use sib_io_module
+
+use netcdf
+
+#include "nc_util.h"
+
 implicit none
 
 ! parameters
@@ -95,20 +100,18 @@ end subroutine output_control
 subroutine file_closer
 !-------------------------------------------------------------------------------
 
-use kinds
-use sib_io_module
-#ifdef PGF
-use netcdf
-use typeSizes
-#endif
+  use kinds
+  use sib_io_module
+  use netcdf
+  use typeSizes
 
-! local variables
-integer(kind=int_kind) :: status
+  ! local variables
+  integer(kind=int_kind) :: status
 
-    ! close all output files
-    status = nf90_close( qp2id )
-    status = nf90_close( qp3id )
-    status = nf90_close( pbpid )
-    status = nf90_close( pbp2id )
+  ! close all output files
+  status = nf90_close( qp2id )
+  status = nf90_close( qp3id )
+  status = nf90_close( pbpid )
+  status = nf90_close( pbp2id )
 
 end subroutine file_closer

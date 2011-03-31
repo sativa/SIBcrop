@@ -5,11 +5,10 @@ subroutine create_pbp( npoints, year, month, numvars, totnumvars,  &
                        soref_source, ndvi_source, c4_source, d13cresp_source,  &
                        outpath,pbptimeid, pbpcharid, pbpvarid,  &
                         rank1 )
-#ifdef PGF
 use netcdf 
 use typeSizes
-#endif
 
+#include "nc_util.h"
 
 ! parameters
 integer, intent(in) :: npoints
@@ -59,10 +58,10 @@ character(len =256) ::filename
         year, month, 'p', rank1, '.pbp1.nc'
 
     ! create file and define dimensions
-    status = nf90_create( trim(filename), nf90_clobber, pbpid )
-    status = nf90_def_dim( pbpid, 'time', nf90_unlimited, tid )
-    status = nf90_def_dim( pbpid, 'char_len', 10, clid )
-    status = nf90_def_dim( pbpid, 'npoints', npoints, npointsid )
+    CHECK( nf90_create( trim(filename), nf90_clobber, pbpid ) )
+    CHECK( nf90_def_dim( pbpid, 'time', nf90_unlimited, tid ) )
+    CHECK( nf90_def_dim( pbpid, 'char_len', 10, clid ) )
+    CHECK( nf90_def_dim( pbpid, 'npoints', npoints, npointsid ) )
     
     ! define global atts
     call global_atts( pbpid, 'sib3', 'lat/lon', '1.0', drvr_type,  &
@@ -70,53 +69,58 @@ character(len =256) ::filename
         d13cresp_source, rank1 )
     
     ! define variables
-    status = nf90_def_var( pbpid, 'time', nf90_double, (/tid/), pbptimeid )
-    status = nf90_put_att( pbpid, pbptimeid, 'quantity', 'time' )
-    status = nf90_put_att( pbpid, pbptimeid, 'units', 'days since 1-1-1' )
-    status = nf90_put_att( pbpid, pbptimeid, 'calendar', 'noleap' )
+    CHECK( nf90_def_var( pbpid, 'time', nf90_double, (/tid/), pbptimeid ) )
+    CHECK( nf90_put_att( pbpid, pbptimeid, 'quantity', 'time' ) )
+    CHECK( nf90_put_att( pbpid, pbptimeid, 'units', 'days since 1-1-1' ) )
+    CHECK( nf90_put_att( pbpid, pbptimeid, 'calendar', 'noleap' ) )
     
-    status = nf90_def_var( pbpid, 'char_time', nf90_char, (/clid,tid/), pbpcharid )
-    status = nf90_put_att( pbpid, pbpcharid, 'format', 'mm/dd/yyyy' )
+    CHECK( nf90_def_var( pbpid, 'char_time', nf90_char, (/clid,tid/), pbpcharid ) )
+    CHECK( nf90_put_att( pbpid, pbpcharid, 'format', 'mm/dd/yyyy' ) )
     
-    status = nf90_def_var( pbpid, 'npoints', nf90_int, (/npointsid/), npid )
+    CHECK( nf90_def_var( pbpid, 'npoints', nf90_int, (/npointsid/), npid ) )
 
-    status = nf90_def_var( pbpid, 'latitude', nf90_float, (/npointsid/), latid )
-    status = nf90_put_att( pbpid, latid, 'units', 'degrees_north' )
-    status = nf90_put_att( pbpid, latid, 'quantity', 'latitude' )
+    CHECK( nf90_def_var( pbpid, 'latitude', nf90_float, (/npointsid/), latid ) )
+    CHECK( nf90_put_att( pbpid, latid, 'units', 'degrees_north' ) )
+    CHECK( nf90_put_att( pbpid, latid, 'quantity', 'latitude' ) )
     
-    status = nf90_def_var( pbpid, 'longitude', nf90_float, (/npointsid/), lonid )
-    status = nf90_put_att( pbpid, lonid, 'units', 'degrees_east' )
-    status = nf90_put_att( pbpid, lonid, 'quantity', 'longitude' )
+    CHECK( nf90_def_var( pbpid, 'longitude', nf90_float, (/npointsid/), lonid ) )
+    CHECK( nf90_put_att( pbpid, lonid, 'units', 'degrees_east' ) )
+    CHECK( nf90_put_att( pbpid, lonid, 'quantity', 'longitude' ) )
 
     do n = 1, totnumvars
         if ( dopbpsib(n) ) then
-            status = nf90_def_var( pbpid, trim(namepbpsib(n)), nf90_float,  &
-                (/npointsid,tid/), pbpvarid(indxpbpsib(n)) )
+            status = nf90_def_var( pbpid, trim(namepbpsib(n)), nf90_float, &
+                 (/npointsid,tid/), pbpvarid(indxpbpsib(n)) )
+            CHECK( status )
             call get_units( listpbpsib(n), longname, long_len, units, unit_len )
-            status = nf90_put_att( pbpid, pbpvarid(indxpbpsib(n)),  &
-                'long_name', trim(longname) )
-            status = nf90_put_att( pbpid, pbpvarid(indxpbpsib(n)),  &
-                'title', trim(longname) )
-            status = nf90_put_att( pbpid, pbpvarid(indxpbpsib(n)),  &
-                'units', trim(units) )
-            status = nf90_put_att( pbpid, pbpvarid(indxpbpsib(n)),  &
-                'missing_value', 1.e36 )
+            status = nf90_put_att( pbpid, pbpvarid(indxpbpsib(n)), &
+                 'long_name', trim(longname) )
+            CHECK( status )
+            status = nf90_put_att( pbpid, pbpvarid(indxpbpsib(n)), &
+                 'title', trim(longname) )
+            CHECK( status )
+            status = nf90_put_att( pbpid, pbpvarid(indxpbpsib(n)), &
+                 'units', trim(units) )
+            CHECK( status )
+            status = nf90_put_att( pbpid, pbpvarid(indxpbpsib(n)), &
+                 'missing_value', 1.e36 )
+            CHECK( status )
         endif
     enddo
 
     ! switch from definition mode to data mode
-    status = nf90_enddef( pbpid )
+    CHECK( nf90_enddef( pbpid ) )
 
     ! assign values to variables not variant with time
-    status = nf90_put_var( pbpid, latid, latitude )
-    status = nf90_put_var( pbpid, lonid, longitude )
+    CHECK( nf90_put_var( pbpid, latid, latitude ) )
+    CHECK( nf90_put_var( pbpid, lonid, longitude ) )
     
     do n = 1, npoints
         npoints_array(n) = n
     enddo
-    status = nf90_put_var( pbpid, npid, npoints_array(:) )
+    CHECK( nf90_put_var( pbpid, npid, npoints_array(:) ) )
     
-    status = nf90_close( pbpid )
+    CHECK( nf90_close( pbpid ) )
     
 end subroutine create_pbp
 
@@ -126,10 +130,8 @@ end subroutine create_pbp
 subroutine write_pbp( npoints, year, month, day, seconds,  &
                       numvars, pbp, pbptid, pbpcid,  &
                       pbpvid,outpath, rank1 )
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
 use kinds
 
 ! parameters
@@ -163,28 +165,29 @@ integer :: pbpid
         !open file
         write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(outpath)//'psib_',  &
            year, month, 'p', rank1, '.pbp1.nc'
-        status = nf90_open( trim(filename), nf90_write, pbpid )
+        CHECK( nf90_open( trim(filename), nf90_write, pbpid ) )
  
 
     ! find next time step
-    status = nf90_inq_dimid( pbpid, 'time', dimid )
-    status = nf90_inquire_dimension( pbpid, dimid, name,step )
+    CHECK( nf90_inq_dimid( pbpid, 'time', dimid ) )
+    CHECK( nf90_inquire_dimension( pbpid, dimid, name,step ) )
     step = step + 1
     
     ! write out time variables
     dyear = seconds/secyear
-    status = nf90_put_var( pbpid, pbptid, dyear, (/step/) )
+    CHECK( nf90_put_var( pbpid, pbptid, dyear, (/step/) ) )
 
     write( char_time, '(i2.2,a1,i2.2,a1,i4.4)' ) month, '/', day, '/', year
-    status = nf90_put_var( pbpid, pbpcid, char_time, (/1,step/), (/10,1/) )
+    CHECK( nf90_put_var( pbpid, pbpcid, char_time, (/1,step/), (/10,1/) ) )
   
     ! write out data variables
     do i = 1, numvars
         status = nf90_put_var( pbpid, pbpvid(i), pbp(i,:),  &
-            (/1,step/), (/npoints,1/) )
-    enddo
+             (/1,step/), (/npoints,1/) )
+        CHECK( status )
+     enddo
     
-   status = nf90_close( pbpid )
+   CHECK( nf90_close( pbpid ) )
 
 end subroutine write_pbp
 
@@ -197,10 +200,8 @@ subroutine create_pbp2( npoints, levels, year, month, numvars,  &
                         biome_source, soil_source, soref_source, ndvi_source,  &
                         c4_source, d13cresp_source, out_path, &
                         pbp2timeid, pbp2charid, pbp2varid,rank )
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
 
 ! parameters
 integer, intent(in) :: npoints
@@ -257,11 +258,11 @@ integer :: unit_len, long_len       ! not used, returned by get_units()
     status = nf90_close( pbp2id )
     
     ! create file and define dimensions
-    status = nf90_create( trim(filename), nf90_clobber, pbp2id )
-    status = nf90_def_dim( pbp2id, 'time', nf90_unlimited, tid )
-    status = nf90_def_dim( pbp2id, 'char_len', 10, charid )
-    status = nf90_def_dim( pbp2id, 'npoints', npoints, npointsid )
-    status = nf90_def_dim( pbp2id, 'level', levels, levelid )
+    CHECK( nf90_create( trim(filename), nf90_clobber, pbp2id ) )
+    CHECK( nf90_def_dim( pbp2id, 'time', nf90_unlimited, tid ) )
+    CHECK( nf90_def_dim( pbp2id, 'char_len', 10, charid ) )
+    CHECK( nf90_def_dim( pbp2id, 'npoints', npoints, npointsid ) )
+    CHECK( nf90_def_dim( pbp2id, 'level', levels, levelid ) )
     
     ! define global atts
     call global_atts( pbp2id, 'sib3', 'lat/lon', '1.0', drvr_type,  &
@@ -269,60 +270,65 @@ integer :: unit_len, long_len       ! not used, returned by get_units()
         d13cresp_source, rank )
 
     ! define variables
-    status = nf90_def_var( pbp2id, 'time', nf90_double, (/tid/), pbp2timeid )
-    status = nf90_put_att( pbp2id, pbp2timeid, 'quantity', 'time' )
-    status = nf90_put_att( pbp2id, pbp2timeid, 'units', 'days since 1-1-1' )
-    status = nf90_put_att( pbp2id, pbp2timeid, 'calendar', 'noleap' )
+    CHECK( nf90_def_var( pbp2id, 'time', nf90_double, (/tid/), pbp2timeid ) )
+    CHECK( nf90_put_att( pbp2id, pbp2timeid, 'quantity', 'time' ) )
+    CHECK( nf90_put_att( pbp2id, pbp2timeid, 'units', 'days since 1-1-1' ) )
+    CHECK( nf90_put_att( pbp2id, pbp2timeid, 'calendar', 'noleap' ) )
     
-    status = nf90_def_var( pbp2id, 'char_time', nf90_char, (/charid,tid/), pbp2charid )
-    status = nf90_put_att( pbp2id, pbp2charid, 'format', 'mm/dd/yyyy' )
+    CHECK( nf90_def_var( pbp2id, 'char_time', nf90_char, (/charid,tid/), pbp2charid ) )
+    CHECK( nf90_put_att( pbp2id, pbp2charid, 'format', 'mm/dd/yyyy' ) )
     
-    status = nf90_def_var( pbp2id, 'npoints', nf90_int, (/npointsid/), npid )
+    CHECK( nf90_def_var( pbp2id, 'npoints', nf90_int, (/npointsid/), npid ) )
     
-    status = nf90_def_var( pbp2id, 'latitude', nf90_float, (/npointsid/), latid )
-    status = nf90_put_att( pbp2id, latid, 'units', 'degrees_north' )
-    status = nf90_put_att( pbp2id, latid, 'quantity', 'latitude' )
+    CHECK( nf90_def_var( pbp2id, 'latitude', nf90_float, (/npointsid/), latid ) )
+    CHECK( nf90_put_att( pbp2id, latid, 'units', 'degrees_north' ) )
+    CHECK( nf90_put_att( pbp2id, latid, 'quantity', 'latitude' ) )
     
-    status = nf90_def_var( pbp2id, 'longitude', nf90_float, (/npointsid/), lonid )
-    status = nf90_put_att( pbp2id, lonid, 'units', 'degrees_east' )
-    status = nf90_put_att( pbp2id, lonid, 'quantity', 'longitude' )
+    CHECK( nf90_def_var( pbp2id, 'longitude', nf90_float, (/npointsid/), lonid ) )
+    CHECK( nf90_put_att( pbp2id, lonid, 'units', 'degrees_east' ) )
+    CHECK( nf90_put_att( pbp2id, lonid, 'quantity', 'longitude' ) )
     
-    status = nf90_def_var( pbp2id, 'level', nf90_int, (/levelid/), levid )
+    CHECK( nf90_def_var( pbp2id, 'level', nf90_int, (/levelid/), levid ) )
 
     do x = 1, numvars
         if ( dopbp2sib(x) ) then
             status = nf90_def_var( pbp2id, trim(namepbp2sib(x)),  nf90_float,  &
                 (/npointsid,levelid,tid/), pbp2varid(indxpbp2sib(x)) )
+            CHECK( status )
             call get_units( listpbp2sib(x), longname, long_len, units, unit_len )
             status = nf90_put_att( pbp2id, pbp2varid(indxpbp2sib(x)),  &
                 'long_name', trim(longname) )
+            CHECK( status )
             status = nf90_put_att( pbp2id, pbp2varid(indxpbp2sib(x)),  &
                 'title', trim(longname) )
+            CHECK( status )
             status = nf90_put_att( pbp2id, pbp2varid(indxpbp2sib(x)),  &
                 'units', trim(units) )
+            CHECK( status )
             status = nf90_put_att( pbp2id, pbp2varid(indxpbp2sib(x)),  &
                 'missing_value', 1.e36 )
+            CHECK( status )
         endif
     enddo
 
     ! switch from define mode to data mode
-    status = nf90_enddef( pbp2id )
+    CHECK( nf90_enddef( pbp2id ) )
     
     ! assign values to variables not variant with time
-    status = nf90_put_var( pbp2id, latid, latitude )
-    status = nf90_put_var( pbp2id, lonid, longitude )
+    CHECK( nf90_put_var( pbp2id, latid, latitude ) )
+    CHECK( nf90_put_var( pbp2id, lonid, longitude ) )
     
     do x = 1, npoints
         npoints_array(x) = x
     enddo
-    status = nf90_put_var( pbp2id, npid, npoints_array(:) )
+    CHECK( nf90_put_var( pbp2id, npid, npoints_array(:) ) )
     
     do x = 1, levels
         levels_array(x) = x
     enddo
-    status = nf90_put_var( pbp2id, levid, levels_array(:) )
+    CHECK( nf90_put_var( pbp2id, levid, levels_array(:) ) )
 
-	status = nf90_close( pbp2id )
+	CHECK( nf90_close( pbp2id ) )
     
     
 end subroutine create_pbp2
@@ -333,10 +339,8 @@ end subroutine create_pbp2
 subroutine write_pbp2( npoints, levels, year, month, day,  &
                        seconds, numvars, pbp2, pbp2timeid,  &
                        pbp2charid, pbp2varid,out_path, rank )
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
 use kinds
 
 
@@ -373,27 +377,28 @@ integer :: pbp2id
         ! create file name
         write( filename, '(a,i4.4,i2.2,a,i3.3,a)' ) trim(out_path)//'psib_',  &
             year, month, 'p', rank, '.pbp2.nc'
-        status = nf90_open( trim(filename), nf90_write, pbp2id )
+        CHECK( nf90_open( trim(filename), nf90_write, pbp2id ) )
 
 
     ! find next time step
-    status = nf90_inq_dimid( pbp2id, 'time', dimid )
-    status = nf90_inquire_dimension( pbp2id, dimid, name,step )
+    CHECK( nf90_inq_dimid( pbp2id, 'time', dimid ) )
+    CHECK( nf90_inquire_dimension( pbp2id, dimid, name,step ) )
     step = step + 1
     
     ! write out time variables
     dyear = seconds/secyear
-    status = nf90_put_var( pbp2id, pbp2timeid, dyear, (/step/) )
+    CHECK( nf90_put_var( pbp2id, pbp2timeid, dyear, (/step/) ) )
 
     write( char_time, '(i2.2,a1,i2.2,a1,i4.4)' ) month, '/', day, '/', year
-    status = nf90_put_var( pbp2id, pbp2charid, char_time, (/1,step/), (/10,1/) )
+    CHECK( nf90_put_var( pbp2id, pbp2charid, char_time, (/1,step/), (/10,1/) ) )
     
     ! write out data variables
     do i = 1, numvars
         status = nf90_put_var( pbp2id, pbp2varid(i), pbp2(:,i,:),  &
-            (/1,1,step/), (/npoints,levels,1/) )
+             (/1,1,step/), (/npoints,levels,1/) )
+        CHECK( status )
     enddo
- status = nf90_close( pbp2id )
+    CHECK( nf90_close( pbp2id ) )
 
 
 end subroutine write_pbp2

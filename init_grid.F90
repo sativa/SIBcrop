@@ -118,18 +118,15 @@ namelist /SIBDRV_CONTROL_LIST/ &
     print*, '   drvr_type= ',drvr_type
 
     print*,'   reading parameter file: ',trim(param_path)//'_TI.nc'
-    status = nf90_open( trim(param_path)//'_TI.nc', nf90_nowrite, ncid )
-    if ( status /= nf90_noerr ) call handle_err( status )
-    status = nf90_inq_dimid( ncid, 'nsib', dimid )
-    if ( status /= nf90_noerr ) call handle_err( status )
-    status = nf90_inquire_dimension( ncid, dimid, dim_name,dimlen )
-    if ( status /= nf90_noerr ) call handle_err( status )
+    CHECK( nf90_open( trim(param_path)//'_TI.nc', nf90_nowrite, ncid ) )
+    CHECK( nf90_inq_dimid( ncid, 'nsib', dimid ) )
+    CHECK( nf90_inquire_dimension( ncid, dimid, dim_name,dimlen ) )
     if ( dimlen /= nsib ) print *, dimlen, 'and', nsib, "don\'t match"
 
     ENSURE_VAR( ncid, 'latsib', varid )
-    status = nf90_get_var( ncid, varid, latsib )
+    CHECK( nf90_get_var( ncid, varid, latsib ) )
     ENSURE_VAR( ncid, 'lonsib', varid )
-    status = nf90_get_var( ncid, varid, lonsib )
+    CHECK( nf90_get_var( ncid, varid, lonsib ) )
 
      !kdcorbin, 03/11 - modified reading TI file for single point runs
      if (drvr_type == 'single') then 
@@ -137,25 +134,25 @@ namelist /SIBDRV_CONTROL_LIST/ &
          lonindex=1
      else
          ENSURE_VAR(ncid, 'latindex', varid)
-         status = nf90_get_var( ncid, varid, latindex )
+         CHECK( nf90_get_var( ncid, varid, latindex ) )
          ENSURE_VAR(ncid, 'lonindex', varid)
-         status = nf90_get_var( ncid, varid, lonindex )
+         CHECK( nf90_get_var( ncid, varid, lonindex ) )
     endif
 
     ENSURE_VAR( ncid, 'numlat', varid )
-    status = nf90_get_var( ncid, varid, jhr )
+    CHECK( nf90_get_var( ncid, varid, jhr ) )
     ENSURE_VAR( ncid, 'numlon', varid )
-    status = nf90_get_var( ncid, varid, ihr )
+    CHECK( nf90_get_var( ncid, varid, ihr ) )
     ENSURE_VAR( ncid, 'dlat', varid )
-    status = nf90_get_var( ncid, varid, dlat )
+    CHECK( nf90_get_var( ncid, varid, dlat ) )
     ENSURE_VAR( ncid, 'dlon', varid )
-    status = nf90_get_var( ncid, varid, dlon )
+    CHECK( nf90_get_var( ncid, varid, dlon ) )
     ENSURE_VAR( ncid, 'lllat', varid )
-    status = nf90_get_var( ncid, varid, lllat )
+    CHECK( nf90_get_var( ncid, varid, lllat ) )
     ENSURE_VAR( ncid, 'lllon', varid )
-    status = nf90_get_var( ncid, varid, lllon )
+    CHECK( nf90_get_var( ncid, varid, lllon ) )
     
-    status = nf90_close( ncid )
+    CHECK( nf90_close( ncid ) )
 
     nhr = ihr * jhr
 
