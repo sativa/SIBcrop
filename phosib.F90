@@ -187,8 +187,6 @@ subroutine phosib(sib,sib_loc)
     real(kind=dbl_kind) :: qdamp
     real(kind=dbl_kind) :: tprcor    ! temperature correction (K)
 
-
-!itb...playing with carbon mass balance...
     real(kind=dbl_kind) :: co2a_star ! intermediate value of co2a to be used with
                                       ! time filter when conditions warrant
 
@@ -736,6 +734,7 @@ subroutine phosib(sib,sib_loc)
      sib%prog%cas=sib%prog%pco2ap*sib%diag%cas_cap_co2/rstar/sib%prog%ta
 
      sib%diag%rstfac(3) = rstfac3(6)
+
      sib%diag%rstfac(4) = sib%diag%rstfac(1) * sib%diag%rstfac(2) *  &
                    sib%diag%rstfac(3)
 

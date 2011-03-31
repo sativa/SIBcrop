@@ -300,36 +300,36 @@ real(kind=dbl_kind) :: vmax_factor
 !......(each stage given as a range of GDDs below) 
         if(sib(sibpt)%diag%gdd < 100.0) then
                sib(sibpt)%diag%alloc(:) = 0.0
-	elseif(sib(sibpt)%diag%gdd <500.0) then
+	elseif(sib(sibpt)%diag%gdd <400.0) then
 		sib(sibpt)%diag%alloc(1)=0.5
-		sib(sibpt)%diag%alloc(2)=0.25
-		sib(sibpt)%diag%alloc(3)=0.25	
+		sib(sibpt)%diag%alloc(2)=0.3
+		sib(sibpt)%diag%alloc(3)=0.2	
 		sib(sibpt)%diag%alloc(4)=0.0	
         elseif(sib(sibpt)%diag%gdd <1000.0) then
-                sib(sibpt)%diag%alloc(1)=0.5-0.2*(sib(sibpt)%diag%gdd-500.0)/500.0
-   		sib(sibpt)%diag%alloc(2)=0.25+0.1*(sib(sibpt)%diag%gdd-500.0)/500.0
-		sib(sibpt)%diag%alloc(3)=0.25+0.1*(sib(sibpt)%diag%gdd-500.0)/500.0
+                sib(sibpt)%diag%alloc(1)=0.5-0.2*(sib(sibpt)%diag%gdd-400.0)/400.0
+   		sib(sibpt)%diag%alloc(2)=0.3+0.05*(sib(sibpt)%diag%gdd-400.0)/400.0
+		sib(sibpt)%diag%alloc(3)=0.2+0.15*(sib(sibpt)%diag%gdd-400.0)/400.0
 		sib(sibpt)%diag%alloc(4)=0.0
-        elseif(sib(sibpt)%diag%gdd<1180.0) then
+        elseif(sib(sibpt)%diag%gdd<1080.0) then
                 sib(sibpt)%diag%alloc(1)=0.3
 		sib(sibpt)%diag%alloc(2)=0.35
 		sib(sibpt)%diag%alloc(3)=0.35
 		sib(sibpt)%diag%alloc(4)=0.0
-        elseif(sib(sibpt)%diag%gdd<1360.0) then
-                sib(sibpt)%diag%alloc(1)=0.3-0.1*(sib(sibpt)%diag%gdd-1180.0)/180.
-		sib(sibpt)%diag%alloc(2)=0.35+0.1*(sib(sibpt)%diag%gdd-1180.0)/180.	
-		sib(sibpt)%diag%alloc(3)=0.35-0.1*(sib(sibpt)%diag%gdd-1180.0)/180.	
-		sib(sibpt)%diag%alloc(4)=0.15*(sib(sibpt)%diag%gdd-1180.0)/180.
-	elseif(sib(sibpt)%diag%gdd<1660.0)then
-                sib(sibpt)%diag%alloc(1)=0.2-0.15*(sib(sibpt)%diag%gdd-1360.0)/300.
-		sib(sibpt)%diag%alloc(2)=0.45-0.44*(sib(sibpt)%diag%gdd-1360.0)/300.	
-		sib(sibpt)%diag%alloc(3)=0.2-0.15*(sib(sibpt)%diag%gdd-1360.0)/300.	
-		sib(sibpt)%diag%alloc(4)=0.15+0.74*(sib(sibpt)%diag%gdd-1360.0)/300.
+        elseif(sib(sibpt)%diag%gdd<1260.0) then
+                sib(sibpt)%diag%alloc(1)=0.3-0.05*(sib(sibpt)%diag%gdd-1080.0)/80.
+		sib(sibpt)%diag%alloc(2)=0.35+0.05*(sib(sibpt)%diag%gdd-1080.0)/80.	
+		sib(sibpt)%diag%alloc(3)=0.35-0.1*(sib(sibpt)%diag%gdd-1080.0)/80.	
+		sib(sibpt)%diag%alloc(4)=0.1*(sib(sibpt)%diag%gdd-1080.0)/80.
+	elseif(sib(sibpt)%diag%gdd<1560.0)then
+                sib(sibpt)%diag%alloc(1)=0.25-0.17*(sib(sibpt)%diag%gdd-1260.0)/300.
+		sib(sibpt)%diag%alloc(2)=0.40-0.39*(sib(sibpt)%diag%gdd-1260.0)/300.	
+		sib(sibpt)%diag%alloc(3)=0.25-0.20*(sib(sibpt)%diag%gdd-1260.0)/300.	
+		sib(sibpt)%diag%alloc(4)=0.1+0.75*(sib(sibpt)%diag%gdd-1260.0)/300.
 	elseif(sib(sibpt)%diag%gdd<2730.0)then
-                sib(sibpt)%diag%alloc(1)=0.05
-		sib(sibpt)%diag%alloc(2)=0.01-0.01*(sib(sibpt)%diag%gdd-1660.0)/1070.
-		sib(sibpt)%diag%alloc(3)=0.05-0.05*(sib(sibpt)%diag%gdd-1660.0)/1070.
-		sib(sibpt)%diag%alloc(4)=0.89+0.06*(sib(sibpt)%diag%gdd-1660.0)/1070.	
+                sib(sibpt)%diag%alloc(1)=0.08
+		sib(sibpt)%diag%alloc(2)=0.01-0.01*(sib(sibpt)%diag%gdd-1560.0)/1170.
+		sib(sibpt)%diag%alloc(3)=0.05-0.05*(sib(sibpt)%diag%gdd-1560.0)/1170.
+		sib(sibpt)%diag%alloc(4)=0.85+0.07*(sib(sibpt)%diag%gdd-1560.0)/1170.	
 	else
 		sib(sibpt)%diag%alloc(:)=0.0
         endif
@@ -350,7 +350,7 @@ real(kind=dbl_kind) :: vmax_factor
 !EL.. Carbon amount (0.37 g C m-2) was derived by multiplying the seedling 
 !.......weight by 0.43
 
-!EL..Calculating the w_main by using  assim, growth resp coefficients and 
+!EL..Calculating the w_main by using assim, growth resp coefficients and 
 !EL..allocation fractions from the original scheme
 
      if ((sib(sibpt)%diag%gdd >= 100.0) .AND. &
@@ -358,9 +358,9 @@ real(kind=dbl_kind) :: vmax_factor
 
             sib(sibpt)%diag%w_main = sib(sibpt)%diag%assim_d /   &
                   ((sib(sibpt)%diag%alloc(1) * 1.2214) +     &
-                   (sib(sibpt)%diag%alloc(2) * 1.2515) +     & 
-                   (sib(sibpt)%diag%alloc(3) * 1.2225) +     &
-                   (sib(sibpt)%diag%alloc(4) * 1.2095))
+                   (sib(sibpt)%diag%alloc(2) * 1.5) + &  !1.2515
+                   (sib(sibpt)%diag%alloc(3) * 1.5) + &  !1.2225
+                   (sib(sibpt)%diag%alloc(4) * 1.4))  !1.2095
 
     endif
 
@@ -427,9 +427,9 @@ real(kind=dbl_kind) :: vmax_factor
         !EL..back calculation of the new assim_d:
 	assimd_new = sib(sibpt)%diag%w_main *       &
                 ((sib(sibpt)%diag%alloc(1) * 1.2214) +     &
-                ( sib(sibpt)%diag%alloc(2) * 1.2515) +     & 
-                ( sib(sibpt)%diag%alloc(3) * 1.2225) +     &
-                ( sib(sibpt)%diag%alloc(4) * 1.2095))
+                ( sib(sibpt)%diag%alloc(2) * 1.5) +   &   !1.2515
+                ( sib(sibpt)%diag%alloc(3) * 1.5) +   &   !1.2225
+                ( sib(sibpt)%diag%alloc(4) * 1.4))        !1.2095
         sib(sibpt)%diag%assim_d = assimd_new
 endif  !gdd > 1 and gdd < 190
 
@@ -574,12 +574,12 @@ endif
        elseif (sib(sibpt)%diag%gdd < 2900.0) then 
          
           sib(sibpt)%diag%leafwt_c = 0.5 * sib(sibpt)%diag%cum_drywt(2) -   &
-          (0.5-0.01) * sib(sibpt)%diag%cum_drywt(2) *      &
-                              ((sib(sibpt)%diag%gdd - 2730.0) / 170.0)
+                           (0.5-0.01) * sib(sibpt)%diag%cum_drywt(2) *      &
+                           ((sib(sibpt)%diag%gdd - 2730.0) / 170.0)
 
           litter=((sib(sibpt)%diag%cum_drywt(2)- sib(sibpt)%diag%leafwt_c))
 
-      !EL...introducing harvest towards  the end of field drying     
+      !EL...introducing harvest towards the end of field drying     
       elseif( sib(sibpt)%diag%gdd >= 2900.0) then
           sib(sibpt)%diag%leafwt_c=0.0001
           litter=sib(sibpt)%diag%cum_drywt(1) + sib(sibpt)%diag%cum_drywt(2) &
@@ -677,7 +677,7 @@ real(kind=dbl_kind) :: vmax_factor
         !kdcorbin, 02/11 - moved all harvest resets here
         !   and added phen_lai and phen_switch checks
 	if (((time%doy > sib(sibpt)%diag%pd + 160) .or. &
-             (  time%doy > sib(sibpt)%diag%pd + 120 .and. & 
+             (  time%doy > sib(sibpt)%diag%pd + 100 .and. & 
                 sib(sibpt)%diag%phen_lai < min_lai_crop )) .and. &
                 sib(sibpt)%diag%phen_switch == 1) then
               sib(sibpt)%diag%gdd = 0.0001
@@ -741,26 +741,29 @@ real(kind=dbl_kind) :: vmax_factor
 			sib(sibpt)%diag%alloc(2) = 0.40 - 0.1 * (dapd - 75) / 5.0
 			sib(sibpt)%diag%alloc(3) = 0.38 - 0.2 * (dapd - 75) / 5.0
 			sib(sibpt)%diag%alloc(4) = 0.37 * (dapd - 75) / 5.0
-                else if (time%doy    <  (sib(sibpt)%diag%pd + 89))    then
+                else if (time%doy    <  (sib(sibpt)%diag%pd + 87))    then
                         sib(sibpt)%diag%alloc(1) = 0.17
-			sib(sibpt)%diag%alloc(2) = 0.3 - 0.1 * (dapd - 80) / 9.0
+			sib(sibpt)%diag%alloc(2) = 0.3 - 0.1 * (dapd - 80) / 7.0
 			sib(sibpt)%diag%alloc(3) = 0.18
-			sib(sibpt)%diag%alloc(4) = 0.37 + 0.08 * (dapd - 80) / 9.0
-                else if (time%doy <  (sib(sibpt)%diag%pd+98)) then
+			sib(sibpt)%diag%alloc(4) = 0.37 + 0.08 * (dapd - 80) / 7.0
+                !kdcorbin, 03/11 - changed date from 98
+                else if (time%doy <  (sib(sibpt)%diag%pd+94)) then
                         sib(sibpt)%diag%alloc(1) = 0.17 
 			sib(sibpt)%diag%alloc(2) = 0.2
-			sib(sibpt)%diag%alloc(3) = 0.18 - 0.165 * (dapd - 89) / 9.0
-			sib(sibpt)%diag%alloc(4) = 0.45 + 0.365 * (dapd - 89) / 9.0
-                 else if (time%doy    <  (sib(sibpt)%diag%pd+108)) then
-                        sib(sibpt)%diag%alloc(1) = 0.17 - 0.12 * (dapd - 98) / 10.0
-			sib(sibpt)%diag%alloc(2) = 0.0
-			sib(sibpt)%diag%alloc(3) = 0.015 - 0.015 * (dapd - 98) / 10.0
-			sib(sibpt)%diag%alloc(4) = 0.815 + 0.135 * (dapd - 98) / 10.0
-                 else if (time%doy    <= (sib(sibpt)%diag%pd+121)) then
+			sib(sibpt)%diag%alloc(3) = 0.18 - 0.165 * (dapd - 87) / 7.0
+			sib(sibpt)%diag%alloc(4) = 0.45 + 0.365 * (dapd - 87) / 7.0
+                !kdcorbin, 03/11 - changed date from 108
+                else if (time%doy    <  (sib(sibpt)%diag%pd+100)) then
+                        sib(sibpt)%diag%alloc(1) = 0.17 - 0.12 * (dapd - 94) / 6.0
+		 	sib(sibpt)%diag%alloc(2) = 0.0
+		 	sib(sibpt)%diag%alloc(3) = 0.015 - 0.015 * (dapd - 94) / 6.0
+		 	sib(sibpt)%diag%alloc(4) = 0.815 + 0.135 * (dapd - 94) / 6.0
+                 !kdcorbin, 03/11 - changed date from 121
+                 else if (time%doy    <= (sib(sibpt)%diag%pd+108)) then
                         sib(sibpt)%diag%alloc(1) = 0.05 
-			sib(sibpt)%diag%alloc(2) = 0.0 
-			sib(sibpt)%diag%alloc(3) = 0.0 
-			sib(sibpt)%diag%alloc(4) = 0.95
+	                sib(sibpt)%diag%alloc(2) = 0.0 
+		 	sib(sibpt)%diag%alloc(3) = 0.0 
+		 	sib(sibpt)%diag%alloc(4) = 0.95
                  else
                         sib(sibpt)%diag%alloc(:) = 0.0     
                  endif  !doy tests
@@ -784,14 +787,16 @@ real(kind=dbl_kind) :: vmax_factor
           sib(sibpt)%diag%w_main =0.0001
     endif 
 
+    !kdcorbin, 03/11 - changed date from 121 and
+    !  changed constants from: 1.2929, 1.431, 1.2946, 1.6752
     if (sib(sibpt)%diag%pd >  0                               .AND.     &
        time%doy    >  (sib(sibpt)%diag%pd + 10)      .AND.     &
-       time%doy    <= (sib(sibpt)%diag%pd + 121))    then
+       time%doy    <= (sib(sibpt)%diag%pd + 108))    then
       	sib(sibpt)%diag%w_main = sib(sibpt)%diag%assim_d /      &
-                             ((sib(sibpt)%diag%alloc(1)* 1.2929) +    &
-                              (sib(sibpt)%diag%alloc(2) * 1.431)  +    &
-                              (sib(sibpt)%diag%alloc(3) * 1.2946) +    &
-                              (sib(sibpt)%diag%alloc(4) *  1.6752))
+                             ((sib(sibpt)%diag%alloc(1)* 2.) +    &  
+                              (sib(sibpt)%diag%alloc(2) * 2.)  +    &
+                              (sib(sibpt)%diag%alloc(3) * 1.8) +    &
+                              (sib(sibpt)%diag%alloc(4) *  2.))      
       endif
 
 !EL...considering the fact that early soybean growth is linearly 
@@ -828,8 +833,8 @@ real(kind=dbl_kind) :: vmax_factor
      
                 !kdcorbin, 03/11 - set temp_rstfac2=1.0 to assume that 
                 !    crop stress does not affect growth. 
-                !temp_rstfac2 = 1.0
-                temp_rstfac2 = sib(sibpt)%diag%rstfac_d
+                temp_rstfac2 = 1.0
+                !temp_rstfac2 = sib(sibpt)%diag%rstfac_d
                 dgrowth_opt = (max_wmain-0.26) * drate * temp_rstfac2
 
           	if (sib(sibpt)%diag%tempc<=8) then
@@ -856,11 +861,12 @@ real(kind=dbl_kind) :: vmax_factor
                                                         sib(sibpt)%diag%w_main)
  
         !EL..back calculation of the new assim_d:
+        !kdcorbin, 03/11 - changed constants to match above
 	assimd_new= sib(sibpt)%diag%w_main *       &
-               ((sib(sibpt)%diag%alloc(1) * 1.2929) +     &
-                (sib(sibpt)%diag%alloc(2) * 1.431) +     & 
-                (sib(sibpt)%diag%alloc(3) * 1.2946) +     &
-                (sib(sibpt)%diag%alloc(4) * 1.6752))
+               ((sib(sibpt)%diag%alloc(1) * 2.) +  & 
+                (sib(sibpt)%diag%alloc(2) * 2.) +  & 
+                (sib(sibpt)%diag%alloc(3) * 1.8) + & 
+                (sib(sibpt)%diag%alloc(4) * 2.))     
         sib(sibpt)%diag%assim_d=assimd_new
  
        endif
@@ -990,10 +996,11 @@ endif
                     !EL.. the dead leaf pool
                     litter=(sib(sibpt)%diag%cum_drywt(2)*0.15)*0.9
          
-             elseif (time%doy    <  (sib(sibpt)%diag%pd+121))   then
+             !kdcorbin, 03/11 - changed date from 121
+             elseif (time%doy    <  (sib(sibpt)%diag%pd+108))   then
                
 	           sib(sibpt)%diag%leafwt_c = sib(sibpt)%diag%cum_drywt(2)*0.85 -   &
-                        0.84 * sib(sibpt)%diag%cum_drywt(2) * (dapd - 90) / 31.0 
+                        0.84 * sib(sibpt)%diag%cum_drywt(2) * (dapd - 90) / 18.0 
 
                    !EL...allowing for carbon remobilization from senescing leaves  
                    !EL...to growing products
@@ -1060,9 +1067,10 @@ real(kind=dbl_kind) :: vmax_factor
 
 if (sib(sibpt)%param%biome == 22) then
 
-    if (time%doy>=227 .and. sib(sibpt)%diag%tempc<20.0) then
+    !kdcorbin, 03/11 - changed tempc threshold from 20. to 18.
+    if (time%doy>=227 .and. sib(sibpt)%diag%tempc<18.0) then
          sib(sibpt)%diag%ndf_opt=0		
-    elseif (time%doy>=227 .and. sib(sibpt)%diag%tempc>=20.0 .and. &
+    elseif (time%doy>=227 .and. sib(sibpt)%diag%tempc>=18.0 .and. &
               sib(sibpt)%diag%tempc<25.0) then
          sib(sibpt)%diag%ndf_opt=sib(sibpt)%diag%ndf_opt+1
    endif
@@ -1160,6 +1168,7 @@ if (sib(sibpt)%diag%gdd .gt. 2300.) then
     sib(sibpt)%diag%w_main_pot = 0.0001
     sib(sibpt)%diag%assim_d = 0.0001
     sib(sibpt)%diag%pd = 0
+    sib(sibpt)%diag%pd_annual = 0
     sib(sibpt)%diag%phen_switch = 0
     sib(sibpt)%diag%leafwt_c = 0.0001
 
@@ -1197,19 +1206,42 @@ endif
 		sib(sibpt)%diag%alloc(4)=0.0
 		sib(sibpt)%diag%alloc(4)=0.0
        elseif (sib(sibpt)%diag%gdd<910.0) then
+                !kdcorbin, 03/11 - added test for growth during spring or fall
+                if (time%doy .gt. sib(sibpt)%diag%pd) then 
+                   sib(sibpt)%diag%alloc(2) = 0.001
+                   sib(sibpt)%diag%alloc(3) = 0.599
+                else
+                   sib(sibpt)%diag%alloc(2) = 0.4
+                   sib(sibpt)%diag%alloc(4) = 0.2
+                endif
+
                 sib(sibpt)%diag%alloc(1)=0.4   
-		sib(sibpt)%diag%alloc(2)=0.4   
-		sib(sibpt)%diag%alloc(3)=0.2   
 		sib(sibpt)%diag%alloc(4)=0.0
        elseif (sib(sibpt)%diag%gdd<1074.0) then 
-    		sib(sibpt)%diag%alloc(1)=0.4 - 0.12 * (sib(sibpt)%diag%gdd - 910.0)/164.0
-		sib(sibpt)%diag%alloc(2)=0.4 !- 0.05 * (sib(sibpt)%diag%gdd - 910.0)/164.0
-		sib(sibpt)%diag%alloc(3)=0.2 + 0.12 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+                !kdcorbin, 03/11 - added test for growth during spring or fall
+                if (time%doy .gt. sib(sibpt)%diag%pd) then
+                   sib(sibpt)%diag%alloc(1) = 0.4
+                   sib(sibpt)%diag%alloc(2) = 0.001
+                   sib(sibpt)%diag%alloc(3) = 0.5999
+                else
+                   sib(sibpt)%diag%alloc(1)=0.4 - 0.12 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+		   sib(sibpt)%diag%alloc(2)=0.4 !- 0.05 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+		   sib(sibpt)%diag%alloc(3)=0.2 + 0.12 * (sib(sibpt)%diag%gdd - 910.0)/164.0
+                endif
+
 		sib(sibpt)%diag%alloc(4)=0.0
       elseif (sib(sibpt)%diag%gdd<1569.0) then
-        	sib(sibpt)%diag%alloc(1)= 0.28 - 0.05 * (sib(sibpt)%diag%gdd-1074.0)/495.0
-                sib(sibpt)%diag%alloc(2) = 0.4 + 0.05*(sib(sibpt)%diag%gdd-1074.0)/495.0
-                sib(sibpt)%diag%alloc(3) = 0.32 
+                !kdcorbin, 03/11 - added test for growth during spring or fall
+                if (time%doy .gt. sib(sibpt)%diag%pd) then
+                   sib(sibpt)%diag%alloc(1) = 0.4
+                   sib(sibpt)%diag%alloc(2) = 0.001
+                   sib(sibpt)%diag%alloc(3) = 0.5999
+                else
+           	   sib(sibpt)%diag%alloc(1)= 0.28 - 0.05 * (sib(sibpt)%diag%gdd-1074.0)/495.0
+                   sib(sibpt)%diag%alloc(2) = 0.4 + 0.05*(sib(sibpt)%diag%gdd-1074.0)/495.0
+                   sib(sibpt)%diag%alloc(3) = 0.32
+                endif
+ 
 		sib(sibpt)%diag%alloc(4)=0.0
 	elseif (sib(sibpt)%diag%gdd<1629.0) then
                 sib(sibpt)%diag%alloc(1)=0.23
@@ -1259,12 +1291,13 @@ endif
        
      !EL..Calculating the w_main by using  assim, growth resp coefficients and 
      !EL..allocation fractions from the original scheme
+    !kdcorbin, 03/11 - changed the constants
     elseif(sib(sibpt)%diag%gdd < 2269.0) then
        	sib(sibpt)%diag%w_main = sib(sibpt)%diag%assim_d /       &
-               ((sib(sibpt)%diag%alloc(1) * 1.2214) +     &
-                (sib(sibpt)%diag%alloc(2) * 1.2515) +     & 
-                (sib(sibpt)%diag%alloc(3) * 1.2225) +     &
-                (sib(sibpt)%diag%alloc(4) * 1.1893))
+               ((sib(sibpt)%diag%alloc(1) * 1.8) +  &  !1.2214
+                (sib(sibpt)%diag%alloc(2) * 1.8) +  &  !1.2515
+                (sib(sibpt)%diag%alloc(3) * 1.8) +  &  !1.2225
+                (sib(sibpt)%diag%alloc(4) * 1.5))  !1.1893
     endif
 
 !EL...considering the fact that early wheat growth is linearly related 
@@ -1378,11 +1411,12 @@ endif
    endif  !biome == 23
 
          !EL..back calculation of the new assim_d:
+         !kdcorbin, 03/11 - changed constants
           assimd_new = sib(sibpt)%diag%w_main *       &
-             ((sib(sibpt)%diag%alloc(1) * 1.2214) +     &
-             ( sib(sibpt)%diag%alloc(2) * 1.2515) +     & 
-             ( sib(sibpt)%diag%alloc(3) * 1.2225) +     &
-             ( sib(sibpt)%diag%alloc(4) * 1.1893))
+             ((sib(sibpt)%diag%alloc(1) * 1.8) +     &  !1.2214
+             ( sib(sibpt)%diag%alloc(2) * 1.8) +     &  !1.2515
+             ( sib(sibpt)%diag%alloc(3) * 1.8) +     &  !1.2225
+             ( sib(sibpt)%diag%alloc(4) * 1.5))  !1.1893
 
           sib(sibpt)%diag%assim_d = assimd_new
  

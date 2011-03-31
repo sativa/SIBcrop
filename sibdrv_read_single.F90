@@ -64,16 +64,14 @@ data subname/'sibdrv_read '/
                 print *, 'Error reading file'
                 stop
             endif
-!print*,record
 
-!pause
             if ( record(1:1) .ne. '#' ) exit
         enddo
 
         	read(unit=record,fmt=*)yr,doy,hr,sib(1)%prog%tm2,temp_dpt, &
             sib(1)%prog%spdm2,sib(1)%prog%ps2,sib(1)%prog%dlwbot2,   &
             sib(1)%prog%sw_dwn2,sib(1)%prog%lspr2,sib(1)%prog%cupr2
-!print*,doy,hr,sib(1)%prog%sw_dwn2
+
 !
 ! calculate large scale precipitation
         sib(1)%prog%lspr2 = sib(1)%prog%lspr2 !- sib(1)%prog%cupr2 
