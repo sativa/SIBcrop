@@ -42,12 +42,13 @@ use physical_parameters, only:              &
     pi
 
 use kinds
-#ifdef PGF
-use netcdf
-use typeSizes
-#endif
 use sibtype
 use timetype
+
+use netcdf
+use typeSizes
+
+#include "nc_util.h"
 
 type(sib_t), dimension(subcount), intent(inout) :: sib
 type(time_struct), intent(in) :: time
@@ -121,23 +122,14 @@ data subname/'sibdrv_read '/
     !    nmonth,nyear,nextmonth,nextyear
 
     ! check time values in driver data file
-!    status = nf90_inq_varid( driver_id,   'time', nctimeid )
-!    if ( status /= nf90_noerr ) call handle_err( status )
-    status = nf90_inq_varid( driver_id,   'year', ncyid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',2)
-    status = nf90_inq_varid( driver_id,   'month',ncmid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',3)
-    status = nf90_inq_varid( driver_id,   'doy',  ncdoyid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',4)
-    status = nf90_inq_varid( driver_id,   'day',  nctdid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',5)
-    status = nf90_inq_varid( driver_id,   'hour', nchid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',6)
+    ENSURE_VAR( driver_id,   'year', ncyid )
+    ENSURE_VAR( driver_id,   'month',ncmid )
+    ENSURE_VAR( driver_id,   'doy',  ncdoyid )
+    ENSURE_VAR( driver_id,   'day',  nctdid )
+    ENSURE_VAR( driver_id,   'hour', nchid )
 
     ! read time
     mstart(1) = time%driver_recnum
-!    status = nf90_get_var( driver_id, nctimeid, xtime, mstart(1:1) )
-!    if ( status /= nf90_noerr ) call handle_err( status )
     status = nf90_get_var( driver_id, ncyid,    xyear, mstart(1:1) )
     if(status/=nf90_noerr) call handle_err(status,'read_ncep2',7)
     status = nf90_get_var( driver_id, ncmid,   xmonth, mstart(1:1) )
@@ -158,29 +150,18 @@ data subname/'sibdrv_read '/
 
     print*,subname,'Time level in file: ',ihour,iday,idoy,imon,iyear
 
-    !* Get veriable id's
-    status = nf90_inq_varid( driver_id, 't2m', nct2mid ) ! Temperature at 2 m
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',12)
-    status = nf90_inq_varid( driver_id, 'tcc', nctccid ) ! Total Cloud Cover
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',13)
-    status = nf90_inq_varid( driver_id, 'swd', ncswdid ) ! Surface solar rad downwards
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',14)
-    status = nf90_inq_varid( driver_id, 'lwd', ncldwid ) ! Surface thermal rad down
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',15)
-    status = nf90_inq_varid( driver_id, 'uwd', ncuwdid ) ! U-wind at 10 m
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',16)
-    status = nf90_inq_varid( driver_id, 'vwd', ncvwdid ) ! V-wind at 10 m
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',17)
-    status = nf90_inq_varid( driver_id, 'shum', ncshid ) ! humidity at 2 m
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',18)
-    status = nf90_inq_varid( driver_id, 'sfp', ncsfpid ) ! Log Surface Pressure
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',19)
-    status = nf90_inq_varid( driver_id, 'lsp', nclspid ) ! Large Scale Precipitation
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',20)
-    status = nf90_inq_varid( driver_id, 'cvp', nccvpid ) ! Convective Precipitation
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',21)
-    status = nf90_inq_varid( driver_id, 'sfl', ncsflid ) ! Snow Fall
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep2',22)
+    !* Get variable id's
+    ENSURE_VAR( driver_id, 't2m', nct2mid ) ! Temperature at 2 m
+    ENSURE_VAR( driver_id, 'tcc', nctccid ) ! Total Cloud Cover
+    ENSURE_VAR( driver_id, 'swd', ncswdid ) ! Surface solar rad downwards
+    ENSURE_VAR( driver_id, 'lwd', ncldwid ) ! Surface thermal rad down
+    ENSURE_VAR( driver_id, 'uwd', ncuwdid ) ! U-wind at 10 m
+    ENSURE_VAR( driver_id, 'vwd', ncvwdid ) ! V-wind at 10 m
+    ENSURE_VAR( driver_id, 'shum', ncshid ) ! humidity at 2 m
+    ENSURE_VAR( driver_id, 'sfp', ncsfpid ) ! Log Surface Pressure
+    ENSURE_VAR( driver_id, 'lsp', nclspid ) ! Large Scale Precipitation
+    ENSURE_VAR( driver_id, 'cvp', nccvpid ) ! Convective Precipitation
+    ENSURE_VAR( driver_id, 'sfl', ncsflid ) ! Snow Fall
 
     !* get data
     mstart=(/1,time%driver_recnum/); mcount=(/nsib,1/)
@@ -368,8 +349,7 @@ data subname/'read_ncep1'/
 !
 !-------------------------------------------------------
 ! Temperature at 2 m
-    status=nf90_inq_varid(driver_id, 'tmp', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',2)
+    ENSURE_VAR(driver_id, 'tmp', varid)
     status=nf90_get_var(driver_id, varid, var, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',3)
 !
@@ -380,8 +360,7 @@ data subname/'read_ncep1'/
 !
 !-------------------------------------------------------
 ! Surface solar radiation downwards
-    status=nf90_inq_varid(driver_id, 'dswrf', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',4)
+    ENSURE_VAR(driver_id, 'dswrf', varid)
     status=nf90_get_var(driver_id, varid, var, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',5)
 !
@@ -392,8 +371,7 @@ data subname/'read_ncep1'/
 !
 !-------------------------------------------------------
 ! Surface thermal (infrared) radiation down
-    status=nf90_inq_varid(driver_id, 'dlwrf', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',6)
+    ENSURE_VAR(driver_id, 'dlwrf', varid)
     status=nf90_get_var(driver_id, varid, var, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',7)
 !
@@ -406,14 +384,12 @@ data subname/'read_ncep1'/
 ! total wind speed
 !
 ! U-wind at 10 m
-    status=nf90_inq_varid(driver_id, 'ugrd', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',8)
+    ENSURE_VAR(driver_id, 'ugrd', varid)
     status=nf90_get_var(driver_id, varid, uwd, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',9)
 !
 ! V-wind at 10 m
-    status=nf90_inq_varid(driver_id, 'vgrd', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',10)
+    ENSURE_VAR(driver_id, 'vgrd', varid)
     status=nf90_get_var(driver_id, varid, vwd, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',11)
 !
@@ -426,8 +402,7 @@ data subname/'read_ncep1'/
 !
 !-------------------------------------------------------
 ! specific humidity at 2 m
-    status=nf90_inq_varid(driver_id, 'spfh', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',12)
+    ENSURE_VAR(driver_id, 'spfh', varid)
     status=nf90_get_var(driver_id, varid, var, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',13)
 !
@@ -439,8 +414,7 @@ data subname/'read_ncep1'/
 !
 !-------------------------------------------------------
 ! Surface Pressure
-    status=nf90_inq_varid(driver_id, 'pres', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',14)
+    ENSURE_VAR(driver_id, 'pres', varid)
     status=nf90_get_var(driver_id, varid, var, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',15)
 !
@@ -452,8 +426,7 @@ data subname/'read_ncep1'/
 !
 !-------------------------------------------------------
 ! Large Scale Precipitation
-    status=nf90_inq_varid(driver_id, 'prate', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',16)
+    ENSURE_VAR(driver_id, 'prate', varid)
     status=nf90_get_var(driver_id, varid, var, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',17)
 !
@@ -465,8 +438,7 @@ data subname/'read_ncep1'/
 !
 !-------------------------------------------------------
 ! Convective Precipitation
-    status=nf90_inq_varid(driver_id, 'cprat', varid)
-    if(status/=nf90_noerr) call handle_err(status,'read_ncep1',18)
+    ENSURE_VAR(driver_id, 'cprat', varid)
     status=nf90_get_var(driver_id, varid, var, mstart, mcount)
     if(status/=nf90_noerr) call handle_err(status,'read_ncep1',19)
 !

@@ -16,10 +16,10 @@ use sib_io_module, only: drvr_type,  & !jk flag to indicate driver data type
                          ndvi_source,  &
                          d13cresp_source, &
                          param_type !flag to indicate vegetation type
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
+
+#include "nc_util.h"
 
 ! define input variables
 character *100, intent(in) :: filename ! Filename for sib_bc
@@ -64,11 +64,11 @@ real(kind=real_kind), dimension(nsib) :: modis_time   !temp modis time variable
     if(ntest1 /= nsib) stop ' open: file sib_bc no match with model for nsib'
 
     !d13
-    call check ( nf90_inq_varid ( yyid, 'd13cresp', d13_id) )
+    ENSURE_VAR( yyid, 'd13cresp', d13_id)
     call check ( nf90_get_var ( yyid, d13_id, d13) )    
 
     !physfrac
-    call check ( nf90_inq_varid ( yyid, 'physfrac', phys_id) )
+    ENSURE_VAR( yyid, 'physfrac', phys_id)
     call check ( nf90_get_var ( yyid, phys_id, frac) )
 
     ! read in global attributes that are passed on to output files
@@ -88,12 +88,9 @@ real(kind=real_kind), dimension(nsib) :: modis_time   !temp modis time variable
     !kdcorbin, 02/11 - read in either NDVI or LAI/fPAR data:
     print*,'      param_type= ',param_type
     if ( param_type == 'ndvi' ) then
-       status = nf90_inq_varid ( yyid, 'ndvi', ndvi_id )
-       if (status /= nf90_noerr) call handle_err(status)
-       status = nf90_inq_varid ( yyid, 'd13cresp', d13_id )
-       if (status /= nf90_noerr) call handle_err(status)
-       status = nf90_inq_varid ( yyid, 'physfrac', phys_id )
-       if (status /= nf90_noerr) call handle_err(status)
+       ENSURE_VAR( yyid, 'ndvi', ndvi_id )
+       ENSURE_VAR( yyid, 'd13cresp', d13_id )
+       ENSURE_VAR( yyid, 'physfrac', phys_id )
 
        print*,'Not Done Yet!!!  Stopping.'
        stop
@@ -120,21 +117,21 @@ real(kind=real_kind), dimension(nsib) :: modis_time   !temp modis time variable
        !enddo
 
    else
-       call check( nf90_inq_varid ( yyid, 'lai', lai_id ) )
-       call check( nf90_inq_varid ( yyid, 'fpar', fpar_id) )
-       call check( nf90_inq_varid ( yyid, 'modis_time', modis_time_id) )
+       ENSURE_VAR( yyid, 'lai', lai_id )
+       ENSURE_VAR( yyid, 'fpar', fpar_id)
+       ENSURE_VAR( yyid, 'modis_time', modis_time_id)
 
        !get the number of composite periods, start and stop times
-       call check ( nf90_inq_varid ( yyid, 'mapsyear', var_id) )
+       ENSURE_VAR( yyid, 'mapsyear', var_id)
        call check ( nf90_get_var ( yyid, var_id, nper ) )
 
        allocate(mstart(nper))
-       call check ( nf90_inq_varid ( yyid, 'modis_start', var_id) )
+       ENSURE_VAR( yyid, 'modis_start', var_id)
        call check ( nf90_get_var ( yyid, var_id, mstart ) )
        time%modis_start(1:nper) = mstart
 
        allocate(mstop(nper))
-       call check ( nf90_inq_varid ( yyid, 'modis_stop', var_id) )
+       ENSURE_VAR( yyid, 'modis_stop', var_id)
        call check ( nf90_get_var ( yyid, var_id, mstop ) )
        time%modis_stop(1:nper) = mstop
 

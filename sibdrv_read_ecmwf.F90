@@ -40,14 +40,14 @@ use sib_io_module, only:   &
 use physical_parameters, only:              &
     kapa => kappa,   &
     pi
-#ifdef PGF
-use netcdf
-use typeSizes
-#endif
 use kinds
 use sibtype
 use timetype
 
+use netcdf
+use typeSizes
+
+#include "nc_util.h"
 
 type(sib_t), dimension(subcount), intent(inout) :: sib
 type(time_struct), intent(in) :: time
@@ -125,18 +125,12 @@ data subname/'sibdrv_read '/
 !        nmonth,nyear,nextmonth,nextyear
 
     ! check time values in driver data file
-    status = nf90_inq_varid( driver_id,   'time', nctimeid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',1)
-    status = nf90_inq_varid( driver_id,   'year', ncyid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',2)
-    status = nf90_inq_varid( driver_id,   'month',ncmid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',3)
-    status = nf90_inq_varid( driver_id,   'doy',  ncdoyid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',4)
-    status = nf90_inq_varid( driver_id,   'day',  nctdid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',5)
-    status = nf90_inq_varid( driver_id,   'hour', nchid )
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',6)
+    ENSURE_VAR( driver_id,   'time', nctimeid )
+    ENSURE_VAR( driver_id,   'year', ncyid )
+    ENSURE_VAR( driver_id,   'month',ncmid )
+    ENSURE_VAR( driver_id,   'doy',  ncdoyid )
+    ENSURE_VAR( driver_id,   'day',  nctdid )
+    ENSURE_VAR( driver_id,   'hour', nchid )
     print*,subname,nctimeid,ncyid,ncmid,ncdoyid,nctdid,nchid,time%driver_recnum
 
     ! read time
@@ -171,29 +165,18 @@ data subname/'sibdrv_read '/
 !        stop
     endif
 
-    ! get veriable id's
-    status=nf90_inq_varid( driver_id, 't2m', nct2mid ) ! Temperature at 2 m
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',14)
-    status=nf90_inq_varid( driver_id, 'tcc', nctccid ) ! Total Cloud Cover
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',15)
-    status=nf90_inq_varid( driver_id, 'swd', ncswdid ) ! Surface solar rad downwards
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',16)
-    status=nf90_inq_varid( driver_id, 'ldw', ncldwid ) ! Surface thermal rad down
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',17)
-    status=nf90_inq_varid( driver_id, 'uwd', ncuwdid ) ! U-wind at 10 m
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',18)
-    status=nf90_inq_varid( driver_id, 'vwd', ncvwdid ) ! V-wind at 10 m
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',19)
-    status=nf90_inq_varid( driver_id, 'dpt', ncdptid ) ! Dewpoint at 2 m
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',20)
-    status=nf90_inq_varid( driver_id, 'sfp', ncsfpid ) ! Log Surface Pressure
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',21)
-    status=nf90_inq_varid( driver_id, 'lsp', nclspid ) ! Large Scale Precipitation
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',22)
-    status=nf90_inq_varid( driver_id, 'cvp', nccvpid ) ! Convective Precipitation
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',23)
-    status=nf90_inq_varid( driver_id, 'sfl', ncsflid ) ! Snow Fall
-    if(status/=nf90_noerr) call handle_err(status,'read_ecmwf',24)
+    ! get variable id's
+    ENSURE_VAR( driver_id, 't2m', nct2mid ) ! Temperature at 2 m
+    ENSURE_VAR( driver_id, 'tcc', nctccid ) ! Total Cloud Cover
+    ENSURE_VAR( driver_id, 'swd', ncswdid ) ! Surface solar rad downwards
+    ENSURE_VAR( driver_id, 'ldw', ncldwid ) ! Surface thermal rad down
+    ENSURE_VAR( driver_id, 'uwd', ncuwdid ) ! U-wind at 10 m
+    ENSURE_VAR( driver_id, 'vwd', ncvwdid ) ! V-wind at 10 m
+    ENSURE_VAR( driver_id, 'dpt', ncdptid ) ! Dewpoint at 2 m
+    ENSURE_VAR( driver_id, 'sfp', ncsfpid ) ! Log Surface Pressure
+    ENSURE_VAR( driver_id, 'lsp', nclspid ) ! Large Scale Precipitation
+    ENSURE_VAR( driver_id, 'cvp', nccvpid ) ! Convective Precipitation
+    ENSURE_VAR( driver_id, 'sfl', ncsflid ) ! Snow Fall
 
     ! get data
     mstart=(/1,time%driver_recnum/); mcount=(/nsib,1/)

@@ -48,12 +48,13 @@ use physical_parameters, only:              &
     pi
 
 use kinds
-#ifdef PGF
-use netcdf
-use typeSizes
-#endif 
 use sibtype
 use timetype
+
+use netcdf
+use typeSizes
+
+#include "nc_util.h"
 
 type(sib_t), dimension(subcount), intent(inout) :: sib
 type(time_struct), intent(in) :: time
@@ -123,16 +124,11 @@ data subname/'sibdrv_read '/
 
     ! read new driver data
     ! read time values from driver data file
-    status = nf90_inq_varid( driver_id,   'year', ncyid )
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',3)
-    status = nf90_inq_varid( driver_id,   'month',ncmid )
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',4)
-    status = nf90_inq_varid( driver_id,   'doy',  ncdoyid )
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',5)
-    status = nf90_inq_varid( driver_id,   'day',  nctdid )
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',6)
-    status = nf90_inq_varid( driver_id,   'hour', nchid )
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',7)
+    ENSURE_VAR( driver_id, 'year', ncyid )
+    ENSURE_VAR( driver_id, 'month',ncmid )
+    ENSURE_VAR( driver_id, 'doy',  ncdoyid )
+    ENSURE_VAR( driver_id, 'day',  nctdid )
+    ENSURE_VAR( driver_id, 'hour', nchid )
 
     ! read time
     mstart(1) = time%driver_recnum
@@ -147,27 +143,17 @@ data subname/'sibdrv_read '/
     status = nf90_get_var( driver_id, nchid,    xhour, mstart(1:1) )
     if(status/=nf90_noerr) call handle_err(status,'read_geos4',13)
 
-    ! get veriable id's
-    status=nf90_inq_varid( driver_id, 't2m', nct2mid ) ! Temperature at 2 m
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',14)
-    status=nf90_inq_varid( driver_id, 'radswg', ncswdid ) ! Surface solar rad downwards
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',15)
-    status=nf90_inq_varid( driver_id, 'albedo', albedoid ) ! Albedo
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',16)
-    status=nf90_inq_varid( driver_id, 'lwgdown', ncldwid ) ! Surface thermal rad down
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',17)
-    status=nf90_inq_varid( driver_id, 'u10m', ncuwdid ) ! U-wind at 10 m
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',18)
-    status=nf90_inq_varid( driver_id, 'v10m', ncvwdid ) ! V-wind at 10 m
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',19)
-    status=nf90_inq_varid( driver_id, 'q2m', ncshid ) ! humidity at 2 m
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',20)
-    status=nf90_inq_varid( driver_id, 'ps', ncsfpid ) ! Log Surface Pressure
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',21)
-    status=nf90_inq_varid( driver_id, 'preacc', nclspid ) ! Large Scale Precipitation
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',22)
-    status=nf90_inq_varid( driver_id, 'precon', nccvpid ) ! Convective Precipitation
-    if(status/=nf90_noerr) call handle_err(status,'read_geos4',23)
+    ! get variable id's
+    ENSURE_VAR( driver_id, 't2m',     nct2mid ) ! Temperature at 2 m
+    ENSURE_VAR( driver_id, 'radswg',  ncswdid ) ! Surface solar rad downwards
+    ENSURE_VAR( driver_id, 'albedo',  albedoid ) ! Albedo
+    ENSURE_VAR( driver_id, 'lwgdown', ncldwid ) ! Surface thermal rad down
+    ENSURE_VAR( driver_id, 'u10m',    ncuwdid ) ! U-wind at 10 m
+    ENSURE_VAR( driver_id, 'v10m',    ncvwdid ) ! V-wind at 10 m
+    ENSURE_VAR( driver_id, 'q2m',     ncshid ) ! humidity at 2 m
+    ENSURE_VAR( driver_id, 'ps',      ncsfpid ) ! Log Surface Pressure
+    ENSURE_VAR( driver_id, 'preacc',  nclspid ) ! Large Scale Precipitation
+    ENSURE_VAR( driver_id, 'precon',  nccvpid ) ! Convective Precipitation
 
     ! get data
     mstart=(/1,time%driver_recnum/); mcount=(/nsib,1/)

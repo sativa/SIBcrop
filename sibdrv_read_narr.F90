@@ -44,12 +44,13 @@ use physical_parameters, only:              &
     pi
 
 use kinds
-#ifdef PGF
-use netcdf
-use typeSizes
-#endif
 use sibtype
 use timetype
+
+use netcdf
+use typeSizes
+
+#include "nc_util.h"
 
 type(sib_t), dimension(subcount), intent(inout) :: sib
 type(time_struct), intent(in) :: time
@@ -106,7 +107,7 @@ data subname/'sibdrv_read '/
         sib(i)%prog%lspr1     = sib(i)%prog%lspr2
         sib(i)%prog%cupr1     = sib(i)%prog%cupr2
         sib(i)%prog%dlwbot1   = sib(i)%prog%dlwbot2
-        sib(i)%prog%sw_dwn1 = sib(i)%prog%sw_dwn2
+        sib(i)%prog%sw_dwn1   = sib(i)%prog%sw_dwn2
     enddo
 
     ! switch files if needed
@@ -124,23 +125,14 @@ data subname/'sibdrv_read '/
     !    nmonth,nyear,nextmonth,nextyear
 
     ! check time values in driver data file
-!    status = nf90_inq_varid( driver_id,   'time', nctimeid )
-!    if ( status /= nf90_noerr ) call handle_err( status )
-    status = nf90_inq_varid( driver_id,   'year', ncyid )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',2)
-    status = nf90_inq_varid( driver_id,   'month',ncmid )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',3)
-    status = nf90_inq_varid( driver_id,   'doy',  ncdoyid )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',4)
-    status = nf90_inq_varid( driver_id,   'day',  nctdid )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',5)
-    status = nf90_inq_varid( driver_id,   'hour', nchid )
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',6)
+    ENSURE_VAR( driver_id,   'year', ncyid )
+    ENSURE_VAR( driver_id,   'month',ncmid )
+    ENSURE_VAR( driver_id,   'doy',  ncdoyid )
+    ENSURE_VAR( driver_id,   'day',  nctdid )
+    ENSURE_VAR( driver_id,   'hour', nchid )
 
     ! read time
     mstart(1) = time%driver_recnum
-!    status = nf90_get_var( driver_id, nctimeid, xtime, mstart(1:1) )
-!    if ( status /= nf90_noerr ) call handle_err( status )
     status = nf90_get_var( driver_id, ncyid,    xyear, mstart(1:1) )
     if(status/=nf90_noerr) call handle_err(status,'read_narr',7)
     status = nf90_get_var( driver_id, ncmid,   xmonth, mstart(1:1) )
@@ -161,29 +153,18 @@ data subname/'sibdrv_read '/
 
 !    print*,subname,'Time level in file: ',ihour,iday,idoy,imon,iyear
 
-    !* Get veriable id's
-    status = nf90_inq_varid( driver_id, 'TMP_221_HTGL', nct2mid ) ! Temperature at 2 m
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',12)
-    status = nf90_inq_varid( driver_id, 'T_CDC_221_EATM', nctccid ) ! Total Cloud Cover
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',13)
-    status = nf90_inq_varid( driver_id, 'DSWRF_221_SFC_ave3h', ncswdid ) ! Surface solar rad downwards
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',14)
-    status = nf90_inq_varid( driver_id, 'DLWRF_221_SFC_ave3h', ncldwid ) ! Surface thermal rad down
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',15)
-    status = nf90_inq_varid( driver_id, 'U_GRD_221_HTGL', ncuwdid ) ! U-wind at 10 m
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',16)
-    status = nf90_inq_varid( driver_id, 'V_GRD_221_HTGL', ncvwdid ) ! V-wind at 10 m
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',17)
-    status = nf90_inq_varid( driver_id, 'SPF_H_221_HTGL', ncshid ) ! humidity at 2 m
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',18)
-    status = nf90_inq_varid( driver_id, 'PRES_221_HTGL', ncsfpid ) ! Log Surface Pressure
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',19)
-    status = nf90_inq_varid( driver_id, 'A_PCP_221_SFC_acc3h', nclspid ) ! Large Scale Precipitation
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',20)
-    status = nf90_inq_varid( driver_id, 'ACPCP_221_SFC_acc3h', nccvpid ) ! Convective Precipitation
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',21)
-    status = nf90_inq_varid( driver_id, 'SNO_D_221_SFC', ncsflid ) ! Snow Fall
-    if(status/=nf90_noerr) call handle_err(status,'read_narr',22)
+    !* Get variable id's
+    ENSURE_VAR( driver_id, 'TMP_221_HTGL', nct2mid ) ! Temperature at 2 m
+    ENSURE_VAR( driver_id, 'T_CDC_221_EATM', nctccid ) ! Total Cloud Cover
+    ENSURE_VAR( driver_id, 'DSWRF_221_SFC_ave3h', ncswdid ) ! Surface solar rad downwards
+    ENSURE_VAR( driver_id, 'DLWRF_221_SFC_ave3h', ncldwid ) ! Surface thermal rad down
+    ENSURE_VAR( driver_id, 'U_GRD_221_HTGL', ncuwdid ) ! U-wind at 10 m
+    ENSURE_VAR( driver_id, 'V_GRD_221_HTGL', ncvwdid ) ! V-wind at 10 m
+    ENSURE_VAR( driver_id, 'SPF_H_221_HTGL', ncshid ) ! humidity at 2 m
+    ENSURE_VAR( driver_id, 'PRES_221_HTGL', ncsfpid ) ! Log Surface Pressure
+    ENSURE_VAR( driver_id, 'A_PCP_221_SFC_acc3h', nclspid ) ! Large Scale Precipitation
+    ENSURE_VAR( driver_id, 'ACPCP_221_SFC_acc3h', nccvpid ) ! Convective Precipitation
+    ENSURE_VAR( driver_id, 'SNO_D_221_SFC', ncsflid ) ! Snow Fall
 
     !* get data
     mstart=(/1,time%driver_recnum/); mcount=(/nsib,1/)
