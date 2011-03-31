@@ -320,10 +320,8 @@ subroutine read_ic(sib,time)
 !  Kevin Schaefer moved soil layer calculations to soil_properties (10/27/04)
 !=================================================
 
-#ifdef PGF
 use netcdf 
 use typeSizes
-#endif
 use kinds
 use sibtype
 use timetype
@@ -392,154 +390,129 @@ integer(kind=int_kind)               :: jday
 DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
 
     ! read in initial conditions (restart file)
-    ierr = nf90_open( trim(ic_path), nf90_nowrite, ncid )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_open( trim(ic_path), nf90_nowrite, ncid ) )
 
     print *,'      opening ic file', trim(ic_path)
 
     !itb...read some scalars
     ENSURE_VAR( ncid, 'nsib', varid )
-    ierr = nf90_get_var( ncid, varid, nsibt )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, nsibt ) )
     !print *, '   nsib=',nsib, ' total nsib=',nsibt
     if(nsib /= nsibt) stop'INITIAL CONDITIONS: NSIB INCORRECT'
 
     ENSURE_VAR( ncid, 'nsoil', varid )
-    ierr = nf90_get_var( ncid, varid, nsoilt )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, nsoilt ) )
     if(nsoil /= nsoilt) stop'INITIAL CONDITIONS: NSOIL INCORRECT'
 
     ENSURE_VAR( ncid, 'nsnow', varid )
-    ierr = nf90_get_var( ncid, varid, nsnowt )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, nsnowt ) )
     if(nsnow /= nsnowt) stop'INITIAL CONDITIONS: NSNOW INCORRECT'
 
 !    ENSURE_VAR( ncid, 'subcount', varid )
-!    ierr = nf90_get_var( ncid, varid, subcountt )
-!    if( ierr /= nf90_noerr ) call handle_err(ierr)
+!    CHECK( nf90_get_var( ncid, varid, subcountt ) )
 !    if(subcount /= subcountt) stop'INITIAL CONDITIONS: SUBCOUNT INCORRECT'
 
     ENSURE_VAR( ncid, 'version', varid )
-    ierr = nf90_get_var( ncid, varid, versiont )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, versiont ) )
 
     ENSURE_VAR( ncid, 'nsecond', varid )
-    ierr = nf90_get_var( ncid, varid, nsecond )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, nsecond ) )
     if(nsecond /= time%sec_year) stop 'NSECONDS DOES NOT MATCH STARTTIME'
 
     !itb...read nsib vectors
 
     ENSURE_VAR( ncid, 'ta', varid )
-    ierr = nf90_get_var( ncid, varid, ta )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, ta ) )
 
     ENSURE_VAR( ncid, 'tc', varid )
-    ierr = nf90_get_var( ncid, varid, tc )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, tc ) )
     ENSURE_VAR( ncid, 'nsl', varid )
-    ierr = nf90_get_var( ncid, varid, nsl )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, nsl ) )
 
     ENSURE_VAR( ncid, 'pco2a', varid )
-    ierr = nf90_get_var( ncid, varid, pco2ap )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, pco2ap ) )
 
     ENSURE_VAR( ncid, 'd13cca', varid )
-    ierr = nf90_get_var( ncid, varid, d13cca )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, d13cca ) )
 
     ENSURE_VAR( ncid, 'snow_veg', varid )
-    ierr = nf90_get_var( ncid, varid, snow_veg )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, snow_veg ) )
 
     ENSURE_VAR( ncid, 'snow_age', varid )
-    ierr = nf90_get_var( ncid, varid, snow_age )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, snow_age ) )
 
     ENSURE_VAR( ncid, 'snow_depth', varid )
-    ierr = nf90_get_var( ncid, varid, snow_depth )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, snow_depth ) )
 
     ENSURE_VAR( ncid, 'snow_mass', varid )
-    ierr = nf90_get_var( ncid, varid, snow_mass )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, snow_mass ) )
 
     ENSURE_VAR( ncid, 'tke', varid )
-    ierr = nf90_get_var( ncid, varid, tke )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, tke ) )
 
     ENSURE_VAR( ncid, 'sha', varid )
-    ierr = nf90_get_var( ncid, varid, sha )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, sha ) )
 
     !itb...read some 2-d vars
     ENSURE_VAR( ncid, 'td', varid )
-    ierr = nf90_get_var( ncid, varid, deept )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, deept ) )
 
     ENSURE_VAR( ncid, 'www_liq', varid )
-    ierr = nf90_get_var( ncid, varid, www_liq )
+    CHECK( nf90_get_var( ncid, varid, www_liq ) )
 
     ENSURE_VAR( ncid, 'www_ice', varid )
-    ierr = nf90_get_var( ncid, varid, www_ice )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, www_ice ) )
 
     !itb...now the rest...
     ENSURE_VAR( ncid, 'capac1', varid )
-    ierr = nf90_get_var( ncid, varid, capac1 )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, capac1 ) )
 
     ENSURE_VAR( ncid, 'capac2', varid )
-    ierr = nf90_get_var( ncid, varid, capac2 )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, capac2 ) )
 
     ENSURE_VAR( ncid, 'coszbar', varid )
-    ierr = nf90_get_var( ncid, varid, coszbar )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, coszbar ) )
 
     ENSURE_VAR( ncid, 'dayflag', varid )
-    ierr = nf90_get_var( ncid, varid, dayflag )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, dayflag ) )
 
     ENSURE_VAR( ncid, 'rst', varid )
-    ierr = nf90_get_var( ncid, varid, rst )
-    if( ierr /= nf90_noerr ) call handle_err(ierr)
+    CHECK( nf90_get_var( ncid, varid, rst ) )
 
     !Crop Variables (modified by kdcorbin, 01/11)
 
     ENSURE_VAR( ncid, 'pd', varid )
-    call check( nf90_get_var( ncid, varid, pd ) )
+    CHECK( nf90_get_var( ncid, varid, pd ) )
 
     ENSURE_VAR( ncid, 'emerg_d', varid )
-    call check ( nf90_get_var( ncid, varid, emerg_d ) )
+    CHECK( nf90_get_var( ncid, varid, emerg_d ) )
 
     ENSURE_VAR( ncid, 'ndf_opt', varid )
-    call check ( nf90_get_var( ncid, varid, ndf_opt ) )
+    CHECK( nf90_get_var( ncid, varid, ndf_opt ) )
 
     ENSURE_VAR( ncid, 'nd_emerg', varid )
-    call check ( nf90_get_var( ncid, varid, nd_emerg ) )
+    CHECK( nf90_get_var( ncid, varid, nd_emerg ) )
 
     ENSURE_VAR( ncid, 'tempf', varid )
-    call check ( nf90_get_var( ncid, varid, tempf ) )
+    CHECK( nf90_get_var( ncid, varid, tempf ) )
 
     ENSURE_VAR( ncid, 'assim_d', varid )
-    call check ( nf90_get_var( ncid, varid, assim_d ) )
+    CHECK( nf90_get_var( ncid, varid, assim_d ) )
 
     ENSURE_VAR( ncid, 'rstfac_d', varid )
-    call check ( nf90_get_var(ncid, varid, rstfac_d ) )
+    CHECK( nf90_get_var(ncid, varid, rstfac_d ) )
 
     ENSURE_VAR( ncid, 'gdd', varid )
-    call check ( nf90_get_var( ncid, varid, gdd ) )
+    CHECK( nf90_get_var( ncid, varid, gdd ) )
 
     ENSURE_VAR( ncid, 'w_main', varid )
-    call check ( nf90_get_var( ncid, varid, w_main ) )
+    CHECK( nf90_get_var( ncid, varid, w_main ) )
 
     ENSURE_VAR( ncid, 'cum_wt', varid )
-    call check ( nf90_get_var( ncid, varid,cum_wt ) )
+    CHECK( nf90_get_var( ncid, varid,cum_wt ) )
 
     ENSURE_VAR( ncid, 'cum_drywt', varid )
-    call check ( nf90_get_var( ncid, varid, cum_drywt ) )
+    CHECK( nf90_get_var( ncid, varid, cum_drywt ) )
     !End Crop Vars
 
     print*,'      reading in slabs...'
@@ -550,22 +523,22 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     finish(1) = nsib
     finish(2) = nsnow
     ENSURE_VAR( ncid, 'dzsnow', varid )
-    ierr = nf90_get_var( ncid, varid, dz_snow, start, finish )
+    CHECK( nf90_get_var( ncid, varid, dz_snow, start, finish ) )
 
     ENSURE_VAR( ncid, 'lzsnow', varid )
-    ierr = nf90_get_var( ncid, varid, lz_snow, start, finish )
+    CHECK( nf90_get_var( ncid, varid, lz_snow, start, finish ) )
 
     ENSURE_VAR( ncid, 'nzsnow', varid )
-    ierr = nf90_get_var( ncid, varid, nz_snow, start, finish )
+    CHECK( nf90_get_var( ncid, varid, nz_snow, start, finish ) )
 
     ! read in tot_an and tot_ss for rolling respfactor
     ENSURE_VAR( ncid, 'tot_an', varid )
-    ierr = nf90_get_var( ncid, varid, tot_an )
+    CHECK( nf90_get_var( ncid, varid, tot_an ) )
     ENSURE_VAR( ncid, 'tot_ss', varid )
-    ierr = nf90_get_var( ncid, varid, tot_ss )
+    CHECK( nf90_get_var( ncid, varid, tot_ss ) )
 
     !itb...close the file
-    ierr = nf90_close( ncid )
+    CHECK( nf90_close( ncid ) )
 
     print *,'      load data into the structure'
 
@@ -897,4 +870,3 @@ DATA KROOT/3.9,3.9,2.0,5.5,5.5,2.0,5.5,2.0,2.0,5.5,2.0,5.5/
       !endif 
 
 end subroutine soil_properties
-

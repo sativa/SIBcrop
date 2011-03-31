@@ -190,6 +190,9 @@ subroutine qp2merge( num, filenames, out_path )
 
 use netcdf
 use typeSizes
+
+#include "nc_util.h"
+
 implicit none
 
 ! parameters
@@ -240,98 +243,105 @@ integer :: landpoints
 
     ! open all input files
     do f = 1, num
-        status = nf90_open( trim(filenames(f)), nf90_nowrite, ncid(f) )
+        CHECK( nf90_open( trim(filenames(f)), nf90_nowrite, ncid(f) ) )
     enddo
     status = nf90_inquire( ncid(1), nDimensions=numdims, nVariables=numvars,  &
         nAttributes=numatts, unlimitedDimId=unlimitid )
-
+    CHECK( status )
     
-    status = nf90_create( trim(outfile), nf90_clobber, outid )
+    CHECK( nf90_create( trim(outfile), nf90_clobber, outid ) )
     ! copy global attributes and dimensions
     !   over to output file
     do a = 1, numatts
-        status = nf90_inq_attname( ncid(1), nf90_global, a, name )
+        CHECK( nf90_inq_attname( ncid(1), nf90_global, a, name ) )
         status = nf90_copy_att( ncid(1), nf90_global, trim(name),  &
             outid, nf90_global )
+        CHECK( status )
     enddo
     allocate( dimid(numdims) )
     do d = 1, numdims - 1
         if ( d /= unlimitid ) then
-            status = nf90_inquire_dimension( ncid(1), d, name=name, len=dimlen )
-            status = nf90_def_dim( outid, trim(name), dimlen, dimid(d) )
+            CHECK( nf90_inquire_dimension( ncid(1), d, name=name, len=dimlen ) )
+            CHECK( nf90_def_dim( outid, trim(name), dimlen, dimid(d) ) )
         else
-            status = nf90_def_dim( outid, 'time', nf90_unlimited, dimid(d) )
+            CHECK( nf90_def_dim( outid, 'time', nf90_unlimited, dimid(d) ) )
         endif
     enddo
     landpoints = 0
     do f = 1, num
-        status = nf90_inquire_dimension( ncid(f), numdims, name=name, len=dimlen )
+        CHECK( nf90_inquire_dimension( ncid(f), numdims, name=name, len=dimlen ) )
         landpoints = landpoints + dimlen
     enddo
-    status = nf90_def_dim( outid, trim(name), landpoints, dimid(numdims) )
+    CHECK( nf90_def_dim( outid, trim(name), landpoints, dimid(numdims) ) )
     
     ! define variables in the files (excluding lonindex and latindex)
     allocate( vardims(numdims) )
     do n = 1, 7
         status = nf90_inquire_variable( ncid(1), n, name=name, xtype=xtype,  &
             ndims=numdims, dimids=vardims, natts=numatts )
+        CHECK( status )
         status = nf90_def_var( outid, trim(name), xtype,  &
             vardims(1:numdims), varid )
+        CHECK( status )
 
         ! copy attributes over
         do a = 1, numatts
-            status = nf90_inq_attname( ncid(1), n, a, name=name )
-            status = nf90_copy_att( ncid(1), n, trim(name), outid, n )
+            CHECK( nf90_inq_attname( ncid(1), n, a, name=name ) )
+            CHECK( nf90_copy_att( ncid(1), n, trim(name), outid, n ) )
         enddo
     enddo
     status = nf90_inquire_variable( ncid(1), 8, name=name, xtype=xtype,  &
         natts=numatts )
-    status = nf90_def_var( outid, trim(name), xtype, (/5/), varid )
+    CHECK( status )
+    CHECK( nf90_def_var( outid, trim(name), xtype, (/5/), varid ) )
     do a = 1, numatts
-        status = nf90_inq_attname( ncid(1), 8, a, name=name )
-        status = nf90_copy_att( ncid(1), 8, trim(name), outid, varid )
+        CHECK( nf90_inq_attname( ncid(1), 8, a, name=name ) )
+        CHECK( nf90_copy_att( ncid(1), 8, trim(name), outid, varid ) )
     enddo
     status = nf90_inquire_variable( ncid(1), 9, name=name, xtype=xtype,  &
         natts=numatts )
-    status = nf90_def_var( outid, trim(name), xtype, (/5/), varid )
+    CHECK( status )
+    CHECK( nf90_def_var( outid, trim(name), xtype, (/5/), varid ) )
     do a = 1, numatts
-        status = nf90_inq_attname( ncid(1), 9, a, name=name )
-        status = nf90_copy_att( ncid(1), 9, trim(name), outid, varid )
+        CHECK( nf90_inq_attname( ncid(1), 9, a, name=name ) )
+        CHECK( nf90_copy_att( ncid(1), 9, trim(name), outid, varid ) )
     enddo
     do n = 10, numvars
         status = nf90_inquire_variable( ncid(1), n, name=name, xtype=xtype,  &
             natts=numatts )
-        status = nf90_def_var( outid, trim(name), xtype, (/5,1/), varid )
+        CHECK( status )
+        CHECK( nf90_def_var( outid, trim(name), xtype, (/5,1/), varid ) )
         ! copy attributes over
         do a = 1, numatts
-            status = nf90_inq_attname( ncid(1), n, a, name=name )
-            status = nf90_copy_att( ncid(1), n, trim(name), outid, varid )
+            CHECK( nf90_inq_attname( ncid(1), n, a, name=name ) )
+            CHECK( nf90_copy_att( ncid(1), n, trim(name), outid, varid ) )
         enddo
     enddo
     
-    status = nf90_enddef( outid )
+    CHECK( nf90_enddef( outid ) )
     
     ! copy 1-D and 2-D variables over
     do n = 1, 7
         status = nf90_inquire_variable( ncid(1), n, xtype=xtype,  &
             ndims=numdims, dimids=vardims )
+        CHECK( status )
         if ( xtype == nf90_double ) then
-            status = nf90_inquire_dimension( ncid(1), vardims(1), len=dimlen )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(1), len=dimlen ) )
             allocate( dvalues(dimlen) )
-            status = nf90_get_var( ncid(1), n, dvalues )
-            status = nf90_put_var( outid, n, dvalues )
+            CHECK( nf90_get_var( ncid(1), n, dvalues ) )
+            CHECK( nf90_put_var( outid, n, dvalues ) )
             deallocate( dvalues )
         else if ( xtype == nf90_char ) then
-            status = nf90_inquire_dimension( ncid(1), vardims(2), len=dimlen )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(2), len=dimlen ) )
             allocate( cvalues(dimlen) )
-            status = nf90_get_var( ncid(1), n, cvalues )
-            status = nf90_put_var( outid, n, cvalues )
+            CHECK( nf90_get_var( ncid(1), n, cvalues ) )
+            CHECK( nf90_put_var( outid, n, cvalues ) )
             deallocate( cvalues )
         else 
-            status = nf90_inquire_dimension( ncid(1), vardims(1), len=dimlen )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(1), len=dimlen ) )
             allocate( values(dimlen,1) )
-            status = nf90_get_var( ncid(1), n, values )
-            status = nf90_put_var( outid, n, values )
+            CHECK( nf90_get_var( ncid(1), n, values ) )
+            CHECK( nf90_put_var( outid, n, values ) )
             deallocate( values )
         endif
     enddo
@@ -341,34 +351,34 @@ integer :: landpoints
     allocate( latindex(landpoints) )
     a = 1
     do f = 1, num
-        status = nf90_inquire_dimension( ncid(f), 5, len=landlen )
-        status = nf90_get_var( ncid(f), 8, lonindex(a:a+landlen-1) )
-        status = nf90_get_var( ncid(f), 9, latindex(a:a+landlen-1) )
+        CHECK( nf90_inquire_dimension( ncid(f), 5, len=landlen ) )
+        CHECK( nf90_get_var( ncid(f), 8, lonindex(a:a+landlen-1) ) )
+        CHECK( nf90_get_var( ncid(f), 9, latindex(a:a+landlen-1) ) )
         a = a + landlen
     enddo
     
-    status = nf90_put_var( outid, 8, lonindex )
-    status = nf90_put_var( outid, 9, latindex )
+    CHECK( nf90_put_var( outid, 8, lonindex ) )
+    CHECK( nf90_put_var( outid, 9, latindex ) )
     deallocate( lonindex )
     deallocate( latindex )
     
     ! copy variables over to output file
-    status = nf90_inquire_dimension( ncid(1), 1, len=timelen )
+    CHECK( nf90_inquire_dimension( ncid(1), 1, len=timelen ) )
     allocate( result(landpoints,timelen) )
     do n = 10, numvars
         a = 1
         do f = 1, num
-            status = nf90_inquire_dimension( ncid(f), 5, len=landlen )
-            status = nf90_get_var( ncid(f), n, result(a:a+landlen-1,:) )
+            CHECK( nf90_inquire_dimension( ncid(f), 5, len=landlen ) )
+            CHECK( nf90_get_var( ncid(f), n, result(a:a+landlen-1,:) ) )
             a = a + landlen
         enddo
-        status = nf90_put_var( outid, n, result )
+        CHECK( nf90_put_var( outid, n, result ) )
     enddo
     deallocate( result )
     deallocate( dimid )
     deallocate( vardims )
 
-    status = nf90_close( outid )
+    CHECK( nf90_close( outid ) )
 
 end subroutine qp2merge
 
@@ -430,98 +440,108 @@ character(len=256) :: command
 
     ! open all input files
     do f = 1, num
-        status = nf90_open( trim(filenames(f)), nf90_nowrite, ncid(f) )
+        CHECK( nf90_open( trim(filenames(f)), nf90_nowrite, ncid(f) ) )
     enddo
     status = nf90_inquire( ncid(1), nDimensions=numdims, nVariables=numvars,  &
         nAttributes=numatts, unlimitedDimId=unlimitid )
+    CHECK( status )
 
     
-    status = nf90_create( trim(outfile), nf90_clobber, outid )
+    CHECK( nf90_create( trim(outfile), nf90_clobber, outid ) )
     ! copy global attributes and dimensions 
     !   over to output file
     do a = 1, numatts
-        status = nf90_inq_attname( ncid(1), nf90_global, a, name )
+        CHECK( nf90_inq_attname( ncid(1), nf90_global, a, name ) )
         status = nf90_copy_att( ncid(1), nf90_global, trim(name),  &
             outid, nf90_global )
+        CHECK( status )
     enddo
     allocate( dimid(numdims) )
     do d = 1, numdims - 1
         if ( d /= unlimitid ) then
             status = nf90_inquire_dimension( ncid(1), d, name=name, len=dimlen )
-            status = nf90_def_dim( outid, trim(name), dimlen, dimid(d) )
+            CHECK( status )
+            CHECK( nf90_def_dim( outid, trim(name), dimlen, dimid(d) ) )
         else
-            status = nf90_def_dim( outid, 'time', nf90_unlimited, dimid(d) )
+            CHECK( nf90_def_dim( outid, 'time', nf90_unlimited, dimid(d) ) )
         endif
     enddo
     landpoints = 0
     do f = 1, num
         status = nf90_inquire_dimension( ncid(f), numdims, name=name, len=dimlen )
+        CHECK( status )
         landpoints = landpoints + dimlen
     enddo
-    status = nf90_def_dim( outid, trim(name), landpoints, dimid(numdims) )
+    CHECK( nf90_def_dim( outid, trim(name), landpoints, dimid(numdims) ) )
     
     ! define variables in the files 
     allocate( vardims(numdims) )
     do n = 1, 8
         status = nf90_inquire_variable( ncid(1), n, name=name, xtype=xtype,  &
             ndims=numdims, dimids=vardims, natts=numatts )
+        CHECK( status )
         status = nf90_def_var( outid, trim(name), xtype,  &
             vardims(1:numdims), varid )
+        CHECK( status )
 
         ! copy attributes over
         do a = 1, numatts
-            status = nf90_inq_attname( ncid(1), n, a, name=name )
-            status = nf90_copy_att( ncid(1), n, trim(name), outid, n )
+            CHECK( nf90_inq_attname( ncid(1), n, a, name=name ) )
+            CHECK( nf90_copy_att( ncid(1), n, trim(name), outid, n ) )
         enddo
     enddo
     status = nf90_inquire_variable( ncid(1), 9, name=name, xtype=xtype,  &
         natts=numatts )
-    status = nf90_def_var( outid, trim(name), xtype, (/6/), varid )
+    CHECK( status )
+    CHECK( nf90_def_var( outid, trim(name), xtype, (/6/), varid ) )
     do a = 1, numatts
-        status = nf90_inq_attname( ncid(1), 9, a, name=name )
-        status = nf90_copy_att( ncid(1), 9, trim(name), outid, varid )
+        CHECK( nf90_inq_attname( ncid(1), 9, a, name=name ) )
+        CHECK( nf90_copy_att( ncid(1), 9, trim(name), outid, varid ) )
     enddo
     status = nf90_inquire_variable( ncid(1), 10, name=name, xtype=xtype,  &
         natts=numatts )
-    status = nf90_def_var( outid, trim(name), xtype, (/6/), varid )
+    CHECK( status )
+    CHECK( nf90_def_var( outid, trim(name), xtype, (/6/), varid ) )
     do a = 1, numatts
-        status = nf90_inq_attname( ncid(1), 10, a, name=name )
-        status = nf90_copy_att( ncid(1), 10, trim(name), outid, varid )
+        CHECK( nf90_inq_attname( ncid(1), 10, a, name=name ) )
+        CHECK( nf90_copy_att( ncid(1), 10, trim(name), outid, varid ) )
     enddo
     do n = 11, numvars
         status = nf90_inquire_variable( ncid(1), n, name=name, xtype=xtype,  &
             natts=numatts )
-        status = nf90_def_var( outid, trim(name), xtype, (/6,5,1/), varid )
+        CHECK( status )
+        CHECK( nf90_def_var( outid, trim(name), xtype, (/6,5,1/), varid ) )
         ! copy attributes over
         do a = 1, numatts
-            status = nf90_inq_attname( ncid(1), n, a, name=name )
-            status = nf90_copy_att( ncid(1), n, trim(name), outid, varid )
+            CHECK( nf90_inq_attname( ncid(1), n, a, name=name ) )
+            CHECK( nf90_copy_att( ncid(1), n, trim(name), outid, varid ) )
         enddo
     enddo
     
-    status = nf90_enddef( outid )
+    CHECK( nf90_enddef( outid ) )
     
     ! copy 1-D and 2-D variables over
     do n = 1, 8
         status = nf90_inquire_variable( ncid(1), n, xtype=xtype,  &
             ndims=numdims, dimids=vardims )
+        CHECK( status )
         if ( xtype == nf90_double ) then
-            status = nf90_inquire_dimension( ncid(1), vardims(1), len=dimlen )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(1), len=dimlen ) )
             allocate( dvalues(dimlen) )
-            status = nf90_get_var( ncid(1), n, dvalues )
-            status = nf90_put_var( outid, n, dvalues )
+            CHECK( nf90_get_var( ncid(1), n, dvalues ) )
+            CHECK( nf90_put_var( outid, n, dvalues ) )
             deallocate( dvalues )
         else if ( xtype == nf90_char ) then
-            status = nf90_inquire_dimension( ncid(1), vardims(2), len=dimlen )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(2), len=dimlen ) )
             allocate( cvalues(dimlen) )
-            status = nf90_get_var( ncid(1), n, cvalues )
-            status = nf90_put_var( outid, n, cvalues )
+            CHECK( nf90_get_var( ncid(1), n, cvalues ) )
+            CHECK( nf90_put_var( outid, n, cvalues ) )
             deallocate( cvalues )
         else 
-            status = nf90_inquire_dimension( ncid(1), vardims(1), len=dimlen )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(1), len=dimlen ) )
             allocate( values(dimlen,1,1) )
-            status = nf90_get_var( ncid(1), n, values )
-            status = nf90_put_var( outid, n, values )
+            CHECK( nf90_get_var( ncid(1), n, values ) )
+            CHECK( nf90_put_var( outid, n, values ) )
             deallocate( values )
         endif
     enddo
@@ -531,35 +551,35 @@ character(len=256) :: command
     allocate( latindex(landpoints) )
     a = 1
     do f = 1, num
-        status = nf90_inquire_dimension( ncid(f), 6, len=landlen )
-        status = nf90_get_var( ncid(f), 9, lonindex(a:a+landlen-1) )
-        status = nf90_get_var( ncid(f), 10, latindex(a:a+landlen-1) )
+        CHECK( nf90_inquire_dimension( ncid(f), 6, len=landlen ) )
+        CHECK( nf90_get_var( ncid(f), 9, lonindex(a:a+landlen-1) ) )
+        CHECK( nf90_get_var( ncid(f), 10, latindex(a:a+landlen-1) ) )
         a = a + landlen
     enddo
     
-    status = nf90_put_var( outid, 9, lonindex )
-    status = nf90_put_var( outid, 10, latindex )
+    CHECK( nf90_put_var( outid, 9, lonindex ) )
+    CHECK( nf90_put_var( outid, 10, latindex ) )
     deallocate( lonindex )
     deallocate( latindex )
     
     ! copy variables over to output file
-    status = nf90_inquire_dimension( ncid(1), 1, len=timelen )
-    status = nf90_inquire_dimension( ncid(1), 5, len=levlen )
+    CHECK( nf90_inquire_dimension( ncid(1), 1, len=timelen ) )
+    CHECK( nf90_inquire_dimension( ncid(1), 5, len=levlen ) )
     allocate( result(landpoints,levlen,timelen) )
     do n = 11, numvars
         a = 1
         do f = 1, num
-            status = nf90_inquire_dimension( ncid(f), 6, len=landlen )
-            status = nf90_get_var( ncid(f), n, result(a:a+landlen-1,:,:) )
+            CHECK( nf90_inquire_dimension( ncid(f), 6, len=landlen ) )
+            CHECK( nf90_get_var( ncid(f), n, result(a:a+landlen-1,:,:) ) )
             a = a + landlen
         enddo
-        status = nf90_put_var( outid, n, result )
+        CHECK( nf90_put_var( outid, n, result ) )
     enddo
     deallocate( result )
     deallocate( dimid )
     deallocate( vardims )
 
-    status = nf90_close( outid )
+    CHECK( nf90_close( outid ) )
 
 end subroutine qp3merge
 
@@ -614,16 +634,16 @@ character(len=256) :: command
         print *, "restart files don\'t exist for specified year and month"
         return
     endif
-    status = nf90_inquire( ncid(1), nDimensions=numdims, nVariables=numvars )
+    CHECK( nf90_inquire( ncid(1), nDimensions=numdims, nVariables=numvars ) )
 
     ! create output file
-    status = nf90_create( trim(out_path), nf90_clobber, outid )
+    CHECK( nf90_create( trim(out_path), nf90_clobber, outid ) )
 
     ! copy dimensions over to output file
     allocate( dimid(numdims) )
     do d = 1, numdims
-        status = nf90_inquire_dimension( ncid(1), d, name=name, len=dimlen )
-        status = nf90_def_dim( outid, trim(name), dimlen, dimid(d) )
+        CHECK( nf90_inquire_dimension( ncid(1), d, name=name, len=dimlen ) )
+        CHECK( nf90_def_dim( outid, trim(name), dimlen, dimid(d) ) )
     enddo
 
     ! define variables in the files 
@@ -632,40 +652,42 @@ character(len=256) :: command
     do n = 1, numvars
         status = nf90_inquire_variable( ncid(1), n, name=name, xtype=xtype,  &
             ndims=numdims, dimids=vardims )
+        CHECK( status )
         status = nf90_def_var( outid, trim(name), xtype,  &
             vardims(1:numdims), varid )
+        CHECK( status )
     enddo
     
-    status = nf90_enddef( outid )
+    CHECK( nf90_enddef( outid ) )
 
     ! copy non-variant values to output file
     allocate( intvalues(1) )
     allocate( realvalues(1,1,1) )
-    status = nf90_get_var( ncid(1), 1, intvalues )
-    status = nf90_put_var( outid, 1, intvalues )
-    status = nf90_get_var( ncid(1), 2, intvalues )
-    status = nf90_put_var( outid, 2, intvalues )
-    status = nf90_get_var( ncid(1), 3, intvalues )
-    status = nf90_put_var( outid, 3, intvalues )
-    status = nf90_get_var( ncid(1), 4, realvalues )
-    status = nf90_put_var( outid, 4, realvalues )
-    status = nf90_get_var( ncid(1), 5, intvalues )
-    status = nf90_put_var( outid, 5, intvalues )
+    CHECK( nf90_get_var( ncid(1), 1, intvalues ) )
+    CHECK( nf90_put_var( outid, 1, intvalues ) )
+    CHECK( nf90_get_var( ncid(1), 2, intvalues ) )
+    CHECK( nf90_put_var( outid, 2, intvalues ) )
+    CHECK( nf90_get_var( ncid(1), 3, intvalues ) )
+    CHECK( nf90_put_var( outid, 3, intvalues ) )
+    CHECK( nf90_get_var( ncid(1), 4, realvalues ) )
+    CHECK( nf90_put_var( outid, 4, realvalues ) )
+    CHECK( nf90_get_var( ncid(1), 5, intvalues ) )
+    CHECK( nf90_put_var( outid, 5, intvalues ) )
     
     
     ! open remaining restart files to merge
     do f = 2, num
-        status = nf90_open( trim(filenames(f)), nf90_nowrite, ncid(f) )
+        CHECK( nf90_open( trim(filenames(f)), nf90_nowrite, ncid(f) ) )
     enddo
     
     ! add up subcount and write to file
     allocate( intresults(1) )
     intresults = 0
     do f = 1, num
-        status = nf90_get_var( ncid(f), 6, intvalues )
+        CHECK( nf90_get_var( ncid(f), 6, intvalues ) )
         intresults = intresults + intvalues
     enddo
-    status = nf90_put_var( outid, 6, intresults )
+    CHECK( nf90_put_var( outid, 6, intresults ) )
   
     ! add up arrays and write out to file
     deallocate( intvalues )
@@ -673,71 +695,73 @@ character(len=256) :: command
     deallocate( intresults )
     do n = 7, numvars
         status = nf90_inquire_variable( ncid(1), n, ndims=numdims,  &
-            dimids=vardims, xtype=xtype, name=name )
+             dimids=vardims, xtype=xtype, name=name )
+        CHECK( status )
         if ( xtype == nf90_int ) then
-            status = nf90_inquire_dimension( ncid(1), vardims(1), len=lengths(1) )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(1), len=lengths(1) ) )
             allocate( intvalues(lengths(1)) )
             allocate( intresults(lengths(1)) )
             intresults(:) = 0
             do f = 1, num
-                status = nf90_get_var( ncid(f), n, intvalues(:) )
+                CHECK( nf90_get_var( ncid(f), n, intvalues(:) ) )
                 intresults = intresults + intvalues
             enddo
-            status = nf90_put_var( outid, n, intresults(:) )
+            CHECK( nf90_put_var( outid, n, intresults(:) ) )
             deallocate( intvalues )
             deallocate( intresults )
         else if ( trim(name) == 'tot_an' ) then
-            status = nf90_inquire_dimension( ncid(1), vardims(1), len=lengths(1) )
-            status = nf90_inquire_dimension( ncid(1), vardims(2), len=lengths(2) )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(1), len=lengths(1) ) )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(2), len=lengths(2) ) )
             allocate( realvalues(lengths(1), lengths(2), 1) )
             allocate( realresults(lengths(1), lengths(2), 1) )
             realresults(:,:,:) = 1.e36
             do f = 1, num
-                status = nf90_get_var( ncid(f), n, realvalues )
+                CHECK( nf90_get_var( ncid(f), n, realvalues ) )
                 do v = 1, lengths(2)
                     if ( realvalues(1,v,1) /= 1.e36 )  &
                         realresults(:,v,1) = realvalues(:,v,1)
                 enddo
             enddo
-            status = nf90_put_var( outid, n, realresults )
+            CHECK( nf90_put_var( outid, n, realresults ) )
             deallocate( realvalues )
             deallocate( realresults )
         else if ( trim(name) == 'tot_ss' ) then
-            status = nf90_inquire_dimension( ncid(1), vardims(1), len=lengths(1) )
-            status = nf90_inquire_dimension( ncid(1), vardims(2), len=lengths(2) )
-            status = nf90_inquire_dimension( ncid(1), vardims(3), len=lengths(3) )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(1), len=lengths(1) ) )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(2), len=lengths(2) ) )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(3), len=lengths(3) ) )
             allocate( realvalues(lengths(1), lengths(2), lengths(3)) )
             allocate( realresults(lengths(1), lengths(2), lengths(3)) )
             realresults(:,:,:) = 1.e36
             do f = 1, num
-                status = nf90_get_var( ncid(f), n, realvalues )
+                CHECK( nf90_get_var( ncid(f), n, realvalues ) )
                 do v = 1, lengths(2)
                     if ( realvalues(1,v,1) /= 1.e36 )  &
                         realresults(:,v,:) = realvalues(:,v,:)
                 enddo
             enddo
-            status = nf90_put_var( outid, n, realresults )
+            CHECK( nf90_put_var( outid, n, realresults ) )
             deallocate( realvalues )
             deallocate( realresults )
         else
-            status = nf90_inquire_dimension( ncid(1), vardims(1), len=lengths(1) )
+            CHECK( nf90_inquire_dimension( ncid(1), vardims(1), len=lengths(1) ) )
             if ( numdims == 1 ) then
                 lengths(2) = 1
             else
-                status = nf90_inquire_dimension( ncid(1), vardims(2),  &
+               status = nf90_inquire_dimension( ncid(1), vardims(2),  &
                     len=lengths(2) )
+               CHECK( status )
             endif
             allocate( realvalues(lengths(1),lengths(2),1) )
             allocate( realresults(lengths(1),lengths(2),1) )
             realresults(:,:,:) = 1.e36
             do f = 1, num
-                status = nf90_get_var( ncid(f), n, realvalues )
+                CHECK( nf90_get_var( ncid(f), n, realvalues ) )
                 do v = 1, lengths(1)
                     if ( realvalues(v,1,1) /= 1.e36 )  &
                         realresults(v,:,1) = realvalues(v,:,1)
                 enddo
             enddo
-            status = nf90_put_var( outid, n, realresults )
+            CHECK( nf90_put_var( outid, n, realresults ) )
             deallocate( realvalues )
             deallocate( realresults )
         endif
@@ -747,7 +771,7 @@ character(len=256) :: command
     do f = 1, num
         status = nf90_close( ncid(f) )
     enddo
-    status = nf90_close( outid )
+    CHECK( nf90_close( outid ) )
 
     deallocate( dimid )
     deallocate( vardims )
@@ -826,32 +850,35 @@ character(len=256) :: command
     ! find out information from input files
     status = nf90_inquire( ncid(e), nDimensions=numdims, nVariables=numvars,  &
         nAttributes=numatts, unlimitedDimId=unlimitid )
-    
+    CHECK( status )
+
     ! create output file
-    status = nf90_create( trim(outfile), nf90_clobber, outid )
+    CHECK( nf90_create( trim(outfile), nf90_clobber, outid ) )
 
     ! copy global attributes over to output file
     do a = 1, numatts
-        status = nf90_inq_attname( ncid(e), nf90_global, a, name )
+        CHECK( nf90_inq_attname( ncid(e), nf90_global, a, name ) )
         status = nf90_copy_att( ncid(e), nf90_global, trim(name),  &
             outid, nf90_global )
+        CHECK( status )
     enddo
     
     ! copy dimensions over to output file
     allocate( dimid(numdims) )
-    status = nf90_def_dim( outid, 'time', nf90_unlimited, dimid(1) )
-    status = nf90_def_dim( outid, 'char_len', 10, dimid(2) )
+    CHECK( nf90_def_dim( outid, 'time', nf90_unlimited, dimid(1) ) )
+    CHECK( nf90_def_dim( outid, 'char_len', 10, dimid(2) ) )
     dimcount = 0
     do f = 1, num
         if ( exists(f) ) then
             status = nf90_inquire_dimension( ncid(f), 3, name=name,  &
                 len=dimlen )
+            CHECK( status )
             dimcount = dimcount + dimlen
         endif
     enddo
-    status = nf90_def_dim( outid, trim(name), dimcount, dimid(3) )
+    CHECK( nf90_def_dim( outid, trim(name), dimcount, dimid(3) ) )
     if ( numdims == 4 )  &
-        status = nf90_def_dim( outid, 'level', 10, dimid(4) )
+        CHECK( nf90_def_dim( outid, 'level', 10, dimid(4) ) )
     
     ! define variables in the files 
     allocate( vardims(numdims) )
@@ -859,32 +886,34 @@ character(len=256) :: command
 
         status = nf90_inquire_variable( ncid(e), n, name=name, xtype=xtype,  &
             ndims=vdims, dimids=vardims, natts=numatts )
+        CHECK( status )
         status = nf90_def_var( outid, trim(name), xtype,  &
             vardims(1:vdims), varid )
+        CHECK( status )
 
         ! copy attributes over
         do a = 1, numatts
-            status = nf90_inq_attname( ncid(e), n, a, name=name )
-            status = nf90_copy_att( ncid(e), n, trim(name), outid, n )
+            CHECK( nf90_inq_attname( ncid(e), n, a, name=name ) )
+            CHECK( nf90_copy_att( ncid(e), n, trim(name), outid, n ) )
         enddo
     enddo
     
-    status = nf90_enddef( outid )
+    CHECK( nf90_enddef( outid ) )
     
     ! copy variables that don't depend on npoints
-    status = nf90_inquire_dimension( ncid(e), 1, len=dimlen )
+    CHECK( nf90_inquire_dimension( ncid(e), 1, len=dimlen ) )
     allocate( dvalues(dimlen) )
-    status = nf90_get_var( ncid(e), 1, dvalues )
-    status = nf90_put_var( outid, 1, dvalues )
+    CHECK( nf90_get_var( ncid(e), 1, dvalues ) )
+    CHECK( nf90_put_var( outid, 1, dvalues ) )
     deallocate( dvalues )
     allocate( cvalues(dimlen) )
-    status = nf90_get_var( ncid(e), 2, cvalues )
-    status = nf90_put_var( outid, 2, cvalues )
+    CHECK( nf90_get_var( ncid(e), 2, cvalues ) )
+    CHECK( nf90_put_var( outid, 2, cvalues ) )
     deallocate( cvalues )
     if ( numdims == 4 ) then
         allocate( ivalues(10) )
-        status = nf90_get_var( ncid(e), 6, ivalues )
-        status = nf90_put_var( outid, 6, ivalues )
+        CHECK( nf90_get_var( ncid(e), 6, ivalues ) )
+        CHECK( nf90_put_var( outid, 6, ivalues ) )
         deallocate( ivalues )
     endif
     
@@ -893,7 +922,7 @@ character(len=256) :: command
     do n = 1, dimcount
         ivalues(n) = n
     enddo
-    status = nf90_put_var( outid, 3, ivalues )
+    CHECK( nf90_put_var( outid, 3, ivalues ) )
     deallocate( ivalues )
     
     ! copy latitude and longitude variables
@@ -902,12 +931,12 @@ character(len=256) :: command
         d = 1
         do f = 1, num
             if ( exists(f) ) then
-                status = nf90_inquire_dimension( ncid(f), 3, len=e )
-                status = nf90_get_var( ncid(f), v, fvalues(d:d+e-1,:,:) )
+                CHECK( nf90_inquire_dimension( ncid(f), 3, len=e ) )
+                CHECK( nf90_get_var( ncid(f), v, fvalues(d:d+e-1,:,:) ) )
                 d = d + e
             endif
         enddo
-        status = nf90_put_var( outid, v, fvalues )
+        CHECK( nf90_put_var( outid, v, fvalues ) )
     enddo
     deallocate( fvalues )
     
@@ -923,15 +952,15 @@ character(len=256) :: command
         d = 1
         do f = 1, num
             if ( exists(f) ) then
-                status = nf90_inquire_dimension( ncid(f), 3, len=e )
-                status = nf90_get_var( ncid(f), v, fvalues(d:d+e-1,:,:) )
+                CHECK( nf90_inquire_dimension( ncid(f), 3, len=e ) )
+                CHECK( nf90_get_var( ncid(f), v, fvalues(d:d+e-1,:,:) ) )
                 d = d + e
             endif
         enddo
-        status = nf90_put_var( outid, v, fvalues )
+        CHECK( nf90_put_var( outid, v, fvalues ) )
     enddo
 
-    status = nf90_close( outid )
+    CHECK( nf90_close( outid ) )
 
     deallocate( fvalues )
     deallocate( vardims )
