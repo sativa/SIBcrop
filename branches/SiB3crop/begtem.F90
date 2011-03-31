@@ -323,15 +323,15 @@ subroutine begtem(sib,sib_loc)
 	 sib%diag%rstfac(2) = ((1+sib%diag%wssp) * sib%diag%pawfrac)/    &
 	                      (sib%diag%wssp + sib%diag%pawfrac)
 	
-!	print*,sib%diag%paw_tot, sib%diag%paw_max, sib%diag%pawfrac, sib%diag%rstfac(2)
-	
-    
     !itb...maintain rstfac2 at or above 0.1
     sib%diag%rstfac(2) = MAX(sib%diag%rstfac(2), 0.1_dbl_kind)
 
-    !EL..under irrigated conditions, temporarily changed the rstfac(2) to 1.0 (and commented out the above line) &
-    !EL.. to avoid the moisture stress.
-    !sib%diag%rstfac(2) = MAX(sib%diag%rstfac(2), 1.0_dbl_kind)
+    !EL..under irrigated conditions, changed the rstfac(2) to 1.0 
+    !to avoid the moisture stress.
+    !kdcorbin, 03/11 - added test for crops
+    !if (sib%param%biome .ge. 20) then
+    !    sib%diag%rstfac(2) = MAX(sib%diag%rstfac(2), 1.0_dbl_kind)
+    !endif
 
     !----------------------------------------------------------------------
     !
