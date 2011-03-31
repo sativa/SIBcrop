@@ -34,11 +34,11 @@ use sib_io_module, only:  &
     soref_source, &
     drvr_type  !kdcorbin, 01/11
 use sib_bc_module
-#ifdef PGF
+
 use netcdf
 use typeSizes
-#endif
 
+#include "nc_util.h"
 
 ! declare input variables
 type(sib_t) :: sib(subcount)
@@ -78,12 +78,10 @@ character(len=10) name
     if (status /= nf90_noerr) call handle_err (status)
 
     ! check zwind and ztemp values
-    status = nf90_inq_varid (tiid, 'zwind', varid)
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR(tiid, 'zwind', varid)
     status = nf90_get_var ( tiid, varid, testzwind )
     if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inq_varid ( tiid, 'ztemp', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'ztemp', varid )
     status = nf90_get_var ( tiid, varid, testztemp )
     if ( status /= nf90_noerr ) call handle_err (status)
     if ( zwind /= testzwind ) then
@@ -106,14 +104,13 @@ character(len=10) name
     ! biome - not read in for single point runs
     ! kdcorbin, 01/11
    if (drvr_type .ne. 'single') then
-       status = nf90_inq_varid ( tiid, 'biome', varid )
-       if (status /= nf90_noerr) call handle_err (status)
+       ENSURE_VAR( tiid, 'biome', varid )
        status = nf90_get_var ( tiid, varid, biome )
        if (status /= nf90_noerr) call handle_err (status)
    endif
 
     ! soilnum
-    status = nf90_inq_varid ( tiid, 'soilnum', varid )
+    ENSURE_VAR( tiid, 'soilnum', varid )
     if (status /= nf90_noerr) call handle_err (status)
     !kdcorbin, 02/11 - added name,ndims specifiers
     status = nf90_inquire_variable ( tiid, varid, name=name,ndims=ndims )
@@ -135,8 +132,7 @@ character(len=10) name
     endif
 
     ! fvcover
-    status = nf90_inq_varid ( tiid, 'fvcover', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'fvcover', varid )
     status = nf90_get_var ( tiid, varid, vcover )
     if (status /= nf90_noerr) call handle_err (status)
 
@@ -146,57 +142,48 @@ character(len=10) name
     status = nf90_inquire_dimension ( tiid, dimid, name, phys )
     if (status /= nf90_noerr) call handle_err (status)
     allocate(phystype(nsib,phys))
-    status = nf90_inq_varid ( tiid, 'phystype', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'phystype', varid )
     status = nf90_get_var ( tiid, varid, phystype )
     if (status /= nf90_noerr) call handle_err (status)
 
     ! sorefvis
-    status = nf90_inq_varid ( tiid, 'sorefvis', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'sorefvis', varid )
     status = nf90_get_var ( tiid, varid, soref1 )
     if (status /= nf90_noerr) call handle_err (status)
 
     ! sorefnir
-    status = nf90_inq_varid ( tiid, 'sorefnir', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'sorefnir', varid )
     status = nf90_get_var ( tiid, varid, soref2 )
     if (status /= nf90_noerr) call handle_err (status)
 
     ! laigrid
-    status = nf90_inq_varid ( tiid, 'laigrid', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'laigrid', varid )
     status = nf90_get_var ( tiid, varid, laigrid )
     if (status /= nf90_noerr) call handle_err (status)
 
     ! fvcgrid
-    status = nf90_inq_varid ( tiid, 'fvcgrid', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'fvcgrid', varid )
     status = nf90_get_var ( tiid, varid, fvcovergrid )
     if (status /= nf90_noerr) call handle_err (status)
 
     ! aero_zo
     allocate (aerovar(50,50,nvar))
-    status = nf90_inq_varid ( tiid, 'aero_zo', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'aero_zo', varid )
     status = nf90_get_var ( tiid, varid, aerovar%zo )
     if (status /= nf90_noerr) call handle_err (status)
 
     ! aero_zp
-    status = nf90_inq_varid ( tiid, 'aero_zp', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'aero_zp', varid )
     status = nf90_get_var ( tiid, varid, aerovar%zp_disp )
     if (status /= nf90_noerr) call handle_err (status)
 
     ! aero_rbc
-    status = nf90_inq_varid ( tiid, 'aero_rbc', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'aero_rbc', varid )
     status = nf90_get_var ( tiid, varid, aerovar%rbc )
     if (status /= nf90_noerr) call handle_err (status)
 
     ! areo_rdc
-    status = nf90_inq_varid ( tiid, 'aero_rdc', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'aero_rdc', varid )
     status = nf90_get_var ( tiid, varid, aerovar%rdc )
     if (status /= nf90_noerr) call handle_err (status)
 
@@ -225,20 +212,16 @@ character(len=10) name
     allocate(soilvart(numsoil,svar))
     allocate(morphvart(nvar,morphvar))
 
-    status = nf90_inq_varid ( tiid, 'biome_tablec3', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'biome_tablec3', varid )
     status = nf90_get_var ( tiid, varid, biovart3 )
     if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inq_varid ( tiid, 'biome_tablec4', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'biome_tablec4', varid )
     status = nf90_get_var ( tiid, varid, biovart4 )
     if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inq_varid ( tiid, 'soil_table', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'soil_table', varid )
     status = nf90_get_var ( tiid, varid, soilvart )
     if (status /= nf90_noerr) call handle_err (status)
-    status = nf90_inq_varid ( tiid, 'morph_table', varid )
-    if (status /= nf90_noerr) call handle_err (status)
+    ENSURE_VAR( tiid, 'morph_table', varid )
     status = nf90_get_var ( tiid, varid, morphvart )
     if (status /= nf90_noerr) call handle_err (status)
 

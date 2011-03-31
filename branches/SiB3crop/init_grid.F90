@@ -6,14 +6,14 @@ subroutine init_grid( rank, nchunks )
 ! modifications:
 ! kdcorbin, 03/11 - removed grid_path file
 
-#ifdef PGF
 use netcdf
 use typeSizes
-#endif
+
 use kinds
 use sib_const_module
 use sib_io_module
 
+#include "nc_util.h"
 
 ! parameters
 integer(kind=int_kind), intent(in) :: rank
@@ -125,10 +125,10 @@ namelist /SIBDRV_CONTROL_LIST/ &
     status = nf90_inquire_dimension( ncid, dimid, dim_name,dimlen )
     if ( status /= nf90_noerr ) call handle_err( status )
     if ( dimlen /= nsib ) print *, dimlen, 'and', nsib, "don\'t match"
-    
-    status = nf90_inq_varid( ncid, 'latsib', varid )
+
+    ENSURE_VAR( ncid, 'latsib', varid )
     status = nf90_get_var( ncid, varid, latsib )
-    status = nf90_inq_varid( ncid, 'lonsib', varid )
+    ENSURE_VAR( ncid, 'lonsib', varid )
     status = nf90_get_var( ncid, varid, lonsib )
 
      !kdcorbin, 03/11 - modified reading TI file for single point runs
@@ -136,23 +136,23 @@ namelist /SIBDRV_CONTROL_LIST/ &
          latindex=1
          lonindex=1
      else
-         status = nf90_inq_varid( ncid, 'latindex', varid )
+         ENSURE_VAR(ncid, 'latindex', varid)
          status = nf90_get_var( ncid, varid, latindex )
-         status = nf90_inq_varid( ncid, 'lonindex', varid )
+         ENSURE_VAR(ncid, 'lonindex', varid)
          status = nf90_get_var( ncid, varid, lonindex )
     endif
 
-    status = nf90_inq_varid( ncid, 'numlat', varid )
+    ENSURE_VAR( ncid, 'numlat', varid )
     status = nf90_get_var( ncid, varid, jhr )
-    status = nf90_inq_varid( ncid, 'numlon', varid )
+    ENSURE_VAR( ncid, 'numlon', varid )
     status = nf90_get_var( ncid, varid, ihr )
-    status = nf90_inq_varid( ncid, 'dlat', varid )
+    ENSURE_VAR( ncid, 'dlat', varid )
     status = nf90_get_var( ncid, varid, dlat )
-    status = nf90_inq_varid( ncid, 'dlon', varid )
+    ENSURE_VAR( ncid, 'dlon', varid )
     status = nf90_get_var( ncid, varid, dlon )
-    status = nf90_inq_varid( ncid, 'lllat', varid )
+    ENSURE_VAR( ncid, 'lllat', varid )
     status = nf90_get_var( ncid, varid, lllat )
-    status = nf90_inq_varid( ncid, 'lllon', varid )
+    ENSURE_VAR( ncid, 'lllon', varid )
     status = nf90_get_var( ncid, varid, lllon )
     
     status = nf90_close( ncid )

@@ -180,7 +180,8 @@ SCI_OBJS  = addinc.o \
 	    sib.o # sib.o NEEDS TO BE LAST
 
 # Netcdf Objects
-NCDF_OBJS = handle_err.o 
+NCDF_OBJS = handle_err.o \
+			nc_util.o
 
 # SiB Drive objects
 DRV_OBJS  = init_grid.o \
