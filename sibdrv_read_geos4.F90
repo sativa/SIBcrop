@@ -59,16 +59,10 @@ use typeSizes
 type(sib_t), dimension(subcount), intent(inout) :: sib
 type(time_struct), intent(in) :: time
 
-real(kind=dbl_kind) :: pid180 
-real(kind=dbl_kind) :: cosz(nsib)
-
-integer(kind=int_kind) :: i, iyear, imon, iday, idoy, ihour, imin
-
-integer(kind=int_kind) ::  n
+integer(kind=int_kind) :: i
 
 character*100 filename
-character*7 gchar
-integer(kind=int_kind) :: nctimeid,ncyid,ncmid,nctdid,ncdoyid,nchid
+integer(kind=int_kind) :: ncyid,ncmid,nctdid,ncdoyid,nchid
 integer(kind=int_kind), dimension(2) :: mstart,mcount
 
 integer(kind=int_kind) :: nct2mid ! Temperature at 2 m
@@ -92,8 +86,8 @@ real(kind=real_kind), dimension(nsib) :: lsp ! Large Scale Precipitation
 real(kind=real_kind), dimension(nsib) :: cvp ! Convective Precipitation
 
 integer(kind=int_kind) :: status
-real(kind=real_kind) :: xtime,xyear,xmonth,xdoy,xday,xhour
-real(kind=dbl_kind), dimension(nsib) :: xx,uwd,vwd
+real(kind=real_kind) :: xyear,xmonth,xdoy,xday,xhour
+real(kind=dbl_kind), dimension(nsib) :: uwd,vwd
 
 character(len=13) :: subname
 data subname/'sibdrv_read '/

@@ -186,12 +186,6 @@ subroutine phosib(sib,sib_loc)
     real(kind=dbl_kind) :: pdamp
     real(kind=dbl_kind) :: qdamp
     real(kind=dbl_kind) :: tprcor    ! temperature correction (K)
-
-    real(kind=dbl_kind) :: co2a_star ! intermediate value of co2a to be used with
-                                      ! time filter when conditions warrant
-
-    real(kind=dbl_kind) :: gah2o_crit ! critical value of CAS-ref level conductance. 
-                                       ! Conductance above this value invokes time filter.
     real(kind=dbl_kind) :: rstar    ! universal gas constant (N m mole^-1 K^-1)
     
     rstar = 8.3143

@@ -73,7 +73,6 @@ real(kind=real_kind) :: t1  ! 1st factor to determine longitude of earth (lonear
 real(kind=real_kind) :: t2  ! 2nd factor to determine longitude of earth (lonearth)
 real(kind=real_kind) :: t3  ! 3rd factor to determine longitude of earth (lonearth)
 real(kind=real_kind) :: t4  ! 4th factor to determine longitude of earth (lonearth)
-integer(kind=int_kind) :: iday    ! day of year since vernal equinox variable
 real(kind=real_kind) :: rt_asc
 
     ! reset lon of Earth from equinox

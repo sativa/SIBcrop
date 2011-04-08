@@ -39,7 +39,6 @@ subroutine netrad (sib,sib_loc)
 
     !Bio...LOCAL VARIABLES
     real(kind=dbl_kind) :: &
-        tsnow,   & ! snow temperature (K)
         tc4,     & ! canopy temp **4
         tg4,     & ! ground temp **4
         ts4,     & ! snow temp **4

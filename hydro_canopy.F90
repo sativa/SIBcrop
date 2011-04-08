@@ -105,7 +105,6 @@ real(kind=dbl_kind) :: capac1m   ! capac(1) ( canopy water in meters)
 
 integer(kind=int_kind) :: pcptype    ! precip type; 1=rain 2=snow
 integer(kind=int_kind) :: newnode    ! new snow layer indicator
-integer(kind=int_kind) :: i,j        ! loop index
 
 data pcoefs(1,1)/ 20. /, pcoefs(1,2)/ .206E-8 /, &
     pcoefs(2,1)/ 0.0001 /, pcoefs(2,2)/ 0.9999 /, bp /20. /

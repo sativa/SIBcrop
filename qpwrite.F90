@@ -179,7 +179,7 @@ integer :: status       ! return status of netcdf functions
 integer :: dimid        ! dimension id #
 
 ! local variables
-integer :: n, i                      ! index variables
+integer :: n                         ! index variables
 integer :: step                      ! next time step in qp file
 double precision :: dyear
 character(len=10) :: char_time       ! mm/dd/yyyy
@@ -408,7 +408,7 @@ integer :: status   ! return status of netcdf functions
 integer :: dimid    ! dimension id #
 
 ! local variables
-integer :: n, i, l      ! index variables
+integer :: n            ! index variable
 integer :: step         ! next time step in qp file
 double precision :: dyear
 character(len=10) :: char_time      ! mm/dd/yyyy
@@ -476,7 +476,6 @@ character(len=100), intent(in) :: d13cresp_source
 integer, intent(in) :: rank
 
 ! local variables
-integer :: status
 character(len=30) :: current_time
 character(len=8) :: t_date
 character(len=10) :: t_time

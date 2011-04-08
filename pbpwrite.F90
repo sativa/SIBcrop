@@ -153,7 +153,7 @@ integer :: status
 integer :: dimid
 
 ! local variables
-integer :: i, n
+integer :: i
 integer :: step
 double precision :: dyear
 character(len=10) :: char_time
@@ -328,7 +328,7 @@ integer :: unit_len, long_len       ! not used, returned by get_units()
     enddo
     CHECK( nf90_put_var( pbp2id, levid, levels_array(:) ) )
 
-	CHECK( nf90_close( pbp2id ) )
+    CHECK( nf90_close( pbp2id ) )
     
     
 end subroutine create_pbp2

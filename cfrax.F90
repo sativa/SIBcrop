@@ -113,7 +113,7 @@ module cfrax
                     (kiecrbsco-kiecdis-kieclphas) * sib%diag%pco2c(i) ) &
                     / sib%prog%pco2ap
 
-            else 	!C4 plants given constant KIE = 4.4per mil  
+            else !C4 plants given constant KIE = 4.4per mil  
 	    
                 sib%diag%kiecps(i) = kiecstom
 		 

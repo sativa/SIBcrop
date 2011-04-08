@@ -118,8 +118,6 @@ real(kind=dbl_kind) :: evap     ! evaporation, from CAS to atmosphere.
 !   evap from top soil layer as well 
 !   as snow (kg/m^2)
 
-real(kind=dbl_kind) :: transp   ! transpiration (kg/m^2)
-
 real(kind=dbl_kind) :: runoff   ! total runoff: surface + subsurface
 !    (kg/m^2)
 real(kind=dbl_kind) :: sbeg,send! sum holders

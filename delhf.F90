@@ -58,7 +58,6 @@ type(sib_local_vars)     ,intent(inout) :: sib_loc
 real(kind=dbl_kind) :: rai    ! 1/ra
 real(kind=dbl_kind) :: rbi    ! 1/rb
 real(kind=dbl_kind) :: rdi    ! 1/rd
-integer i                                      
 
 !-----------------------------------------------------------------------
 !                                                                       

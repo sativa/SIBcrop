@@ -25,7 +25,7 @@ type(time_struct), intent(in) :: time
 integer(kind=int_kind), intent(in) :: rank
 
 !Bio...local variables
-integer(kind=int_kind) :: i,j,ierr,ncid,i1,i2
+integer(kind=int_kind) :: i,j,ncid
 integer(kind=int_kind) :: vdims(3)
 integer(kind=int_kind) :: start(2)
 integer(kind=int_kind) :: vcount(2)

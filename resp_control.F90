@@ -150,7 +150,7 @@ type(sib_t), dimension(subcount), intent(inout) :: sib
 type(time_struct), intent(in) :: time                                
 ! local variables
 
-integer :: n,l,n1                  ! looping indices
+integer :: n,l                  ! looping indices
 double precision :: xag         ! fraction of annual respiration from
                                 !   above-ground sources
 double precision :: xagmin      ! minimum above-ground resp fraction 

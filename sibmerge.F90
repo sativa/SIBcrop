@@ -213,8 +213,6 @@ integer, dimension(:), allocatable :: vardims  ! variable dimensions
 integer :: dimlen                              ! dimension length
 integer :: timelen                             ! dimension length
 integer :: landlen                             ! dimension length
-integer :: latlen                              ! dimension length
-integer :: lonlen                              ! dimension length
 integer :: xtype                               ! variable data type
 integer :: numdims                             ! # dimensions in input files
 integer :: varid                               ! variable id#
@@ -409,8 +407,6 @@ integer, dimension(:), allocatable :: vardims  ! variable dimensions
 integer :: dimlen                              ! dimension length
 integer :: timelen                             ! dimension length
 integer :: landlen                             ! dimension length
-integer :: latlen                              ! dimension length
-integer :: lonlen                              ! dimension length
 integer :: levlen                              ! dimension length
 integer :: xtype                               ! variable data type
 integer :: numdims                             ! # dimensions in input files
@@ -612,7 +608,6 @@ integer :: xtype                               ! variable data type
 
 ! local variables
 integer :: d,v,f,n                                  ! index variables
-character(len=256) :: outfile                       ! output file name
 integer, dimension(:), allocatable :: lengths       ! dimension lengths
 integer, dimension(:), allocatable :: intvalues     ! input data values
 integer, dimension(:), allocatable :: intresults    ! output data values
@@ -802,7 +797,6 @@ integer :: varid
 integer :: numatts
 integer :: numdims
 integer :: vdims
-integer :: npoints
 integer :: numvars
 integer :: unlimitid
 integer :: dimlen
@@ -819,7 +813,6 @@ integer, dimension(:), allocatable :: ivalues
 character(len=10), dimension(:), allocatable :: cvalues        ! output data values
 double precision, dimension(:), allocatable :: dvalues
 real, dimension(:,:,:), allocatable :: fvalues
-real, dimension(:,:,:), allocatable :: fresults
 character(len=256) :: command
 
     ! copy file if only one process, then return out of subroutine

@@ -23,7 +23,6 @@ subroutine vntlat(sib,sib_loc)
 
     !...LOCAL VARIABLES
 
-    real(kind=dbl_kind) :: ps
     real(kind=dbl_kind) :: u2 
     real(kind=dbl_kind) :: cuni 
     real(kind=dbl_kind) :: temv 

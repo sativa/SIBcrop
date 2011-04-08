@@ -33,7 +33,7 @@ subroutine rnload(sib)
 
 
 
-    integer(kind=int_kind) :: i, iveg, iwave, irad
+    integer(kind=int_kind) :: iveg, iwave, irad
     real(kind=dbl_kind)    :: radn(2,2)
 
     !-------------------------------------------------------------

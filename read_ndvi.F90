@@ -30,7 +30,6 @@ type(time_struct) :: time
 integer(kind=int_kind) :: i,j
 integer(kind=int_kind) :: ntest1     ! value of nsib read from sib_bc file
 integer(kind=int_kind) :: dimid
-integer(kind=int_kind) :: status
 integer(kind=int_kind) :: begin (2)  ! indices where to start and 
 integer(kind=int_kind) :: finish (2) !   finish reading from file
 integer(kind=int_kind) :: yyid       ! ndvi file id#
@@ -41,8 +40,7 @@ integer(kind=int_kind) :: modis_time_id  ! modis time variable id# - kdcorbin, 0
 integer(kind=int_kind) :: var_id       ! misc variable id #
 integer(kind=int_kind) :: phys_id    ! physfrac variable id#
 integer(kind=int_kind) :: d13_id     ! d13cresp variable id#
-integer(kind=int_kind) :: x,y
-real(kind=real_kind), dimension(nsib) :: ndvi ! temp variables for parameters
+!real(kind=real_kind), dimension(nsib) :: ndvi ! temp variables for parameters
 real(kind=real_kind), dimension(nsib,physmax)  :: frac
 real(kind=real_kind), dimension(nsib)  :: d13
 character(len=10) :: name

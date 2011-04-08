@@ -15,7 +15,6 @@ type(sib_t), dimension(subcount),intent(inout) :: sib
 type(time_struct), intent(in) :: time
 
 !local variables
-integer(kind=int_kind) :: ntest1  ! compare nsib value of file to simulation
 integer(kind=int_kind) :: i,k
 real :: dummy  !used to read in variables that are real in file,
                        !but need to be cast as ints

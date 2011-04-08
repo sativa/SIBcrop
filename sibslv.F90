@@ -54,17 +54,9 @@ real(kind=dbl_kind),parameter :: grav2 = grav * 0.01_dbl_kind
 
 integer(kind=int_kind) :: error_flag,i,j,k
 
-real(kind=dbl_kind):: aag
-real(kind=dbl_kind):: aac
-real(kind=dbl_kind):: aam
-real(kind=dbl_kind):: bbg
-real(kind=dbl_kind):: bbc
-real(kind=dbl_kind):: bbm
-real(kind=dbl_kind):: temv 
-
 !...matrix arrays - variable, due to potential snow layers
 real(kind=dbl_kind),dimension(15-sib%prog%nsl,15-sib%prog%nsl) :: avec
-real(kind=dbl_kind),dimension(15-sib%prog%nsl)   :: bvec,bv_copy
+real(kind=dbl_kind),dimension(15-sib%prog%nsl)   :: bvec
 integer(kind=int_kind),dimension(15-sib%prog%nsl)   :: cvec   
 
 !...this routine sets up the coupled system of partial 

@@ -13,7 +13,7 @@ implicit none
 type(sib_t), dimension(:), allocatable :: sib
 type(time_struct) :: time
 integer(kind=long_kind) :: t
-integer(kind=int_kind) :: i,k
+integer(kind=int_kind) :: i
 integer(kind=int_kind) :: rank
 integer(kind=int_kind) :: nchunks
 integer, external :: iargc
@@ -28,7 +28,6 @@ real(kind=dbl_kind) residual
       
 ! command line variables
 character(len=4) :: one, two
-character(len=4) :: dfdfd
 
 !Crop variables:
 type time_dep_var

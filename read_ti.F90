@@ -47,10 +47,7 @@ type(sib_t) :: sib(subcount)
 integer(kind=int_kind) ::  i,q,j           !  index variables for loops
 integer(kind=int_kind) ::  start (2)      !  arrays that define where
 integer(kind=int_kind) ::  done (2)       !  to start and stop reading 
-integer(kind=int_kind) ::  begin (3)      !  variables from 
-integer(kind=int_kind) ::  finish (3)     !  sib_bc_TI.nc
 integer(kind=int_kind) ::  tiid           !  file id#
-integer(kind=int_kind) ::  status         !  error status check
 integer(kind=int_kind) ::  ndims          !  number of dimensions (soiltype)
 integer(kind=int_kind) ::  dimid, nvar    !  dimension id#, number of variables
 
