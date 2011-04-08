@@ -24,10 +24,10 @@ IMPLICIT NONE
 
 ! begin input variables
 real lat         ! center latitude of grid cell
-real(kind=dbl_kind) :: fVCover     !
-real(kind=dbl_kind) :: ChiL	 !
-real LTran(2,2)  !
-real LRef(2,2)   !
+real(kind=dbl_kind) :: fVCover
+real(kind=dbl_kind) :: ChiL
+real LTran(2,2)
+real LRef(2,2)
 
 ! begin input biome dependant, physical morphology variables
 type biome_morph_var
@@ -42,7 +42,7 @@ type(biome_morph_var) MorphTab
 
 ! begin input aerodynamic parameters
 type aero_var
-   real (kind=real_kind) :: zo	      ! Canopy roughness coeff 
+   real (kind=real_kind) :: zo       ! Canopy roughness coeff 
    real (kind=real_kind) :: zp_disp  ! Zero plane displacement
    real (kind=real_kind) :: RbC      ! RB Coefficient
    real (kind=real_kind) :: RdC      ! RC Coefficient
@@ -82,8 +82,8 @@ real(kind=real_kind), parameter :: fPARmin=0.01
    !------------------------------------------------------------------
 
    call laigrn_phen (TimeVar%fPAR, fPARmax, fVCover,         &
-        	    MorphTab%stems, MorphTab%LAImax, TimeVar%Green,   &
-        	    TimeVar%LAI)
+                     MorphTab%stems, MorphTab%LAImax, TimeVar%Green,   &
+                     TimeVar%LAI)
 
    ! Interpolate to calculate aerodynamic, time varying variables
    call AeroInterpolate (TimeVar%LAI, fVCover, LAIgrid,fVCovergrid,   &

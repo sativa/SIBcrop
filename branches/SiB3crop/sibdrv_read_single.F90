@@ -17,7 +17,7 @@ type(time_struct), intent(in) :: time
 ! local variables
 integer(kind=int_kind) :: i
 integer(kind=int_kind) :: status
-real(kind=dbl_kind) :: yr, doy, hr,dy
+real(kind=dbl_kind) :: yr, doy, hr
 real(kind=dbl_kind) :: temp_dpt  ! dew point
 character(len=256) :: filename
 character(len=13) :: subname
@@ -68,9 +68,9 @@ data subname/'sibdrv_read '/
             if ( record(1:1) .ne. '#' ) exit
         enddo
 
-        	read(unit=record,fmt=*)yr,doy,hr,sib(1)%prog%tm2,temp_dpt, &
-            sib(1)%prog%spdm2,sib(1)%prog%ps2,sib(1)%prog%dlwbot2,   &
-            sib(1)%prog%sw_dwn2,sib(1)%prog%lspr2,sib(1)%prog%cupr2
+        read(unit=record,fmt=*)yr,doy,hr,sib(1)%prog%tm2,temp_dpt, &
+             sib(1)%prog%spdm2,sib(1)%prog%ps2,sib(1)%prog%dlwbot2,   &
+             sib(1)%prog%sw_dwn2,sib(1)%prog%lspr2,sib(1)%prog%cupr2
 
 !
 ! calculate large scale precipitation
@@ -83,7 +83,7 @@ data subname/'sibdrv_read '/
 !
 ! KS convert dew point to specific humidity
     	!  call qsat_eau(1,sib%prog%ps2*100.0,temp_dpt,sib%prog%sh2) 
-			sib%prog%sh2=temp_dpt
+        sib%prog%sh2=temp_dpt
 ! check for zero humidity
     if(sib(1)%prog%sh2==0.) sib(1)%prog%sh2=1.e-4
   

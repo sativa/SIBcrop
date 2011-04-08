@@ -127,10 +127,9 @@ implicit none
 
 integer(kind=int_kind) :: i,n
 logical(kind=log_kind) :: doqptem
-integer(kind=int_kind) :: ipbp, ldummy, ndummy
+integer(kind=int_kind) :: ldummy, ndummy
 character (len=16) :: nametem
 character (len=80) :: listtem
-integer(kind=int_kind), dimension(:), allocatable :: imulttem, imulttem2
 
 
     !-------------------------------------------------------------
@@ -332,7 +331,6 @@ use sib_io_module
 type(sib_t), dimension(subcount), intent(inout) :: sib
 type(time_struct), intent(inout) :: time
 ! netcdf variables
-integer(kind=int_kind) :: ierr
 integer(kind=int_kind) :: ncid
 integer(kind=int_kind) :: varid
 
@@ -342,7 +340,6 @@ integer(kind=int_kind) :: nsibt
 integer(kind=int_kind) :: nsoilt
 integer(kind=int_kind) :: nsnowt
 real(kind=int_kind) :: versiont
-integer(kind=int_kind) :: subcountt
 integer(kind=int_kind), dimension(2) :: start
 integer(kind=int_kind), dimension(2) :: finish
 real(kind=dbl_kind), dimension(nsib) :: ta

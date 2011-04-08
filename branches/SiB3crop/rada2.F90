@@ -104,7 +104,6 @@ subroutine rada2(sib,sib_loc)
     real(kind=dbl_kind) :: tsurf
     real(kind=dbl_kind) :: tg4
     real(kind=dbl_kind) :: tc4
-    real(kind=dbl_kind) :: fac2
     real(kind=dbl_kind) :: zkat
 
 

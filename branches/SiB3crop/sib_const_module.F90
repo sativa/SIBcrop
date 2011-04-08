@@ -11,24 +11,24 @@ module sib_const_module
 
     real(kind=dbl_kind) :: dtt       ! model time step (seconds) 
     real(kind=dbl_kind) :: dti       ! inverse time step
-
+    
     !--variables that retain a constant value throughout the simulation
     integer(kind=int_kind) ::     &
-        nsib,           & !  number of SiB points in datasets
-        subcount,       & !  actual number of SiB point in simulation
-        snowl,          & !  number of (actual) snow layers
-        ihr,            & !  global points in x-direction
-        jhr,            & !  global points in y-direction
-        nhr,           &   !  ihr*jhr (total global points)
-        nper                ! number of ndvi composite periods - kdcorbin, 02/11
-
+         nsib,           & !  number of SiB points in datasets
+         subcount,       & !  actual number of SiB point in simulation
+         snowl,          & !  number of (actual) snow layers
+         ihr,            & !  global points in x-direction
+         jhr,            & !  global points in y-direction
+         nhr,            & !  ihr*jhr (total global points)
+         nper              ! number of ndvi composite periods - kdcorbin, 02/11
+    
     integer(kind=long_kind) :: &
-	endtime,        & !  end time of integration -- units can vary
-        starttime,      & !  start time of integration -- units can vary
-	dtsib,          & !  timestep in seconds
-        dtsibmetin,     & !  driver data input interval (seconds)
-        dtsibres,       & !  restart interval (see namel_sibdrv for exp)
-        dtsibout	  !  output interval (see namel_sibdrv for exp)
+         endtime,        & !  end time of integration -- units can vary
+         starttime,      & !  start time of integration -- units can vary
+         dtsib,          & !  timestep in seconds
+         dtsibmetin,     & !  driver data input interval (seconds)
+         dtsibres,       & !  restart interval (see namel_sibdrv for exp)
+         dtsibout          !  output interval (see namel_sibdrv for exp)
 
      integer(kind=int_kind) :: &
         dtsibbcin,      & !  sib boundary condition input interval

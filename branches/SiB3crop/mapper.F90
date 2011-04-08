@@ -22,10 +22,10 @@ IMPLICIT NONE
 real lat         ! center latitude of grid cell
 real(kind=real_kind) :: curNDVI        ! FASIR NDVI values for a grid cell
 real(kind=real_kind) :: prevNDVI    ! previous month's NDVI value
-real(kind=dbl_kind) :: fVCover     !
-real(kind=dbl_kind) :: ChiL	 !
-real LTran(2,2)  !
-real LRef(2,2)   !
+real(kind=dbl_kind) :: fVCover
+real(kind=dbl_kind) :: ChiL
+real LTran(2,2)
+real LRef(2,2)
 
 ! begin input biome dependant, physical morphology variables
 type biome_morph_var
@@ -45,7 +45,7 @@ type(biome_morph_var) MorphTab
 
 ! begin input aerodynamic parameters
 type aero_var
-   real (kind=real_kind) :: zo	      ! Canopy roughness coeff 
+   real (kind=real_kind) :: zo       ! Canopy roughness coeff 
    real (kind=real_kind) :: zp_disp  ! Zero plane displacement
    real (kind=real_kind) :: RbC      ! RB Coefficient
    real (kind=real_kind) :: RdC      ! RC Coefficient
@@ -91,11 +91,11 @@ real(kind=real_kind), parameter :: fPARmin=0.01
    prevfPAR = 0.
    call AverageAPAR (prevNDVI, MorphTab%NDVImin, MorphTab%NDVImax,   &
                      MorphTab%SRmin, MorphTab%SRmax, fPARmax,        &
-		             fParmin, prevfPAR)
+                     fParmin, prevfPAR)
 
    call AverageAPAR (curNDVI, MorphTab%NDVImin, MorphTab%NDVImax,    &
                      MorphTab%SRmin, MorphTab%SRmax, fPARmax,        &
-		             fParmin, TimeVar%fPAR)
+                     fParmin, TimeVar%fPAR)
 
 
    ! Calculate leaf area index (LAI) and greeness fraction (Green)
@@ -104,8 +104,8 @@ real(kind=real_kind), parameter :: fPARmin=0.01
    !   Select previous month
 
    call laigrn (TimeVar%fPAR, prevfPAR, fPARmax, fVCover,         &
-        	    MorphTab%stems, MorphTab%LAImax, TimeVar%Green,   &
-        	    TimeVar%LAI)
+                MorphTab%stems, MorphTab%LAImax, TimeVar%Green,   &
+                TimeVar%LAI)
 
 
    ! Interpolate to calculate aerodynamic, time varying variables
@@ -370,7 +370,7 @@ implicit none
 ! begin input variables
 real Lat      ! latitude in degrees
 real DOY      ! day-of-year (typically middle day of the month)
-real(kind=dbl_kind) :: ChiL	 ! leaf angle distribution factor
+real(kind=dbl_kind) :: ChiL  ! leaf angle distribution factor
 
 ! begin output variables
 real gmudmu   ! time mean projected leaf area normal to Sun

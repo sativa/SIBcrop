@@ -59,10 +59,6 @@ subroutine vmfcalz(sib,zzwind,zztemp,cuni)
     !...this is a patch that makes the results better, but it is 
     !...unjustified scientifically.
 
-
-    !...LOCAL VARIABLES
-    integer ::   i
-
     !  constants for surface flux functions, according to Holtslag and
     !      Boville (1993, J. Climate)
     real(kind=dbl_kind), parameter ::  &

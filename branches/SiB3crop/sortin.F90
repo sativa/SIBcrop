@@ -31,7 +31,7 @@ subroutine sortin( eyy, pco2y, range, gammas, ic)
 
     !Bio...LOCAL VARIABLES
 
-    integer(kind=int_kind) ::  i,j,n,l,i1,i2,i3,isp,is,ix
+    integer(kind=int_kind) ::  i,j,n,i1,i2,i3,isp,is,ix
 
     logical (kind=log_kind) :: bitx    !
 

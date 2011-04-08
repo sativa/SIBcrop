@@ -33,15 +33,15 @@ character*100 filename  ! filename used to read in ndvi data
         read(32,*)
         read(32,*) sib%param%biome
         read(32,*) dummy
-		sib%param%phystype(1) = dummy
+        sib%param%phystype(1) = dummy
         read(32,*) dummy
-		sib%param%phystype(2) = dummy
+        sib%param%phystype(2) = dummy
         read(32,*) dummy
-		sib%param%phystype(3) = dummy
+        sib%param%phystype(3) = dummy
         read(32,*) dummy
-		sib%param%phystype(4) = dummy
+        sib%param%phystype(4) = dummy
         read(32,*) dummy
-		sib%param%phystype(5) = dummy
+        sib%param%phystype(5) = dummy
         read(32,*) sib%param%z2
         read(32,*) sib%param%z1
         read(32,*) sib%param%vcover

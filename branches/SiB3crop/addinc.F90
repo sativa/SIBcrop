@@ -14,7 +14,7 @@ type(sib_t), intent(inout) :: sib
 type(sib_local_vars),      intent(inout) :: sib_loc
 
 !-Local Variables------------------------------------------------
-integer(kind=int_kind) :: i,j
+integer(kind=int_kind) :: j
 
 !----------------------------------------------------------------
 !

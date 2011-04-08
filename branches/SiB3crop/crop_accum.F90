@@ -12,9 +12,9 @@ subroutine crop_accum(sib,time,timevar)
 
   implicit none
 
-  integer(kind=int_kind) :: i0, n, i, j, sibpt
+  integer(kind=int_kind) :: i, j, sibpt
   real(kind=dbl_kind)    :: drate, dgrowth, dgrowth_opt
-  real(kind=dbl_kind)    :: max_wmain, assimd_new, x
+  real(kind=dbl_kind)    :: max_wmain, assimd_new
   real(kind=dbl_kind)    :: coeff  !variable for carbon/CO2 conversion coefficient
 
   ! begin time dependant, output variables
@@ -92,7 +92,7 @@ subroutine crop_accum(sib,time,timevar)
         endif
 
         if (sib(sibpt)%param%biome == (19 + corn_num)) then  
-           call corn_phen	
+           call corn_phen
         elseif (sib(sibpt)%param%biome == (19 + soy_num)) then
            call soy_phen
         elseif (sib(sibpt)%param%biome == (19 + wwheat_num) .or. &
@@ -207,7 +207,7 @@ contains
     !EL...sib(sibpt)%diag%ndf_opt= no. of days with avg. temperature above 57F 
     !EL..(i.e. avg warm enough  temp for considering planting)
     if (sib(sibpt)%diag%tempf < 57.0) then
-       sib(sibpt)%diag%ndf_opt = 0	    
+       sib(sibpt)%diag%ndf_opt = 0
     else
        sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
     endif
@@ -234,7 +234,7 @@ contains
     !EL.. sib(sibpt)%diag%nd_emerg= no. of days since emergence
 
     if (sib(sibpt)%diag%gdd < 100.0) then
-       sib(sibpt)%diag%nd_emerg = 0			
+       sib(sibpt)%diag%nd_emerg = 0
     else
        sib(sibpt)%diag%nd_emerg = sib(sibpt)%diag%nd_emerg + 1
     endif
@@ -248,14 +248,14 @@ contains
     !EL...date based on the above ndf_opt criterion
     !EL...Calculation of GDDs occurs between 50 and 86 F
 
-	if (sib(sibpt)%diag%pd > 0          .and. & 
+    if (sib(sibpt)%diag%pd > 0          .and. &
         time%doy >= sib(sibpt)%diag%pd  .and. &
         sib(sibpt)%diag%tempf > 50.0    .and. &
         sib(sibpt)%diag%tempf < 86.0) then
 
        sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
             sib(sibpt)%diag%tempf - 50.0
-	endif
+    endif
 
     !itb_crop...harvest: reset
     !kdcorbin, 02/11 - added check for LAI and phen_switch
@@ -281,7 +281,7 @@ contains
           sib(sibpt)%diag%wch(i)         = 0.0001
           sib(sibpt)%diag%cum_drywt(i)   = 0.0001
        enddo
-	endif
+    endif
 
  !-----------------------------------------------------------
  ! allocation sheme for fractions for assimilate partitioning
@@ -291,11 +291,11 @@ contains
  !......(each stage given as a range of GDDs below) 
     if (sib(sibpt)%diag%gdd < 100.0) then
        sib(sibpt)%diag%alloc(:) = 0.0
-	elseif (sib(sibpt)%diag%gdd < 400.0) then
+    elseif (sib(sibpt)%diag%gdd < 400.0) then
        sib(sibpt)%diag%alloc(1) = 0.5
        sib(sibpt)%diag%alloc(2) = 0.3
-       sib(sibpt)%diag%alloc(3) = 0.2	
-       sib(sibpt)%diag%alloc(4) = 0.0	
+       sib(sibpt)%diag%alloc(3) = 0.2
+       sib(sibpt)%diag%alloc(4) = 0.0
     elseif (sib(sibpt)%diag%gdd < 1000.0) then
        temp1 = (sib(sibpt)%diag%gdd - 400.0) / 400.0
        sib(sibpt)%diag%alloc(1) = 0.5 - 0.2  * temp1
@@ -313,19 +313,19 @@ contains
        sib(sibpt)%diag%alloc(2) = 0.35 + 0.05 * temp1
        sib(sibpt)%diag%alloc(3) = 0.35 - 0.1  * temp1
        sib(sibpt)%diag%alloc(4) =        0.1  * temp1
-	elseif (sib(sibpt)%diag%gdd < 1560.0) then
+    elseif (sib(sibpt)%diag%gdd < 1560.0) then
        temp1 = (sib(sibpt)%diag%gdd - 1260.0) / 300.
        sib(sibpt)%diag%alloc(1) = 0.25 - 0.17 * temp1
        sib(sibpt)%diag%alloc(2) = 0.40 - 0.39 * temp1
        sib(sibpt)%diag%alloc(3) = 0.25 - 0.20 * temp1
        sib(sibpt)%diag%alloc(4) = 0.1  + 0.75 * temp1
-	elseif (sib(sibpt)%diag%gdd < 2730.0) then
+    elseif (sib(sibpt)%diag%gdd < 2730.0) then
        temp1 = (sib(sibpt)%diag%gdd - 1560.0) / 1170.
        sib(sibpt)%diag%alloc(1) = 0.08
        sib(sibpt)%diag%alloc(2) = 0.01 - 0.01 * temp1
        sib(sibpt)%diag%alloc(3) = 0.05 - 0.05 * temp1
        sib(sibpt)%diag%alloc(4) = 0.85 + 0.07 * temp1
-	else
+    else
        sib(sibpt)%diag%alloc(:) = 0.0
     endif
 
@@ -473,7 +473,7 @@ contains
     !EL...calculates cumulative new biomass, which will be used in calculating
     !..... the following day's maint respn
 
-    do j = 1,4	 
+    do j = 1,4
        sib(sibpt)%diag%cum_wt(j) = sib(sibpt)%diag%cum_wt(j) + &
             sib(sibpt)%diag%allocwt(j)
     enddo
@@ -499,7 +499,7 @@ contains
     !--------------------------------------------------------------
     !Calculate final cumulative dry weight (g C m-2) of each plant part
     !--------------------------------------------------------------
-    do j = 1,4	 
+    do j = 1,4
        sib(sibpt)%diag%cum_drywt(j) = sib(sibpt)%diag%cum_drywt(j) + &
             sib(sibpt)%diag%wch(j)
     enddo
@@ -602,17 +602,17 @@ contains
 
     !EL...sib%diag%ndf_opt = no. of days with avg. temperature above 67F
 
-	if (sib(sibpt)%diag%tempf < 66.5) then
-       sib(sibpt)%diag%ndf_opt = 0			
-	else   	
+    if (sib(sibpt)%diag%tempf < 66.5) then
+       sib(sibpt)%diag%ndf_opt = 0
+    else
        sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
-	endif
+    endif
 
-	if (sib(sibpt)%diag%ndf_opt == 7 .and. &
+    if (sib(sibpt)%diag%ndf_opt == 7 .and. &
          sib(sibpt)%diag%pd_annual == 0) then
        sib(sibpt)%diag%pd = time%doy
        sib(sibpt)%diag%pd_annual = 1
-	endif
+    endif
 
     if (sib(sibpt)%diag%pd > 0 .and. sib(sibpt)%diag%tempf < 50.0 .and. &
          time%doy >= sib(sibpt)%diag%pd + 1 .and. &
@@ -628,20 +628,20 @@ contains
     !EL...since pd is printed out as 0 before the real planting 
     !EL...date based on the above ndf_opt criterion
     
-	if (sib(sibpt)%diag%pd > 0 .and. time%doy >= sib(sibpt)%diag%pd .and. &
+    if (sib(sibpt)%diag%pd > 0 .and. time%doy >= sib(sibpt)%diag%pd .and. &
         sib(sibpt)%diag%tempf > 50.0 .and. &
         sib(sibpt)%diag%tempf < 86.0) then
 
        sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
             sib(sibpt)%diag%tempf - 50.0
-	endif
+    endif
  
     !EL...to avoid gdd calculation after harvesting is done, allowing 
     !EL...ample time between planting and harvesting
 
     !kdcorbin, 02/11 - moved all harvest resets here
     !   and added phen_lai and phen_switch checks
-	if (sib(sibpt)%diag%phen_switch == 1 .and. &
+    if (sib(sibpt)%diag%phen_switch == 1 .and. &
          (time%doy > sib(sibpt)%diag%pd + 160 .or. &
            (time%doy > sib(sibpt)%diag%pd + 100 .and. & 
             sib(sibpt)%diag%phen_lai < min_lai_crop))) then
@@ -660,7 +660,7 @@ contains
           sib(sibpt)%diag%wch(i)         = 0.0001
           sib(sibpt)%diag%cum_drywt(i)   = 0.0001
        enddo
-	endif
+    endif
 
  !-----------------------------------------------------------
  ! allocation sheme for fractions for assimilate partitioning
@@ -678,8 +678,8 @@ contains
        elseif (time%doy < sib(sibpt)%diag%pd + 30) then
           sib(sibpt)%diag%alloc(1) = 0.5
           sib(sibpt)%diag%alloc(2) = 0.25
-          sib(sibpt)%diag%alloc(3) = 0.25	
-          sib(sibpt)%diag%alloc(4) = 0.0	
+          sib(sibpt)%diag%alloc(3) = 0.25
+          sib(sibpt)%diag%alloc(4) = 0.0
        else if (time%doy < sib(sibpt)%diag%pd + 40) then
           sib(sibpt)%diag%alloc(1) = 0.5  - 0.05 * (dapd - 30) / 10.0
           sib(sibpt)%diag%alloc(2) = 0.25 + 0.05 * (dapd - 30) / 10.0
@@ -772,9 +772,9 @@ contains
     !EL.. Carbon amount (0.37 g C m-2) was derived by multiplying 
     !EL...the seedling weight by 0.43
 
-	if (sib(sibpt)%diag%pd > 0 .and. time%doy == sib(sibpt)%diag%pd + 10) then
+    if (sib(sibpt)%diag%pd > 0 .and. time%doy == sib(sibpt)%diag%pd + 10) then
        sib(sibpt)%diag%w_main = 0.26
-	endif
+    endif
 
     !EL...basic daily growth rate for the initial growth phase, 
     !EL...depending on the average no. of days
@@ -881,7 +881,7 @@ contains
     !EL...calculates cumulative new biomass, which will be used in calculating 
     !EL...the following day's maint respn
 
-    do j=1,4	 
+    do j=1,4
        sib(sibpt)%diag%cum_wt(j) = sib(sibpt)%diag%cum_wt(j) + &
             sib(sibpt)%diag%allocwt(j)
     enddo
@@ -1057,7 +1057,7 @@ contains
 
        if (time%doy >= 91) then
           if (sib(sibpt)%diag%tempc < 12.0) then
-             sib(sibpt)%diag%ndf_opt = 0		
+             sib(sibpt)%diag%ndf_opt = 0
           elseif (sib(sibpt)%diag%tempc < 25.0) then
              sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
           endif
@@ -1159,13 +1159,13 @@ endif
     !-----------------------------------------------------------   
     !EL...1-roots, 2-leaves,3-stems,4-products (flowers and grains)
 
-	if (sib(sibpt)%diag%gdd < 105.0 .or. sib(sibpt)%diag%gdd > 2300.0) then
+    if (sib(sibpt)%diag%gdd < 105.0 .or. sib(sibpt)%diag%gdd > 2300.0) then
        sib(sibpt)%diag%alloc(:) = 0.0
     elseif (sib(sibpt)%diag%gdd < 350.0) then
        sib(sibpt)%diag%alloc(1) = 0.4
        sib(sibpt)%diag%alloc(2) = 0.4
-       sib(sibpt)%diag%alloc(3) = 0.2	
-       sib(sibpt)%diag%alloc(4) = 0.0	
+       sib(sibpt)%diag%alloc(3) = 0.2
+       sib(sibpt)%diag%alloc(4) = 0.0
     elseif (sib(sibpt)%diag%gdd < 680.0) then
        temp1 = (sib(sibpt)%diag%gdd - 350.0) / 330.0
        sib(sibpt)%diag%alloc(1) = 0.4 - 0.1  * temp1
@@ -1216,32 +1216,32 @@ endif
           sib(sibpt)%diag%alloc(3) = 0.32
        endif
        sib(sibpt)%diag%alloc(4) = 0.0
-	elseif (sib(sibpt)%diag%gdd < 1629.0) then
-       temp1 = (sib(sibpt)%diag%gdd - 1569.0) / 60.0	
+    elseif (sib(sibpt)%diag%gdd < 1629.0) then
+       temp1 = (sib(sibpt)%diag%gdd - 1569.0) / 60.0
        sib(sibpt)%diag%alloc(1) = 0.23
        sib(sibpt)%diag%alloc(2) = 0.45 - 0.05 * temp1
        sib(sibpt)%diag%alloc(3) = 0.32 - 0.12 * temp1
        sib(sibpt)%diag%alloc(4) =        0.17 * temp1
-	elseif (sib(sibpt)%diag%gdd < 1773.0) then
+    elseif (sib(sibpt)%diag%gdd < 1773.0) then
        temp1 = (sib(sibpt)%diag%gdd - 1629.0) / 144.0
        sib(sibpt)%diag%alloc(1) = 0.23 - 0.13 * temp1
        sib(sibpt)%diag%alloc(2) = 0.4  - 0.25 * temp1
        sib(sibpt)%diag%alloc(3) = 0.2  - 0.1  * temp1
        sib(sibpt)%diag%alloc(4) = 0.17 + 0.48 * temp1
-	elseif (sib(sibpt)%diag%gdd < 2184.0) then
-       temp1 = (sib(sibpt)%diag%gdd - 1773.0) / 411.0	
+    elseif (sib(sibpt)%diag%gdd < 2184.0) then
+       temp1 = (sib(sibpt)%diag%gdd - 1773.0) / 411.0
        sib(sibpt)%diag%alloc(1) = 0.1  - 0.05 * temp1
        sib(sibpt)%diag%alloc(2) = 0.15 - 0.1  * temp1
        sib(sibpt)%diag%alloc(3) = 0.1  - 0.05 * temp1
        sib(sibpt)%diag%alloc(4) = 0.65 + 0.2  * temp1
        !EL...winterwheat root fraction reaches 0.1 towards maturity (ref: Baret et al., 1992)
-	elseif (sib(sibpt)%diag%gdd < 2300.0) then
+    elseif (sib(sibpt)%diag%gdd < 2300.0) then
        temp1 = (sib(sibpt)%diag%gdd - 2184.0) / 116.0
        sib(sibpt)%diag%alloc(1) = 0.05 - 0.02 * temp1
        sib(sibpt)%diag%alloc(2) = 0.05 - 0.02 * temp1
        sib(sibpt)%diag%alloc(3) = 0.05 - 0.02 * temp1
        sib(sibpt)%diag%alloc(4) = 0.85 + 0.06 * temp1
-	else
+    else
        print*,'Error with gdd and alloc calculations in crop_accum.F90'
        stop
     endif
@@ -1408,7 +1408,7 @@ endif
     !EL...Maintenance respn coefficients were based on 
     !EL...de Vries et al., 1989 and Wang et al., 1992)
 
-	temp1 = 0.016 * coeff * (2.0**((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = 0.016 * coeff * (2.0**((sib(sibpt)%diag%tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(2) = sib(sibpt)%diag%cum_wt(2) * 0.25 * temp1
 
     temp1 = 0.01 * coeff * (2.0**((sib(sibpt)%diag%tempc-20.0) / 10.0))
@@ -1422,7 +1422,7 @@ endif
     !---------------------------------------------
     !EL..cumulative dry weight will be used in calculation of maintenance respn
 
-    do j = 1,4	 
+    do j = 1,4
        sib(sibpt)%diag%cum_wt(j) = sib(sibpt)%diag%cum_wt(j) + &
             sib(sibpt)%diag%allocwt(j)
     enddo
@@ -1454,7 +1454,7 @@ endif
     !--------------------------------------------------------------
     !Calculate final cumulative dry weight (g C m-2) of each plant part
     !--------------------------------------------------------------
-    do j = 1,4	 
+    do j = 1,4
        sib(sibpt)%diag%cum_drywt(j) = sib(sibpt)%diag%cum_drywt(j) + &
             sib(sibpt)%diag%wch(j)
     enddo

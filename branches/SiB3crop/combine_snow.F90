@@ -40,7 +40,7 @@ type(sib_t), intent(inout) :: sib
 
 
 !   local variables
-integer(kind=int_kind) :: i,i0,j,k,l,m  ! loop variables
+integer(kind=int_kind) :: j,k,l,m  ! loop variables
 integer(kind=int_kind) :: nsnow_old ! copy of number of snow layers
 integer(kind=int_kind) :: mssi
 integer(kind=int_kind) :: neibor

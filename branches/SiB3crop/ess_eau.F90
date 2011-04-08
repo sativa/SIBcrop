@@ -41,8 +41,7 @@ real (kind=dbl_kind):: &
    twmin=173.16,     &!lowest allowed temperature boundary for water       (K).
    twmax=373.16,     &!highest allowed temperature boundary for water      (K).     
    timin=173.16,     &!lowest allowed temperature boundary for ice         (K).
-   timax=273.16,     &!highest allowed temperature boundary for ice        (K).
-   tnull=273.16       !freezing temperature                                (K).
+   timax=273.16       !highest allowed temperature boundary for ice        (K).
 
 real (kind=dbl_kind) :: tstl , t0tl
 
@@ -63,8 +62,7 @@ real (kind=dbl_kind), parameter:: &
 real (kind=dbl_kind):: &
        e1 ,   e2 ,     f ,    f1 ,&
        f2 ,   f3 ,    f4 ,    f5 ,&
-   lphase , term , term1 , term2 ,&
-   term3     
+   term1 , term2 , term3     
 
 !------------------------------------------------------------------------------
 

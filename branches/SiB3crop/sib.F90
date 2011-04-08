@@ -41,10 +41,6 @@ subroutine sib_main ( sib )
 !------------------------------------------------------------------
 
 
-    real(kind=dbl_kind) :: zzwind    ! adjusted wind measurement height (m) 
-    real(kind=dbl_kind) :: zztemp    ! adjusted temp measurement height (m)
-
-
     !...water/energy balance variables...
     real(kind=dbl_kind), dimension(sib%prog%nsl+1:nsoil) :: &
         wwwliq_old   ! beginning-of-timetep soil/snow liquid
@@ -58,16 +54,13 @@ subroutine sib_main ( sib )
                                     ! beginning-of-timestep # of snow layers
 
 
-    real(kind=dbl_kind) :: tsum   ! temp variable
     real(kind=dbl_kind) :: cas_q  ! beginning-of-timestep CAS moisture
-    real(kind=dbl_kind) :: tliq
-    real(kind=dbl_kind) :: icet,sbeg,send
 
     real(kind=dbl_kind),dimension(1) :: ppl, ttl,tess
                                                ! temp vars for call to eau_sat
                                                ! dimension(1) to keep SGI compiler happy
 
-    integer(kind=int_kind) :: i, j, k, n, ksoil, l
+    integer(kind=int_kind) :: i
 
 
 !------------------------------------------------------------------

@@ -92,15 +92,12 @@ subroutine begtem(sib,sib_loc)
         bw,    & ! partial density of water (ice+liquid)
         fac,   & ! fraction of saturation of top soil layer
         psit,  & ! moisture potential of top soil layer
-        argg,  & ! RH of air at soil surface
-        phroot   ! normalized value of soil moisture potential
+        argg     ! RH of air at soil surface
     ! over all soil levels
 
 
     real(kind=dbl_kind), dimension(nsoil) :: &
-        dksat,        & ! thermal conductivity, saturated soil (W/m/K)
-        phroot_layer, & ! layer values of phi-soil moisture potential
-        vwc             ! volumetric water content (theta) (-)
+        dksat           ! thermal conductivity, saturated soil (W/m/K)
    
 
     real(kind=dbl_kind), dimension(-nsnow+1:nsoil) :: &
@@ -309,19 +306,19 @@ subroutine begtem(sib,sib_loc)
         sib%diag%paw(i) = max(sib%diag%paw(i),0.0_dbl_kind)
         sib%diag%paw_tot = sib%diag%paw_tot +      &
                                 sib%diag%paw(i) * sib%prog%dz(i)
-    	sib%diag%paw_max = sib%diag%paw_max +           &
+        sib%diag%paw_max = sib%diag%paw_max +           &
                          ((sib%param%fieldcap - sib%param%vwcmin) * sib%prog%dz(i))
-	enddo
+     enddo
 	
 !bio...calculate stress factor. If total column soil moisture is at or below wilt 
 !bio...point, stress=0 (total stress). No stress if column-mean vwc is above FC.
 
-	 sib%diag%pawfrac = sib%diag%paw_tot/sib%diag%paw_max
+     sib%diag%pawfrac = sib%diag%paw_tot/sib%diag%paw_max
      sib%diag%pawfrac = MAX(0.0_dbl_kind, sib%diag%pawfrac)
      sib%diag%pawfrac = MIN(sib%diag%pawfrac, 1.0_dbl_kind)
 
-	 sib%diag%rstfac(2) = ((1+sib%diag%wssp) * sib%diag%pawfrac)/    &
-	                      (sib%diag%wssp + sib%diag%pawfrac)
+     sib%diag%rstfac(2) = ((1+sib%diag%wssp) * sib%diag%pawfrac)/    &
+                          (sib%diag%wssp + sib%diag%pawfrac)
 	
     !itb...maintain rstfac2 at or above 0.1
     sib%diag%rstfac(2) = MAX(sib%diag%rstfac(2), 0.1_dbl_kind)

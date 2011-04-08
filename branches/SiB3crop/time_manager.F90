@@ -30,10 +30,10 @@ integer :: high_bound
     time%sec_tot = time%sec_tot + time%dtsib
     time%sec_year = time%sec_year + time%dtsib
     time%sec_day = time%sec_day+time%dtsib
-    if(mod(time%sec_year,time%sec_per_day)==600 .and. &
-       time%sec_year>time%init_second+600)then
-    	   time%doy=time%doy+1
-	   time%sec_day =600
+    if (mod(time%sec_year,time%sec_per_day)==600 .and. &
+         time%sec_year>time%init_second+600) then
+       time%doy=time%doy+1
+       time%sec_day =600
     endif
     do x = 1, 12
         if ( time%doy >= time%doy1_month(x) .and. time%sec_day > 0) then
@@ -77,19 +77,19 @@ integer :: high_bound
     
     ! check to see if it is time to switch Driver Data files
     if ( time%day == time%days_per_month(time%month) .and.  &
-        time%sec_day == time%sec_per_day - time%driver_step ) then
-        
-        time%switch_driver = .true.
-        time%driver_recnum = 1
-        time%driver_month = time%driver_month+1
-	!
-	! KS check if at end of year
-	if(time%driver_month>12) then
-	   time%driver_month=1
-	   time%driver_year=time%driver_year+1
-	endif
+         time%sec_day == time%sec_per_day - time%driver_step ) then
+
+       time%switch_driver = .true.
+       time%driver_recnum = 1
+       time%driver_month = time%driver_month+1
+       !
+       ! KS check if at end of year
+       if(time%driver_month>12) then
+          time%driver_month=1
+          time%driver_year=time%driver_year+1
+       endif
     else
-        time%switch_driver = .false.
+       time%switch_driver = .false.
     endif
     
 
@@ -167,7 +167,7 @@ integer :: high_bound
      else
         ! time%qp_step units = months
         if ( time%sec_year==(time%doy1_month(time%nmonth)-1)*86400 .or. &
-	    time%sec_year == time%sec_per_day*time%days_per_year) then
+            time%sec_year == time%sec_per_day*time%days_per_year) then
             
             time%write_qp = .true.
             time%qp_incnt = 1. /  real(time%qp_count)

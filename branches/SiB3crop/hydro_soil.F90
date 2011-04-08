@@ -66,7 +66,7 @@ type(sib_t), intent(inout) :: sib
 
 
 !...LOCAL VARIABLES
-integer(kind=int_kind) :: j,i      ! loop variable
+integer(kind=int_kind) :: j        ! loop variable
 real(kind=dbl_kind)    :: zwice    ! total ice mass in soil column
 !   (kg m^-2)
 real(kind=dbl_kind)    :: www_tot(1:nsoil)  
@@ -97,9 +97,6 @@ real(kind=dbl_kind)    :: q_wet    ! subsurface runoff from 'wet' part
 real(kind=dbl_kind)    :: q_dry    ! subsurface runoff from 'dry' part
 !  (mm H2O sec^-1)
 real(kind=dbl_kind)    :: hksum    ! total hk for layers 6-9
-real(kind=dbl_kind)    :: zsat     ! hk, weighted for soil thickness
-real(kind=dbl_kind)    :: wsat     ! hk, weighted for soil wetness
-real(kind=dbl_kind)    :: dzksum   ! hk, weighted for soil thickness
 real(kind=dbl_kind)    :: fwsoil   ! saturation fraction
 real(kind=dbl_kind)    :: watmin   ! minimum soil moisture 
 real(kind=dbl_kind)    :: xs       ! excess soil moisture 

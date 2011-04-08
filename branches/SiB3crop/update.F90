@@ -94,8 +94,6 @@ real(kind=dbl_kind) :: cogs2
 real(kind=dbl_kind) :: ectmax(nsoil)  ! layer max transpiration (J m^-2)
 real(kind=dbl_kind) :: ectmax_tot !column total max transp (J m^-2)
 real(kind=dbl_kind) :: egsmax
-real(kind=dbl_kind) :: ect_layer
-real(kind=dbl_kind) :: ect_diff
 real(kind=dbl_kind) :: facks
 real(kind=dbl_kind) :: cpdpsy
 real(kind=dbl_kind) :: timcon
@@ -110,9 +108,6 @@ real(kind=dbl_kind) :: heatr
 real(kind=dbl_kind) :: le_phase
 
 real(kind=dbl_kind) :: btran
-real(kind=dbl_kind) :: s_node
-real(kind=dbl_kind) :: rresis(nsoil)
-real(kind=dbl_kind) :: smp_node
 real(kind=dbl_kind) :: tinc(sib%prog%nsl+1:nsoil) ! temperature increment
 real(kind=dbl_kind) :: shcap_temp ! new heat capacity of updated top snow level 
 

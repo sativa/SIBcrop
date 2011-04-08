@@ -30,7 +30,6 @@ type(time_struct), intent(in) :: time
 !
 ! local variables
 real(kind=dbl_kind):: facsibdrv  ! scaling factor between driver data points
-real(kind=dbl_kind):: temp       ! temporary variable for testing
 integer(kind=int_kind) :: i      ! index
 !
 ! initialize CO2 partial pressure in boundary layer
@@ -47,11 +46,11 @@ integer(kind=int_kind) :: i      ! index
     do i = 1,subcount
 !
 ! scale SW radiation to cosine of zenith angle
-	if((sib(i)%stat%cosz>cosz_min).and.(sib(i)%stat%coszbar.ne.0.0_dbl_kind))then
-            	sib(i)%prog%sw_dwn = sib(i)%prog%sw_dwn2 *  max(sib(i)%stat%cosz-cosz_min,0.0_dbl_kind )/sib(i)%stat%coszbar
-        else
-            sib(i)%prog%sw_dwn=0.
-        endif
+       if((sib(i)%stat%cosz>cosz_min).and.(sib(i)%stat%coszbar.ne.0.0_dbl_kind))then
+          sib(i)%prog%sw_dwn = sib(i)%prog%sw_dwn2 *  max(sib(i)%stat%cosz-cosz_min,0.0_dbl_kind )/sib(i)%stat%coszbar
+       else
+          sib(i)%prog%sw_dwn=0.
+       endif
 
 
 ! make sure downwelling SW radiation is positive

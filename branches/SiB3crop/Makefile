@@ -85,7 +85,7 @@ ifeq ($(COMPILER),gcc)
     F90FLAGS = -O2
     F90FLAGS_NOOPT =
   else ifeq ($(OPT),debug)
-    F90FLAGS = -g -fbounds-check -ffpe-trap=invalid,zero,overflow
+    F90FLAGS = -g -Wall -fbounds-check -ffpe-trap=invalid,zero,overflow
     F90FLAGS_NOOPT = $(F90FLAGS)
   endif
   ifeq ($(PROC),powerpc)

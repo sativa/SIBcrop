@@ -19,11 +19,11 @@ integer(kind=int_kind), intent(in) :: rank
 
     !itb...output routine here
     if(time%sec_year /= starttime) then
-    	call diagnostic_output(sib,                            &
-        	qpsib, qp3sib, pbpsib, pbp2sib, iiqpsib, iiqp3sib, &
-        	iipbpsib, iipbp2sib, npbpsib, npbp2sib, ijtlensib, &
-        	doqpsib, doqp3sib, nqpsib, nqp3sib, indxqp3sib,    &
-        	indxqpsib, indxpbpsib, indxpbp2sib,time )
+       call diagnostic_output(sib,                            &
+            qpsib, qp3sib, pbpsib, pbp2sib, iiqpsib, iiqp3sib, &
+            iipbpsib, iipbp2sib, npbpsib, npbp2sib, ijtlensib, &
+            doqpsib, doqp3sib, nqpsib, nqp3sib, indxqp3sib,    &
+            indxqpsib, indxpbpsib, indxpbp2sib,time)
     endif
 
     ! switch qp file

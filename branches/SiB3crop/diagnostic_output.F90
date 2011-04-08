@@ -60,7 +60,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
     !-------------------------------------------------------------  
 
     !...LOCAL VARIABLES...
-    integer(kind=int_kind) :: out_index,i,l,n
+    integer(kind=int_kind) :: out_index,l,n
     real(kind=dbl_kind) :: discrim3 
     real(kind=dbl_kind) :: auxeadem   
 
@@ -445,23 +445,23 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
             endif
             if(doqp2(84))then
                 qp2(out_index,indxqp2(84)) = qp2(out_index,indxqp2(84)) +    &
-                    sib(out_index)%diag%kiecps(1)	!C3 plants
+                    sib(out_index)%diag%kiecps(1) !C3 plants
             endif
             if(doqp2(85))then
                 qp2(out_index,indxqp2(85)) = qp2(out_index,indxqp2(85)) +    &
-                    sib(out_index)%diag%kiecps(2)	!C4 plants
+                    sib(out_index)%diag%kiecps(2) !C4 plants
             endif
             if(doqp2(86))then
                 qp2(out_index,indxqp2(86)) = qp2(out_index,indxqp2(86)) +    &
-                    sib(out_index)%diag%d13cassimn(1)	!C3 plants
+                    sib(out_index)%diag%d13cassimn(1) !C3 plants
             endif
             if(doqp2(87))then
                 qp2(out_index,indxqp2(87)) = qp2(out_index,indxqp2(87)) +    &
-                    sib(out_index)%diag%d13cassimn(2)	!C4 plants
+                    sib(out_index)%diag%d13cassimn(2) !C4 plants
             endif
             if(doqp2(88))then
                 qp2(out_index,indxqp2(88)) = qp2(out_index,indxqp2(88)) +    &
-                    sib(out_index)%diag%d13cassimn(6)	!All plants summed
+                    sib(out_index)%diag%d13cassimn(6) !All plants summed
             endif
             if(doqp2(89))then
                 qp2(out_index,indxqp2(89)) = qp2(out_index,indxqp2(89)) +    &
@@ -536,7 +536,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
             if(doqp2(106)) then 
                 qp2(out_index,indxqp2(106)) = qp2(out_index,indxqp2(106)) +    &
                     sib(out_index)%diag%antemp(2)
-            endif	
+            endif
             if(doqp2(107)) then
                 qp2(out_index,indxqp2(107)) = qp2(out_index,indxqp2(107)) +    &
                     (sib(out_index)%diag%respg - sib(out_index)%diag%assimn(6))*1.0E6
@@ -574,7 +574,7 @@ subroutine diagnostic_output ( sib, qp2, qp3, pbp1, pbp2, nnqp2,      &
                 pbp2(l,indxpbp2(3),n) = pbp2(l,indxpbp2(3),n) +    &
                     sib(imultpbpsib(n))%param%csolid(l)
             enddo
-	    do l = 1,nsoil
+            do l = 1,nsoil
                 pbp2(l,indxpbp2(4),n) = pbp2(l,indxpbp2(4),n) +    &
                     sib(imultpbpsib(n))%prog%node_z(l)
             enddo
