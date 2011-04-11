@@ -1054,9 +1054,9 @@ contains
     !EL...sib(sibpt)%diag%ndf_opt= no. of days withe avg. temperature between 12 and 25C
 
     if (sib(sibpt)%param%biome == 23) then
-
        if (time%doy >= 91) then
-          if (sib(sibpt)%diag%tempc < 12.0) then
+          !kdcorbin, 04/11 - changed threshold from 12. to 8.
+          if (sib(sibpt)%diag%tempc < 8.0) then
              sib(sibpt)%diag%ndf_opt = 0
           elseif (sib(sibpt)%diag%tempc < 25.0) then
              sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
@@ -1064,9 +1064,10 @@ contains
        endif
 
        !kdcorbin, 03/11 - removed pd check and set gdd to 0.
-       if (sib(sibpt)%diag%ndf_opt == 7)  then
+       if (sib(sibpt)%diag%ndf_opt == 7 .and. sib(sibpt)%diag%pd_annual == 0)  then
           sib(sibpt)%diag%pd = time%doy
           sib(sibpt)%diag%gdd = 0.0
+          sib(sibpt)%diag%pd_annual = 1
        endif
 
        if (sib(sibpt)%diag%tempc <= -20.0) then
@@ -1093,44 +1094,37 @@ contains
     !EL...since pd is printed out as 0 before the real planting 
     !EL...date based on the above ndf_opt criterion
 
-if (sib(sibpt)%diag%doy /= time%doy) then
-   print *, 'diag doy = ', sib(sibpt)%diag%doy, 'time doy = ', time%doy
-!   stop
-endif
-
     if (sib(sibpt)%param%biome == 22) then
-       !XXX MSB replacing sib(sibpt)%diag%doy with time%doy...is this okay?
-       if (time%doy == 1) then
-          sib(sibpt)%diag%gdd = 769.0
-       elseif (sib(sibpt)%diag%pd == 0 .and. time%doy == 2) then
+       if (time%doy .le. 2) then
           sib(sibpt)%diag%gdd = 769.0
        elseif (sib(sibpt)%diag%tempc >  0.0 .and. &
                sib(sibpt)%diag%tempc < 26.0) then
-          if (sib(sibpt)%diag%pd > 0) then
-             sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + sib(sibpt)%diag%tempc
-          elseif (sib(sibpt)%diag%pd == 0 .and. time%doy > 2 .and. &
-               sib(sibpt)%diag%gdd > 500.0) then
-             sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + sib(sibpt)%diag%tempc
-          endif
-       endif
+               if ((time%doy >= sib(sibpt)%diag%pd .and. &
+                    sib(sibpt)%diag%pd > 0) .or. &
+                   (sib(sibpt)%diag%gdd > 500.)) then
+               sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
+                       sib(sibpt)%diag%tempc
+               endif
+       endif !temp check
     endif  !biome == 22
 
     if (sib(sibpt)%param%biome == 23) then
+       !kdcorbin, 04/11 - added check for Jan 1
+       if (time%doy == 1) then
+          sib(sibpt)%diag%gdd = 0.
+          sib(sibpt)%diag%pd = 0.
+          sib(sibpt)%diag%pd_annual = 0
+       endif
+
+       !kdcorbin, 04/11 - modified tests to avoid duplication
        if (sib(sibpt)%diag%pd > 0 .and.  & 
             time%doy >= sib(sibpt)%diag%pd .and.  &
             sib(sibpt)%diag%tempc >  0.0 .and. &
-            sib(sibpt)%diag%tempc < 21.11) then
-          sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
-               sib(sibpt)%diag%tempc - 0.0
+            sib(sibpt)%diag%tempc < 35.0) then
+            sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
+               sib(sibpt)%diag%tempc
        endif
 
-       if (sib(sibpt)%diag%gdd >= 215.0 .and. &
-            sib(sibpt)%diag%pd > 0 .and. & 
-            time%doy >= sib(sibpt)%diag%pd .and. &
-            sib(sibpt)%diag%tempc >  0.0 .and. &
-            sib(sibpt)%diag%tempc < 35.0) then
-          sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + sib(sibpt)%diag%tempc
-       endif
     endif  !biome == 23
 
     !kdcorbin, 02/11 - crop harvest
@@ -1139,8 +1133,8 @@ endif
        sib(sibpt)%diag%w_main      = 0.0001
        sib(sibpt)%diag%w_main_pot  = 0.0001
        sib(sibpt)%diag%assim_d     = 0.0001
+       sib(sibpt)%diag%ndf_opt     = 0
        sib(sibpt)%diag%pd          = 0
-       sib(sibpt)%diag%pd_annual   = 0
        sib(sibpt)%diag%phen_switch = 0
        sib(sibpt)%diag%leafwt_c    = 0.0001
 
@@ -1181,31 +1175,34 @@ endif
        sib(sibpt)%diag%alloc(4) = 0.0
     elseif (sib(sibpt)%diag%gdd < 910.0) then
        !kdcorbin, 03/11 - added test for growth during spring or fall
-       if (time%doy > sib(sibpt)%diag%pd) then 
+       if (time%doy > sib(sibpt)%diag%pd .AND. &
+            sib(sibpt)%param%biome == 22) then 
           sib(sibpt)%diag%alloc(2) = 0.001
           sib(sibpt)%diag%alloc(3) = 0.599
        else
           sib(sibpt)%diag%alloc(2) = 0.4
-          sib(sibpt)%diag%alloc(4) = 0.2 !XXX BUG?!
+          sib(sibpt)%diag%alloc(3) = 0.2 
        endif
        sib(sibpt)%diag%alloc(1) = 0.4   
        sib(sibpt)%diag%alloc(4) = 0.0
     elseif (sib(sibpt)%diag%gdd < 1074.0) then 
        !kdcorbin, 03/11 - added test for growth during spring or fall
-       if (time%doy > sib(sibpt)%diag%pd) then
+       if (time%doy > sib(sibpt)%diag%pd .AND. &
+           sib(sibpt)%param%biome == 22) then
           sib(sibpt)%diag%alloc(1) = 0.4
           sib(sibpt)%diag%alloc(2) = 0.001
           sib(sibpt)%diag%alloc(3) = 0.5999
        else
           temp1 = (sib(sibpt)%diag%gdd - 910.0) / 164.0
           sib(sibpt)%diag%alloc(1) = 0.4 - 0.12 * temp1
-          sib(sibpt)%diag%alloc(2) = 0.4 !- 0.05 * temp1 !XXX BUG?!
+          sib(sibpt)%diag%alloc(2) = 0.4 
           sib(sibpt)%diag%alloc(3) = 0.2 + 0.12 * temp1
        endif
        sib(sibpt)%diag%alloc(4) = 0.0
     elseif (sib(sibpt)%diag%gdd < 1569.0) then
        !kdcorbin, 03/11 - added test for growth during spring or fall
-       if (time%doy > sib(sibpt)%diag%pd) then
+       if (time%doy > sib(sibpt)%diag%pd .AND. &
+           sib(sibpt)%param%biome == 22) then
           sib(sibpt)%diag%alloc(1) = 0.4
           sib(sibpt)%diag%alloc(2) = 0.001
           sib(sibpt)%diag%alloc(3) = 0.5999
