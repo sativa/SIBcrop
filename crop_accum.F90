@@ -204,8 +204,8 @@ contains
     !---------------------------
 
     !EL...sib(sibpt)%diag%ndf_opt= no. of days with avg. temperature above
-    !EL...287.04K (57F) i.e. avg warm enough temp for considering planting
-    if (sib(sibpt)%diag%ta_bar < 287.04) then
+    !EL...13.9C (57F) i.e. avg warm enough temp for considering planting
+    if (tempc < 13.9) then
        sib(sibpt)%diag%ndf_opt = 0
     else
        sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
@@ -220,7 +220,7 @@ contains
     if (sib(sibpt)%diag%pd > 0 .and. &
         time%doy >= sib(sibpt)%diag%pd + 1 .and. &
         time%doy <= sib(sibpt)%diag%pd + 7 .and. &
-        sib(sibpt)%diag%ta_bar < 284.82) then
+        tempc < 11.67) then
 
        sib(sibpt)%diag%gdd = 0.0
     endif
@@ -245,12 +245,11 @@ contains
     !EL...added to avoid gdd calculation before real planting date, 
     !EL...since pd is printed out as 0 before the real planting 
     !EL...date based on the above ndf_opt criterion
-    !EL...Calculation of GDDs occurs between 50 and 86 F
+    !EL...Calculation of GDDs occurs between 10C (50F) and 30C (86F)
 
     if (sib(sibpt)%diag%pd > 0          .and. &
         time%doy >= sib(sibpt)%diag%pd  .and. &
-        sib(sibpt)%diag%ta_bar > 283.15    .and. &
-        sib(sibpt)%diag%ta_bar < 303.15) then
+        tempc > 10.0 .and. tempc < 30.0) then
 
        sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
             ((sib(sibpt)%diag%ta_bar - 273.15) * 1.8) + 32.0 - 50.0
@@ -595,9 +594,9 @@ contains
     !---------------------------
 
     !EL...sib%diag%ndf_opt = no. of days with avg. temperature above
-    !EL...292.3K (67F)
+    !EL...19.15C (67F)
 
-    if (sib(sibpt)%diag%ta_bar < 292.3) then
+    if (tempc < 19.15) then
        sib(sibpt)%diag%ndf_opt = 0
     else
        sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
@@ -609,7 +608,7 @@ contains
        sib(sibpt)%diag%pd_annual = 1
     endif
 
-    if (sib(sibpt)%diag%pd > 0 .and. sib(sibpt)%diag%ta_bar < 283.15 .and. &
+    if (sib(sibpt)%diag%pd > 0 .and. tempc < 10.0 .and. &
          time%doy >= sib(sibpt)%diag%pd + 1 .and. &
          time%doy <= sib(sibpt)%diag%pd + 5) then
        sib(sibpt)%diag%gdd = 0.0
@@ -624,8 +623,7 @@ contains
     !EL...date based on the above ndf_opt criterion
     
     if (sib(sibpt)%diag%pd > 0 .and. time%doy >= sib(sibpt)%diag%pd .and. &
-        sib(sibpt)%diag%ta_bar > 283.15 .and. &
-        sib(sibpt)%diag%ta_bar < 303.15) then
+        tempc > 10.0 .and. tempc < 30.0) then
 
        sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
             ((sib(sibpt)%diag%ta_bar - 273.15) * 1.8) + 32.0 - 50.0
