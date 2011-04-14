@@ -45,7 +45,7 @@ subroutine crop_accum(sib,time,timevar)
 
   do sibpt = 1,subcount  
 
-     if (sib(sibpt)%param%biome >= 20) then
+     if (int(sib(sibpt)%param%biome) >= 20) then
         if (sib(sibpt)%diag%tb_indx > 1) then
            sib(sibpt)%diag%ta_bar = sib(sibpt)%diag%tb_temp / &
                 sib(sibpt)%diag%tb_indx
@@ -79,7 +79,7 @@ subroutine crop_accum(sib,time,timevar)
         !.....22 - winter wheat
         !.....23 - spring wheat
 
-        if (sib(sibpt)%param%biome >= 20.0) then
+        if (int(sib(sibpt)%param%biome) >= 20) then
            !Change temporary biome class depending on fallow or crops
            !kdcorbin, 02/11
            if (sib(sibpt)%diag%phen_switch == 0) then
@@ -91,11 +91,11 @@ subroutine crop_accum(sib,time,timevar)
            biomeclass = int(sib(sibpt)%param%biome)
         endif
 
-        if (sib(sibpt)%param%biome == (19 + corn_num)) then  
+        if (int(sib(sibpt)%param%biome) == (19 + corn_num)) then  
            call corn_phen
-        elseif (sib(sibpt)%param%biome == (19 + soy_num)) then
+        elseif (int(sib(sibpt)%param%biome) == (19 + soy_num)) then
            call soy_phen
-        elseif (sib(sibpt)%param%biome == (19 + wwheat_num) .or. &
+        elseif (int(sib(sibpt)%param%biome) == (19 + wwheat_num) .or. &
                 sib(sibpt)%param%biome == (19 + swheat_num)) then
            call wheat_phen
         endif
@@ -1027,7 +1027,7 @@ contains
     !EL...sib(sibpt)%diag%ndf_opt= no. of days withe avg. temperature between
     !EL...20 and 25C
 
-    if (sib(sibpt)%param%biome == 22) then
+    if (int(sib(sibpt)%param%biome) == 22) then
 
        !kdcorbin, 03/11 - changed tempc threshold from 20. to 18.
        if (time%doy >= 227) then
@@ -1053,7 +1053,7 @@ contains
     !EL..optimum temperature for planting is 12C (Canadian Organic Growers, Inc., 1992)
     !EL...sib(sibpt)%diag%ndf_opt= no. of days withe avg. temperature between 12 and 25C
 
-    if (sib(sibpt)%param%biome == 23) then
+    if (int(sib(sibpt)%param%biome) == 23) then
        if (time%doy >= 91) then
           !kdcorbin, 04/11 - changed threshold from 12. to 8.
           if (sib(sibpt)%diag%tempc < 8.0) then
@@ -1094,21 +1094,21 @@ contains
     !EL...since pd is printed out as 0 before the real planting 
     !EL...date based on the above ndf_opt criterion
 
-    if (sib(sibpt)%param%biome == 22) then
-       if (time%doy .le. 2) then
+    if (int(sib(sibpt)%param%biome) == 22) then
+       if (time%doy <= 2) then
           sib(sibpt)%diag%gdd = 769.0
        elseif (sib(sibpt)%diag%tempc >  0.0 .and. &
                sib(sibpt)%diag%tempc < 26.0) then
-               if ((time%doy >= sib(sibpt)%diag%pd .and. &
-                    sib(sibpt)%diag%pd > 0) .or. &
-                   (sib(sibpt)%diag%gdd > 500.)) then
-               sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
-                       sib(sibpt)%diag%tempc
-               endif
+          if ((time%doy >= sib(sibpt)%diag%pd .and. &
+               sib(sibpt)%diag%pd > 0) .or. &
+               (sib(sibpt)%diag%gdd > 500.)) then
+             sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
+                  sib(sibpt)%diag%tempc
+          endif
        endif !temp check
     endif  !biome == 22
 
-    if (sib(sibpt)%param%biome == 23) then
+    if (int(sib(sibpt)%param%biome) == 23) then
        !kdcorbin, 04/11 - added check for Jan 1
        if (time%doy == 1) then
           sib(sibpt)%diag%gdd = 0.
@@ -1175,8 +1175,8 @@ contains
        sib(sibpt)%diag%alloc(4) = 0.0
     elseif (sib(sibpt)%diag%gdd < 910.0) then
        !kdcorbin, 03/11 - added test for growth during spring or fall
-       if (time%doy > sib(sibpt)%diag%pd .AND. &
-            sib(sibpt)%param%biome == 22) then 
+       if (time%doy > sib(sibpt)%diag%pd .and. &
+            int(sib(sibpt)%param%biome) == 22) then 
           sib(sibpt)%diag%alloc(2) = 0.001
           sib(sibpt)%diag%alloc(3) = 0.599
        else
@@ -1187,8 +1187,8 @@ contains
        sib(sibpt)%diag%alloc(4) = 0.0
     elseif (sib(sibpt)%diag%gdd < 1074.0) then 
        !kdcorbin, 03/11 - added test for growth during spring or fall
-       if (time%doy > sib(sibpt)%diag%pd .AND. &
-           sib(sibpt)%param%biome == 22) then
+       if (time%doy > sib(sibpt)%diag%pd .and. &
+           int(sib(sibpt)%param%biome) == 22) then
           sib(sibpt)%diag%alloc(1) = 0.4
           sib(sibpt)%diag%alloc(2) = 0.001
           sib(sibpt)%diag%alloc(3) = 0.5999
@@ -1201,8 +1201,8 @@ contains
        sib(sibpt)%diag%alloc(4) = 0.0
     elseif (sib(sibpt)%diag%gdd < 1569.0) then
        !kdcorbin, 03/11 - added test for growth during spring or fall
-       if (time%doy > sib(sibpt)%diag%pd .AND. &
-           sib(sibpt)%param%biome == 22) then
+       if (time%doy > sib(sibpt)%diag%pd .and. &
+           int(sib(sibpt)%param%biome) == 22) then
           sib(sibpt)%diag%alloc(1) = 0.4
           sib(sibpt)%diag%alloc(2) = 0.001
           sib(sibpt)%diag%alloc(3) = 0.5999
@@ -1286,7 +1286,7 @@ contains
     if (sib(sibpt)%diag%gdd > 105.0 .and. sib(sibpt)%diag%gdd <= 310.0) then 
        drate = 0.07
        max_wmain = 4.0
-    elseif (sib(sibpt)%param%biome == 22 .and. &
+    elseif (int(sib(sibpt)%param%biome) == 22 .and. &
             sib(sibpt)%diag%gdd > 769.0 .and. sib(sibpt)%diag%gdd < 1074.0) then
        drate = 0.015
        max_wmain = 8.0
@@ -1304,7 +1304,7 @@ contains
 
     !EL.. initial growth scheme for winter wheat
 
-    if (sib(sibpt)%param%biome == 22) then
+    if (int(sib(sibpt)%param%biome) == 22) then
 
        if ((sib(sibpt)%diag%gdd >= 105.0 .and. sib(sibpt)%diag%gdd <= 310.0) .or. &
            (sib(sibpt)%diag%gdd >  769.0 .and. sib(sibpt)%diag%gdd < 1074.0)) then             
@@ -1345,7 +1345,7 @@ contains
     endif  !biome == 22
 
     !EL.. initial growth scheme for spring wheat
-    if (sib(sibpt)%param%biome == 23) then
+    if (int(sib(sibpt)%param%biome) == 23) then
 
        if (sib(sibpt)%diag%gdd >= 105.0 .and. sib(sibpt)%diag%gdd <= 310.0) then
           if (sib(sibpt)%diag%tempc < -10.0) then
