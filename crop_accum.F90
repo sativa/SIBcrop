@@ -16,6 +16,7 @@ subroutine crop_accum(sib,time,timevar)
   real(kind=dbl_kind)    :: drate, dgrowth, dgrowth_opt
   real(kind=dbl_kind)    :: max_wmain, assimd_new
   real(kind=dbl_kind)    :: coeff  !variable for carbon/CO2 conversion coefficient
+  real(kind=dbl_kind)    :: tempc
 
   ! begin time dependant, output variables
   type time_dep_var
@@ -46,7 +47,8 @@ subroutine crop_accum(sib,time,timevar)
   do sibpt = 1,subcount  
 
      if (int(sib(sibpt)%param%biome) >= 20) then
-        if (sib(sibpt)%diag%tb_indx > 1) then
+        !MSB assuming this should be `> 0' not `> 1'
+        if (sib(sibpt)%diag%tb_indx > 0) then
            sib(sibpt)%diag%ta_bar = sib(sibpt)%diag%tb_temp / &
                 sib(sibpt)%diag%tb_indx
            sib(sibpt)%diag%rstfac_d = sib(sibpt)%diag%tb_rst / &
@@ -65,11 +67,8 @@ subroutine crop_accum(sib,time,timevar)
         sib(sibpt)%diag%tb_assim = 0.
         sib(sibpt)%diag%tb_indx  = 0.
 
-        !EL-conversion of avg. daily temperature (ta_bar) from Kelvin to Fahrenheit
-        sib(sibpt)%diag%tempf = ((sib(sibpt)%diag%ta_bar - 273.15) * 1.8) + 32.0
-
         !EL-conversion of avg. daily temperature (ta_bar) from Kelvin to Celcius
-        sib(sibpt)%diag%tempc = sib(sibpt)%diag%ta_bar - tice  !tice=273K
+        tempc = sib(sibpt)%diag%ta_bar - tice  !tice=273K
 
         !EL-Calling for different phenology schemes based on the biome type
 
@@ -204,9 +203,9 @@ contains
     !Calculate the planting date
     !---------------------------
 
-    !EL...sib(sibpt)%diag%ndf_opt= no. of days with avg. temperature above 57F 
-    !EL..(i.e. avg warm enough  temp for considering planting)
-    if (sib(sibpt)%diag%tempf < 57.0) then
+    !EL...sib(sibpt)%diag%ndf_opt= no. of days with avg. temperature above
+    !EL...287.04K (57F) i.e. avg warm enough temp for considering planting
+    if (sib(sibpt)%diag%ta_bar < 287.04) then
        sib(sibpt)%diag%ndf_opt = 0
     else
        sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
@@ -221,7 +220,7 @@ contains
     if (sib(sibpt)%diag%pd > 0 .and. &
         time%doy >= sib(sibpt)%diag%pd + 1 .and. &
         time%doy <= sib(sibpt)%diag%pd + 7 .and. &
-        sib(sibpt)%diag%tempf < 53.0) then
+        sib(sibpt)%diag%ta_bar < 284.82) then
 
        sib(sibpt)%diag%gdd = 0.0
     endif
@@ -250,11 +249,11 @@ contains
 
     if (sib(sibpt)%diag%pd > 0          .and. &
         time%doy >= sib(sibpt)%diag%pd  .and. &
-        sib(sibpt)%diag%tempf > 50.0    .and. &
-        sib(sibpt)%diag%tempf < 86.0) then
+        sib(sibpt)%diag%ta_bar > 283.15    .and. &
+        sib(sibpt)%diag%ta_bar < 303.15) then
 
        sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
-            sib(sibpt)%diag%tempf - 50.0
+            ((sib(sibpt)%diag%ta_bar - 273.15) * 1.8) + 32.0 - 50.0
     endif
 
     !itb_crop...harvest: reset
@@ -387,23 +386,18 @@ contains
 
        dgrowth_opt = (max_wmain - 0.26) * drate * temp_rstfac2
 
-       if (sib(sibpt)%diag%tempc < 8.0) then
+       if (tempc < 8.0) then
           dgrowth = dgrowth_opt * 0.01
-       elseif (sib(sibpt)%diag%tempc < 14.0) then
-          dgrowth = dgrowth_opt * &
-               (0.01 + .19 * (sib(sibpt)%diag%tempc - 8) / 6.)
-       elseif (sib(sibpt)%diag%tempc < 19.0) then
-          dgrowth = dgrowth_opt * &
-               (0.2 + 0.4 * (sib(sibpt)%diag%tempc - 14.) / 5.)
-       elseif (sib(sibpt)%diag%tempc < 28.0) then
-          dgrowth = dgrowth_opt * &
-               (0.6 + 0.4 * (sib(sibpt)%diag%tempc - 19.) / 9.)
-       elseif (sib(sibpt)%diag%tempc < 35.0) then
-          dgrowth = dgrowth_opt * &
-               (1.0 - 0.1 * (sib(sibpt)%diag%tempc - 28.) / 7.)
-       elseif (sib(sibpt)%diag%tempc < 45.0) then
-          dgrowth = dgrowth_opt * &
-               (0.9 - 0.89 * (sib(sibpt)%diag%tempc - 35.) / 10.)
+       elseif (tempc < 14.0) then
+          dgrowth = dgrowth_opt * (0.01 + .19 * (tempc - 8) / 6.)
+       elseif (tempc < 19.0) then
+          dgrowth = dgrowth_opt * (0.2 + 0.4 * (tempc - 14.) / 5.)
+       elseif (tempc < 28.0) then
+          dgrowth = dgrowth_opt * (0.6 + 0.4 * (tempc - 19.) / 9.)
+       elseif (tempc < 35.0) then
+          dgrowth = dgrowth_opt * (1.0 - 0.1 * (tempc - 28.) / 7.)
+       elseif (tempc < 45.0) then
+          dgrowth = dgrowth_opt * (0.9 - 0.89 * (tempc - 35.) / 10.)
        endif
 
        sib(sibpt)%diag%w_main_pot = sib(sibpt)%diag%w_main_pot + dgrowth
@@ -446,7 +440,7 @@ contains
     !EL...1984, and Norman and Arkebauer, 1991).
     !EL...final values can be also found in Lokupitiya et al., 2009)
 
-    temp1 = (0.03 * coeff) * (2.0 ** ((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = (0.03 * coeff) * (2.0 ** ((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(1) = sib(sibpt)%diag%cum_wt(1) * 0.18 * temp1  
 
     !EL...(de Vries et al., 1989)
@@ -458,13 +452,13 @@ contains
     !EL... 0.24 is the nonstructural fraction of stem C  needing 
     !EL...maintenance(calculations based on Brouquisse et al., 1998).
 
-    temp1 = 0.01 * coeff * (2.0 ** ((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = 0.01 * coeff * (2.0 ** ((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(3) = sib(sibpt)%diag%cum_wt(3) * 0.24 * temp1
 
     !EL.. 0.7 is the nonstructural fraction of seed C  needing maintenance 
     !EL...(calculations based on Thornton et al., 1969,Beauchemin et al., 1997)
 
-    temp1 = 0.015 * coeff * (2.0 ** ((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = 0.015 * coeff * (2.0 ** ((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(4) = sib(sibpt)%diag%cum_wt(4) * 0.7 * temp1
 
     !---------------------------------------------    
@@ -600,9 +594,10 @@ contains
     !Calculate the planting date
     !---------------------------
 
-    !EL...sib%diag%ndf_opt = no. of days with avg. temperature above 67F
+    !EL...sib%diag%ndf_opt = no. of days with avg. temperature above
+    !EL...292.3K (67F)
 
-    if (sib(sibpt)%diag%tempf < 66.5) then
+    if (sib(sibpt)%diag%ta_bar < 292.3) then
        sib(sibpt)%diag%ndf_opt = 0
     else
        sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
@@ -614,7 +609,7 @@ contains
        sib(sibpt)%diag%pd_annual = 1
     endif
 
-    if (sib(sibpt)%diag%pd > 0 .and. sib(sibpt)%diag%tempf < 50.0 .and. &
+    if (sib(sibpt)%diag%pd > 0 .and. sib(sibpt)%diag%ta_bar < 283.15 .and. &
          time%doy >= sib(sibpt)%diag%pd + 1 .and. &
          time%doy <= sib(sibpt)%diag%pd + 5) then
        sib(sibpt)%diag%gdd = 0.0
@@ -629,11 +624,11 @@ contains
     !EL...date based on the above ndf_opt criterion
     
     if (sib(sibpt)%diag%pd > 0 .and. time%doy >= sib(sibpt)%diag%pd .and. &
-        sib(sibpt)%diag%tempf > 50.0 .and. &
-        sib(sibpt)%diag%tempf < 86.0) then
+        sib(sibpt)%diag%ta_bar > 283.15 .and. &
+        sib(sibpt)%diag%ta_bar < 303.15) then
 
        sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
-            sib(sibpt)%diag%tempf - 50.0
+            ((sib(sibpt)%diag%ta_bar - 273.15) * 1.8) + 32.0 - 50.0
     endif
  
     !EL...to avoid gdd calculation after harvesting is done, allowing 
@@ -801,23 +796,18 @@ contains
        !temp_rstfac2 = sib(sibpt)%diag%rstfac_d
        dgrowth_opt = (max_wmain - 0.26) * drate * temp_rstfac2
 
-       if (sib(sibpt)%diag%tempc <= 8) then
+       if (tempc <= 8) then
           dgrowth = dgrowth_opt * 0.01
-       elseif (sib(sibpt)%diag%tempc < 10.0) then
-          dgrowth = dgrowth_opt * 0.01 + &
-               (0.24 * (sib(sibpt)%diag%tempc - 8.) / 2.)
-       elseif (sib(sibpt)%diag%tempc < 20.0) then
-          dgrowth = dgrowth_opt * &
-               (0.25 + (0.65 * (sib(sibpt)%diag%tempc - 10.) / 10.))
-       elseif (sib(sibpt)%diag%tempc < 27.0) then
-          dgrowth = dgrowth_opt * &
-               (0.9 + (0.15 * (sib(sibpt)%diag%tempc - 20.) / 7.))
-       elseif (sib(sibpt)%diag%tempc < 30.0) then
-          dgrowth = dgrowth_opt * &
-               (1.05 + (.06 * (sib(sibpt)%diag%tempc - 27.) / 3.))
-       elseif (sib(sibpt)%diag%tempc < 40.0) then
-          dgrowth = dgrowth_opt * &
-               (1.1 + (0.1 * (sib(sibpt)%diag%tempc - 30.0) / 10.))
+       elseif (tempc < 10.0) then
+          dgrowth = dgrowth_opt * 0.01 + (0.24 * (tempc - 8.) / 2.)
+       elseif (tempc < 20.0) then
+          dgrowth = dgrowth_opt * (0.25 + (0.65 * (tempc - 10.) / 10.))
+       elseif (tempc < 27.0) then
+          dgrowth = dgrowth_opt * (0.9 + (0.15 * (tempc - 20.) / 7.))
+       elseif (tempc < 30.0) then
+          dgrowth = dgrowth_opt * (1.05 + (.06 * (tempc - 27.) / 3.))
+       elseif (tempc < 40.0) then
+          dgrowth = dgrowth_opt * (1.1 + (0.1 * (tempc - 30.0) / 10.))
        endif
 
        sib(sibpt)%diag%w_main_pot = sib(sibpt)%diag%w_main_pot + dgrowth
@@ -854,7 +844,7 @@ contains
     !EL...and Norman and Arkebauer, 1991)
     !EL...the final values could also be found in Lokupiitya et al., 2009
 
-    temp1 = (0.03 * coeff) * (1.8 ** ((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = (0.03 * coeff) * (1.8 ** ((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(1) = sib(sibpt)%diag%cum_wt(1) * 0.32 * temp1  
 
     !EL...(de Vries et al., 1989)
@@ -866,13 +856,13 @@ contains
     !EL... 0.32 is the nonstructural fraction of stem C  needing maintenance
     !EL...(calculations based on Allen et al., 1998 and Rogers et al., 2006).
 
-    temp1 = 0.01 * coeff * (1.8 ** ((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = 0.01 * coeff * (1.8 ** ((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(3) = sib(sibpt)%diag%cum_wt(3) * 0.32 * temp1
 
     !EL.. 0.46 is the nonstructural fraction of seed C  needing maintenance 
     !EL...(calculations based on Allen et al., 1998 and Rogers et al., 2006).
 
-    temp1 = 0.015 * coeff * (1.8**((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = 0.015 * coeff * (1.8**((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(4) = sib(sibpt)%diag%cum_wt(4) * 0.46 * temp1
 
     !---------------------------------------------    
@@ -1031,9 +1021,9 @@ contains
 
        !kdcorbin, 03/11 - changed tempc threshold from 20. to 18.
        if (time%doy >= 227) then
-          if (sib(sibpt)%diag%tempc < 18.0) then
+          if (tempc < 18.0) then
              sib(sibpt)%diag%ndf_opt = 0
-          elseif (sib(sibpt)%diag%tempc < 25.0) then
+          elseif (tempc < 25.0) then
              sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
           endif
        endif
@@ -1042,7 +1032,7 @@ contains
           sib(sibpt)%diag%pd = time%doy
        endif
 
-       if (sib(sibpt)%diag%tempc <= -20.0) then
+       if (tempc <= -20.0) then
           sib(sibpt)%diag%gdd=0.0
        endif
 
@@ -1056,9 +1046,9 @@ contains
     if (int(sib(sibpt)%param%biome) == 23) then
        if (time%doy >= 91) then
           !kdcorbin, 04/11 - changed threshold from 12. to 8.
-          if (sib(sibpt)%diag%tempc < 8.0) then
+          if (tempc < 8.0) then
              sib(sibpt)%diag%ndf_opt = 0
-          elseif (sib(sibpt)%diag%tempc < 25.0) then
+          elseif (tempc < 25.0) then
              sib(sibpt)%diag%ndf_opt = sib(sibpt)%diag%ndf_opt + 1
           endif
        endif
@@ -1070,7 +1060,7 @@ contains
           sib(sibpt)%diag%pd_annual = 1
        endif
 
-       if (sib(sibpt)%diag%tempc <= -20.0) then
+       if (tempc <= -20.0) then
           sib(sibpt)%diag%gdd = 0.0
        endif
 
@@ -1097,13 +1087,11 @@ contains
     if (int(sib(sibpt)%param%biome) == 22) then
        if (time%doy <= 2) then
           sib(sibpt)%diag%gdd = 769.0
-       elseif (sib(sibpt)%diag%tempc >  0.0 .and. &
-               sib(sibpt)%diag%tempc < 26.0) then
+       elseif (tempc >  0.0 .and. tempc < 26.0) then
           if ((time%doy >= sib(sibpt)%diag%pd .and. &
                sib(sibpt)%diag%pd > 0) .or. &
                (sib(sibpt)%diag%gdd > 500.)) then
-             sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
-                  sib(sibpt)%diag%tempc
+             sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + tempc
           endif
        endif !temp check
     endif  !biome == 22
@@ -1119,10 +1107,8 @@ contains
        !kdcorbin, 04/11 - modified tests to avoid duplication
        if (sib(sibpt)%diag%pd > 0 .and.  & 
             time%doy >= sib(sibpt)%diag%pd .and.  &
-            sib(sibpt)%diag%tempc >  0.0 .and. &
-            sib(sibpt)%diag%tempc < 35.0) then
-            sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + &
-               sib(sibpt)%diag%tempc
+            tempc >  0.0 .and. tempc < 35.0) then
+            sib(sibpt)%diag%gdd = sib(sibpt)%diag%gdd + tempc
        endif
 
     endif  !biome == 23
@@ -1308,26 +1294,26 @@ contains
 
        if ((sib(sibpt)%diag%gdd >= 105.0 .and. sib(sibpt)%diag%gdd <= 310.0) .or. &
            (sib(sibpt)%diag%gdd >  769.0 .and. sib(sibpt)%diag%gdd < 1074.0)) then             
-          if (sib(sibpt)%diag%tempc <= 2.0) then
+          if (tempc <= 2.0) then
              dgrowth = 0.0
-          elseif (sib(sibpt)%diag%tempc < 10.0) then
+          elseif (tempc < 10.0) then
              dgrowth = dgrowth_opt * &
-                  (0.68 * (sib(sibpt)%diag%tempc-2.)/8.)
-          elseif (sib(sibpt)%diag%tempc < 15.0) then
+                  (0.68 * (tempc - 2.0) / 8.0)
+          elseif (tempc < 15.0) then
              dgrowth = dgrowth_opt * &
-                  (0.68+(0.21 * (sib(sibpt)%diag%tempc-10.)/5.))
-          elseif (sib(sibpt)%diag%tempc < 20.0) then
+                  (0.68 + (0.21 * (tempc - 10.) / 5.0))
+          elseif (tempc < 20.0) then
              dgrowth = dgrowth_opt * &
-                  (0.89+(0.11 * (sib(sibpt)%diag%tempc-15.)/5.))
-          elseif (sib(sibpt)%diag%tempc < 25.0) then
+                  (0.89 + (0.11 * (tempc - 15.) / 5.0))
+          elseif (tempc < 25.0) then
              dgrowth = dgrowth_opt * &
-                  (1.0+(0.03 * (sib(sibpt)%diag%tempc-20.)/5.))
-          elseif (sib(sibpt)%diag%tempc < 30.0) then
+                  (1.0 + (0.03 * (tempc - 20.) / 5.0))
+          elseif (tempc < 30.0) then
              dgrowth = dgrowth_opt * &
-                  (1.03+(0.02 * (sib(sibpt)%diag%tempc-25)/5.0))
-          elseif (sib(sibpt)%diag%tempc < 35.0) then
+                  (1.03 + (0.02 * (tempc - 25) / 5.0))
+          elseif (tempc < 35.0) then
              dgrowth = dgrowth_opt * &
-                  (1.05+(0.01 * (sib(sibpt)%diag%tempc-30)/5.0))
+                  (1.05 + (0.01 * (tempc - 30) / 5.0))
           endif
 
           if (sib(sibpt)%diag%gdd == 105.0 .or. &
@@ -1348,19 +1334,16 @@ contains
     if (int(sib(sibpt)%param%biome) == 23) then
 
        if (sib(sibpt)%diag%gdd >= 105.0 .and. sib(sibpt)%diag%gdd <= 310.0) then
-          if (sib(sibpt)%diag%tempc < -10.0) then
+          if (tempc < -10.0) then
              dgrowth = 0.0
-          elseif (sib(sibpt)%diag%tempc < 0.0) then
+          elseif (tempc < 0.0) then
              dgrowth = dgrowth_opt * 0.01
-          elseif (sib(sibpt)%diag%tempc < 20.0) then
-             dgrowth = dgrowth_opt * &
-                  (0.01 + (0.89 * sib(sibpt)%diag%tempc / 20.0))
-          elseif (sib(sibpt)%diag%tempc < 25.0) then
-             dgrowth = dgrowth_opt * &
-                  (0.9 + (0.1 * (sib(sibpt)%diag%tempc - 20.0) / 5.0))
-          elseif (sib(sibpt)%diag%tempc < 35.0) then
-             dgrowth = dgrowth_opt * &
-                  (1.0 + (0.2 * (sib(sibpt)%diag%tempc - 25.0) / 10.0))
+          elseif (tempc < 20.0) then
+             dgrowth = dgrowth_opt * (0.01 + (0.89 * tempc / 20.0))
+          elseif (tempc < 25.0) then
+             dgrowth = dgrowth_opt * (0.9 + (0.1 * (tempc - 20.0) / 5.0))
+          elseif (tempc < 35.0) then
+             dgrowth = dgrowth_opt * (1.0 + (0.2 * (tempc - 25.0) / 10.0))
           endif
 
           if (time%doy == sib(sibpt)%diag%emerg_d) then
@@ -1399,19 +1382,19 @@ contains
     !EL...Collar and Aksland, 2001, and Blum, 1998.
     !EL...maint. coeff. info from Norman and Arkebauer, 1991)
 
-    temp1 = 0.03 * coeff * (2.0 ** ((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = 0.03 * coeff * (2.0 ** ((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(1) = sib(sibpt)%diag%cum_wt(1) * 0.2 * temp1  
 
     !EL...Maintenance respn coefficients were based on 
     !EL...de Vries et al., 1989 and Wang et al., 1992)
 
-    temp1 = 0.016 * coeff * (2.0**((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = 0.016 * coeff * (2.0**((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(2) = sib(sibpt)%diag%cum_wt(2) * 0.25 * temp1
 
-    temp1 = 0.01 * coeff * (2.0**((sib(sibpt)%diag%tempc-20.0) / 10.0))
+    temp1 = 0.01 * coeff * (2.0**((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(3) = sib(sibpt)%diag%cum_wt(3) * 0.3 * temp1
 
-    temp1 = 0.015 * coeff * (2.0 ** ((sib(sibpt)%diag%tempc - 20.0) / 10.0))
+    temp1 = 0.015 * coeff * (2.0 ** ((tempc - 20.0) / 10.0))
     sib(sibpt)%diag%phen_maintr(4) = sib(sibpt)%diag%cum_wt(4) * 0.5 * temp1
 
     !---------------------------------------------    

@@ -408,8 +408,6 @@ module sibtype
 
      !Crop Model Variables:  (modified by kdcorbin, 01/11)
      real(kind=dbl_kind) :: gdd        ! growing degree days
-     real(kind=dbl_kind) :: tempf      ! daily mean CAS air temp (F)     
-     real(kind=dbl_kind) :: tempc      ! daily mean CAS air temp (C) 
      real(kind=dbl_kind) :: ta_bar     ! daily mean CAS air temp (K)
      ! used for calculating growing degree days
      real(kind=dbl_kind) :: tb_temp    ! for accumulating temperature

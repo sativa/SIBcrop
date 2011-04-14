@@ -349,7 +349,7 @@ real(kind=dbl_kind), dimension(nsib) :: tc
 integer(kind=int_kind), dimension(nsib) :: pd
 integer(kind=int_kind), dimension(nsib) :: emerg_d,ndf_opt,nd_emerg
 
-real(kind=dbl_kind), dimension(nsib) :: tempf
+real(kind=dbl_kind), dimension(nsib) :: ta_bar, tempf
 real(kind=dbl_kind), dimension(nsib) :: assim_d
 real(kind=dbl_kind), dimension(nsib) :: rstfac_d
 real(kind=dbl_kind),dimension(nsib) :: gdd
@@ -490,8 +490,13 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
     ENSURE_VAR( ncid, 'nd_emerg', varid )
     CHECK( nf90_get_var( ncid, varid, nd_emerg ) )
 
-    ENSURE_VAR( ncid, 'tempf', varid )
-    CHECK( nf90_get_var( ncid, varid, tempf ) )
+    if (nf90_inq_varid(ncid, 'ta_bar', varid) == nf90_noerr) then
+       CHECK( nf90_get_var( ncid, varid, ta_bar ) )
+    else !XXX backwards compat
+       ENSURE_VAR( ncid, 'tempf', varid )
+       CHECK( nf90_get_var( ncid, varid, tempf) )
+       ta_bar = (tempf - 32.0) / 1.8 + 273.15
+    endif
 
     ENSURE_VAR( ncid, 'assim_d', varid )
     CHECK( nf90_get_var( ncid, varid, assim_d ) )
@@ -564,8 +569,7 @@ DATA map_totals/31,59,90,120,151,181,212,243,273,304,334/
         sib(i)%diag%ndf_opt = ndf_opt(subset(i))
         sib(i)%diag%nd_emerg = nd_emerg(subset(i))
 
-        sib(i)%diag%tempf = tempf(subset(i))
-        sib(i)%diag%ta_bar = ((sib(i)%diag%tempf-32.)/1.8)+273.15
+        sib(i)%diag%ta_bar = ta_bar(subset(i))
         sib(i)%diag%assim_d = assim_d(subset(i))
         sib(i)%diag%rstfac_d = rstfac_d(subset(i))
         sib(i)%diag%gdd = gdd(subset(i))
