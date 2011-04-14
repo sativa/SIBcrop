@@ -72,7 +72,7 @@ integer(kind=int_kind) :: totssid   ! variable id - totss
 !EL..crop vars added
 integer(kind=int_kind) :: assimdid  !variable id - assim_d; kdcorbin, 02/11
 integer(kind=int_kind) :: rstfacdid       !variable id - rstfac_d; kdcorbin, 02/11
-integer(kind=int_kind) :: tempfid    ! variable id - tempf 
+integer(kind=int_kind) :: ta_barid  ! variable id - ta_bar
 integer(kind=int_kind) :: gddvid    ! variable id - gdd 
 integer(kind=int_kind) :: w_mainid  ! variable id - w_main
 integer(kind=int_kind) :: pdvid     ! variable id - pd 
@@ -115,7 +115,7 @@ integer(kind=int_kind), dimension(nsib) :: nd_emerg
 
 !EL...crop variables (real(kind=dbl_kind))
 
-real(kind=dbl_kind), dimension(nsib) :: tempf,gdd,w_main
+real(kind=dbl_kind), dimension(nsib) :: ta_bar,gdd,w_main
 real(kind=dbl_kind), dimension(nsib) :: assim_d, rstfac_d  !kdcorbin, 02/11
 real(kind=dbl_kind), dimension(nsib,4) :: cum_wt,cum_drywt
 
@@ -164,7 +164,7 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     lz_snow(:,:) = 1.e36
     tot_ss(:,:,:) = 1.e36
 !EL...crop vars added..
-    tempf(:)   = 1.e36
+    ta_bar(:)   = 1.e36
     assim_d(:) = 1.e36
     rstfac_d(:) = 1.e36
     gdd(:)     = 1.e36
@@ -198,14 +198,13 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
         !kdcorbin, 02/11 - changed from tempf, which had previous day info
         !     to save last day's values
         if (sib(i)%diag%tb_indx .gt. 0) then
-            tempf(subset(i)) = (((sib(i)%diag%tb_temp/sib(i)%diag%tb_indx) &
-                                            -273.15)*1.8)+32.
+            ta_bar(subset(i))   = sib(i)%diag%tb_temp/sib(i)%diag%tb_indx
             rstfac_d(subset(i)) = sib(i)%diag%tb_rst/sib(i)%diag%tb_indx
             assim_d(subset(i)) = sib(i)%diag%tb_assim*time%dtsib*12.0
         else
-            print*,'Error with tempf, assim_d and rstfac_d.  Stopping'
+            print*,'Error with ta_bar, assim_d and rstfac_d.  Stopping'
         endif
-        
+
         gdd(subset(i)) = sib(i)%diag%gdd
         w_main(subset(i)) = sib(i)%diag%w_main
         pd(subset(i)) = sib(i)%diag%pd
@@ -335,7 +334,7 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     !EL..define crop vars..
     !EL..define..define vector crop variables...
     
-    CHECK( nf90_def_var( ncid, 'tempf', nf90_double, vdims(2), tempfid)  )
+    CHECK( nf90_def_var( ncid, 'ta_bar', nf90_double, vdims(2), ta_barid)  )
     CHECK( nf90_def_var( ncid, 'assim_d', nf90_double, vdims(2), assimdid)  )
     CHECK( nf90_def_var( ncid, 'rstfac_d', nf90_double, vdims(2), rstfacdid)  )
     CHECK( nf90_def_var( ncid, 'gdd', nf90_double, vdims(2), gddvid)  )
@@ -401,7 +400,7 @@ real(kind=dbl_kind), dimension(12, nsib, nsoil) :: tot_ss
     
     !EL..load the crop vars.
    
-    CHECK( nf90_put_var( ncid, tempfid, tempf ) )
+    CHECK( nf90_put_var( ncid, ta_barid, ta_bar ) )
     CHECK( nf90_put_var( ncid, assimdid, assim_d ) )
     CHECK( nf90_put_var( ncid, rstfacdid, rstfac_d ) )
     CHECK( nf90_put_var( ncid, gddvid, gdd ) )

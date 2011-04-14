@@ -21,8 +21,6 @@ subroutine init_var( sib)
 
   !Crop Variables (modified by kdcorbin, 02/11)
   sib%diag%gdd = 0.
-  sib%diag%tempf = 0.
-  sib%diag%tempc = 0.
   sib%diag%ta_bar = 0.
   sib%diag%tb_temp = 0.
   sib%diag%tb_indx = 0
