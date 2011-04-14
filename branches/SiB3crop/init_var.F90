@@ -51,8 +51,6 @@ subroutine init_var( sib)
 
   sib%diag%tot_biomass= 0.
 
-  sib%diag%year = 0
-  sib%diag%doy = 0
   sib%diag%pd = 0
   sib%diag%emerg_d = 0
   sib%diag%ndf_opt = 0

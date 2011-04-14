@@ -444,8 +444,6 @@ module sibtype
      !real(kind=dbl_kind)	:: prodwt(365)          ! weight of products 
      !   renamed for facilitating respfactor in resp_control.F90 
 
-     integer(kind=int_kind) :: year       ! to represent years with different crops
-     integer(kind=int_kind) :: doy        ! to calculate planting dates and growth stages 
      !   of certain crops
      integer(kind=int_kind) :: pd         ! planting date
      integer(kind=int_kind) :: pd_annual  !switch for limiting crops to one season per year
