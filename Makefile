@@ -91,8 +91,8 @@ ifeq ($(COMPILER),gcc)
   ifeq ($(PROC),powerpc)
     F90FLAGS += -fconvert=little-endian
   endif
-  F90FLAGS += -DPGF -fimplicit-none -Wsurprising $(INCLUDES)
-  F90FLAGS_NOOPT += -DPGF -fimplicit-none -Wsurprising $(INCLUDES)
+  F90FLAGS += -fimplicit-none -Wsurprising $(INCLUDES)
+  F90FLAGS_NOOPT += -fimplicit-none -Wsurprising $(INCLUDES)
   LFLAGS = $(LIBS)
 endif
 
@@ -105,8 +105,8 @@ ifeq ($(COMPILER),pgi)
     F90FLAGS = -g -Mbounds -Ktrap=fp
     F90FLAGS_NOOPT = $(F90FLAGS)
   endif
-  F90FLAGS += -DPGF=1 -Minfo=loop,inline -Minform=inform $(INCLUDES)
-  F90FLAGS_NOOPT += -DPGF=1 -Minfo=loop,inline -Minform=inform $(INCLUDES)
+  F90FLAGS += -Minfo=loop,inline -Minform=inform $(INCLUDES)
+  F90FLAGS_NOOPT += -Minfo=loop,inline -Minform=inform $(INCLUDES)
   LFLAGS   = -v -Minform=inform $(LIBS)
 endif
 
@@ -122,8 +122,8 @@ ifeq ($(COMPILER),ifort)
   ifeq ($(PROC),powerpc)
     F90FLAGS += -convert little_endian
   endif
-  F90FLAGS += -DPGF -implicitnone -warn all $(INCLUDES)
-  F90FLAGS_NOOPT += -DPGF -implicitnone -warn all $(INCLUDES)
+  F90FLAGS += -implicitnone -warn all $(INCLUDES)
+  F90FLAGS_NOOPT += -implicitnone -warn all $(INCLUDES)
   LFLAGS = $(LIBS)
 endif
 
