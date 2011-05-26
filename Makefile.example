@@ -47,6 +47,11 @@ ifndef OPT
   OPT = debug
 endif
 
+# nothing to do
+ifndef PROF
+	PROF = 
+endif
+
 # Non-System Headers and Libraries
 # -------------------------------------------------------------------------
 # BLAS (Basic Linear Algebra System) and LAPACK (Linear Algebra Package)
@@ -91,9 +96,16 @@ ifeq ($(COMPILER),gcc)
   ifeq ($(PROC),powerpc)
     F90FLAGS += -fconvert=little-endian
   endif
-  F90FLAGS += -fimplicit-none -Wsurprising $(INCLUDES)
-  F90FLAGS_NOOPT += -fimplicit-none -Wsurprising $(INCLUDES)
+  ifeq ($(PROF),prof)
+    F90FLAGS += -pg
+	LFLAGS += -pg
+  endif
+  F90FLAGS += -fimplicit-none -Wall -Wsurprising $(INCLUDES)
+  F90FLAGS_NOOPT += -fimplicit-none -Wall -Wsurprising $(INCLUDES)
   LFLAGS = $(LIBS)
+  ifeq ($(PROF),prof)
+	LFLAGS += -pg
+  endif
 endif
 
 ifeq ($(COMPILER),pgi)
