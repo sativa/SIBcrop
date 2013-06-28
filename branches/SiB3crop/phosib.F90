@@ -324,7 +324,7 @@ subroutine phosib(sib,sib_loc)
 
         zkc     = 30. * 2.1**qt
         zko     = 30000. * 1.2**qt
-        spfy    = 2600. * 0.57**qt
+        spfy    = 2600. * 0.75**qt
         gammas  = 0.5 * po2m/spfy * c3
         !itb...check for underflow...
 
